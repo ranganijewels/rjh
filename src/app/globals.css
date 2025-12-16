@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Font variable */
+  --font-montserrat: var(--font-montserrat);
+  --font-source-serif: var(--font-source-serif);
+  /* Color variables from Figma */
+  --teal-1: #2f6f7a;
+  --teal-2: #7fa9ae;
+  --teal-3: #d4dbdc;
+
+  --grey-0: #f2f1f0;
+  --grey-00: #f7f7f7;
+  --grey-1: #efebe7;
+  --grey-2: #222223;
+  --grey-3: #f0f0f2;
+
+  --yellow-gold: #dfc180;
+  --rose-gold: #d4a88b;
+  --white-gold: #ced0d0;
+  --platinum: #e2e2e2;
+
+  --product-bg: #fcfcfc;
+  --placeholder: #767676;
+}
+
+body {
+  background: var(--grey-00);
+  color: var(--foreground);
+  font-family: var(--font-montserrat);
+}
+
+button {
+  cursor: pointer;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hr-teal-3 {
+  border-top: 1px solid var(--teal-3);
+}
+
+.hr-teal-1 {
+  border-top: 1px solid var(--teal-1);
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 375px) {
+  .nav-padding {
+    padding: 24px 15px;
+  }
+
+  .icon-width {
+    width: auto;
+  }
+
+  .icon-gap {
+    gap: 10px;
+  }
+}
+
+/* custom scrollbar */
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--teal-3) transparent;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--teal-3); /* Use CSS variable */
+  border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--teal-3); /* darker version of --teal-3 for hover */
+}
+
+/* ============================= */
+/* Global CMS Typography         */
+/* ============================= */
+
+.cms-content {
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 26px;
+  color: #222;
+}
+
+/* Remove bad inline formatting from Google Docs */
+.cms-content [style*="background-color"] {
+  background-color: transparent !important;
+}
+
+.cms-content [style*="oklch"] {
+  background-color: transparent !important;
+}
+
+.cms-content [style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* Clean text spacing */
+.cms-content p {
+  margin-bottom: 1rem;
+}
+
+/* Headings should use same family */
+.cms-content h1,
+.cms-content h2,
+.cms-content h3,
+.cms-content h4,
+.cms-content h5,
+.cms-content h6 {
+  font-family: inherit;
+}
