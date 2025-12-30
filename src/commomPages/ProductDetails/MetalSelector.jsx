@@ -32,7 +32,7 @@ const MetalSelector = ({
   useActiveSource,
 }) => {
   const { karat, color } = value || {};
-  
+
   useEffect(() => {
     if (!karat || !color) {
       const initialKarat =
@@ -93,6 +93,7 @@ const MetalSelector = ({
               background={getBackground(c)}
               variant="colorPalette"
               onClick={() => {
+                debugger;
                 if (setActiveColor) setActiveColor(c);
                 onChange?.({ karat, color: c });
               }}

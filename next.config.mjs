@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
  // swcMinify: true, // Use SWC for faster builds and smaller bundles
   // images: {
   //   domains: ['https://dev.elovajewel.com/'], // Add your image CDN or external domains

@@ -1,7 +1,7 @@
 import { handleGET } from "@/lib/apiHandler";
 
 export async function GET(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
   const tenantId = req.headers.get("x-tenant-id");
 
   const headers = {

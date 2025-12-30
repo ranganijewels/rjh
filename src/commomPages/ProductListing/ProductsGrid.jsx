@@ -4,13 +4,13 @@ import ProductCard from "@/components/ui/Cards/ProductCard";
 import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
 
 const ProductGrid = ({ gridLayout, collections, loading }) => {
-  const uniqueCollections = collections.filter(
+  const uniqueCollections = collections?.data?.filter(
     (item, index, self) =>
       index ===
       self.findIndex(
         (t) =>
-          t.product_id === item.product_id &&
-          t.product_color === item.product_color
+          t.product_id === item?.product_id &&
+          t.product_color === item?.product_color
       )
   );
 
@@ -22,7 +22,7 @@ const ProductGrid = ({ gridLayout, collections, loading }) => {
         ? Array.from({ length: 5 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))
-        : uniqueCollections.length > 0
+        : uniqueCollections?.length > 0
         ? uniqueCollections
             ?.filter((item) => item?.product_image != null)
             .map((item, index) => {

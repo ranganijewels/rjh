@@ -9,6 +9,6 @@ export const LUXURY_CONSCIENCE = [
   },
   {
     icon: "/icons/leaf.svg",
-    text: "Sustainable at Heart",
+    text: "Sustainable at Heart", 
   },
 ];

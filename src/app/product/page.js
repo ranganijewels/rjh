@@ -4,7 +4,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import React, { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePreferences } from "@/context/PreferencesContext";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 const Page = () => {
   useEffect(() => {
@@ -59,32 +59,77 @@ const Page = () => {
     return payload;
   };
 
-  const {
-    data: products = [],
-    isFetching,
-    isLoading,
-  } = useQuery({
-    queryKey: [
-      "product-list",
-      Object.fromEntries(searchParams.entries()),
-      selectedCountry?.currency,
-    ],
-    queryFn: async () => {
-      const payload = mapParamsToPayload(searchParams);
-      const res = await create(payload, {
-        headers: { currency: selectedCountry?.currency },
-      });
-      return res?.data || [];
-    },
-    staleTime: 1000 * 60 * 5,
-    keepPreviousData: true,
-  });
+  // const {
+  //   data: products = [],
+  //   isFetching,
+  //   isLoading,
+  // } = useQuery({
+  //   queryKey: [
+  //     "product-list",
+  //     Object.fromEntries(searchParams.entries()),
+  //     selectedCountry?.currency,
+  //   ],
+  //   queryFn: async () => {
+  //     const payload = mapParamsToPayload(searchParams);
+  //     const res = await create(payload, {
+  //       headers: { currency: selectedCountry?.currency },
+  //     });
+  //     return res || [];
+  //   },
+  //   staleTime: 1000 * 60 * 5,
+  //   keepPreviousData: true,
+  // });
 
+  const payload = mapParamsToPayload(searchParams);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["product-list", payload, selectedCountry?.currency],
+
+      queryFn: async ({ pageParam = 1 }) => {
+        const res = await create(
+          { ...payload, page: pageParam },
+          { headers: { currency: selectedCountry?.currency } }
+        );
+        return res;
+      },
+
+      getNextPageParam: (lastPage) => {
+        if (!lastPage?.meta) return undefined;
+        if (lastPage.meta.current_page < lastPage.meta.last_page)
+          return lastPage.meta.current_page + 1;
+        return undefined;
+      },
+
+      staleTime: 1000 * 60 * 5,
+    });
+
+  const loaderRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!loaderRef.current || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage();
+      },
+      { threshold: 1 }
+    );
+
+    observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [loaderRef, hasNextPage]);
+  const products = data?.pages?.flatMap((page) => page?.data || []) ?? [];
+  console.log("data", data);
   return (
-    <ProductListing
-      initialProducts={products}
-      loading={isLoading || isFetching}
-    />
+    <>
+      {" "}
+      <ProductListing
+        initialProducts={{ data: products }}
+        loading={isLoading}
+        isFetchingNextPage={isFetchingNextPage}
+      />
+      {hasNextPage && <div ref={loaderRef} style={{ height: 1 }} />}
+    </>
   );
 };
 

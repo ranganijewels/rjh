@@ -11,7 +11,7 @@ import FilterChips from "@/components/ui/FilterChips/FilterChips";
 import useProductGridLogic from "./useProductGridLogic";
 import { useCrudApi } from "@/hooks/useCrudApi";
 
-const ProductListing = ({ initialProducts, loading }) => {
+const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category_id");
   const collection = searchParams.get("collection");
@@ -26,7 +26,6 @@ const ProductListing = ({ initialProducts, loading }) => {
   const [activeFilterIndex, setActiveFilterIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
   const router = useRouter();
-
   const {
     isMobile,
     gridLayout,
@@ -174,7 +173,7 @@ const ProductListing = ({ initialProducts, loading }) => {
             isMobile={isMobile}
             setGridLayout={setGridLayout}
             isActive={isActive}
-            products={initialProducts}
+            products={initialProducts?.data}
           />
         </div>
 
@@ -222,6 +221,12 @@ const ProductListing = ({ initialProducts, loading }) => {
         gridLayout={effectiveLayout()}
         loading={loading}
       />
+
+      {isFetchingNextPage && (
+        <div className="py-10 flex justify-center">
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+        </div>
+      )}
 
       <Newsletter />
     </>
