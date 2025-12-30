@@ -1,30 +1,19 @@
-import { NextResponse } from "next/server";
 import { handleGET } from "@/lib/apiHandler";
 
 export async function GET(req, { params }) {
-  const { id } = params;
-  const url = new URL(req.url);
-let carat = url.searchParams.get("carat");
-  if (carat) {
-    carat = carat.replace(/k/i, "");
-  } else {
-    carat = null;
-  }
-  console.log("Carat Parameter:", carat);
+  const { id } = await params;
 
-  const authHeader = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
-  const currency = req.headers.get("currency");
+  const url = new URL(req.url);
+  let carat = url.searchParams.get("carat");
+  carat = carat ? carat.replace(/k/i, "") : null;
 
   const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Authorization: authHeader,
-    currency: currency,
+    "x-tenant-id": req.headers.get("x-tenant-id"),
+    currency: req.headers.get("currency"),
+    Accept: "application/json",
   };
 
-  let apiPath = `/api/store-web/customer/product-detail/${id}`;
-
+  let apiPath = `api/store-web/customer/product-detail/${id}`;
   if (carat) {
     apiPath = `/api/store-web/customer/product-detail/${id}/${carat}`;
   }

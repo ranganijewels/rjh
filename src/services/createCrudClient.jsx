@@ -11,7 +11,6 @@ export const createCrudClient = (baseUrl) => {
     ...(storeId && { "x-tenant-id": storeId }),
     Accept: "application/json",
     ...(customerId && { "x-customer-id": customerId }),
-    // ❌ NO DEFAULT CONTENT-TYPE — LET create() HANDLE IT
   });
 
   return {
@@ -23,48 +22,52 @@ export const createCrudClient = (baseUrl) => {
       return res.json();
     },
 
-    fetchById: async (idOrPath, extraOptions = {}, raw = false) => {
-      const url = `${baseUrl}/${idOrPath}`;
+    fetchById: async (idOrPath, options = {}) => {
+      const { headers = {}, query = {}, raw = false } = options;
 
-      const mergedHeaders = {
-        ...getAuthHeaders(),
-        ...(extraOptions.headers || {}),
-      };
+      const queryString = new URLSearchParams(query).toString();
+      const url = queryString
+        ? `${baseUrl}/${idOrPath}?${queryString}`
+        : `${baseUrl}/${idOrPath}`;
 
       const res = await fetch(url, {
         method: "GET",
-        ...extraOptions,
-        headers: mergedHeaders,
+        headers: {
+          ...getAuthHeaders(),
+          ...headers,
+        },
+        // credentials: "include",
       });
 
       if (!res.ok) {
-        const errorText = await res.text().catch(() => "No error body");
-        console.error("handleGETFile error:", {
-          url,
-          status: res.status,
-          errorText,
-        });
-        throw new Error(
-          `Failed to fetch by ID. URL: ${url}, Status: ${res.status}, Error: ${errorText}`
-        );
+        const text = await res.text().catch(() => "");
+        throw new Error(`FetchById failed (${res.status}): ${text}`);
       }
 
-      if (raw) return res;
-
-      const contentType = res.headers.get("content-type") || "";
-
-      if (contentType.includes("application/json")) {
-        return res.json();
-      } else if (
-        contentType.includes("application/pdf") ||
-        contentType.includes("application/octet-stream")
-      ) {
-        return res.blob();
-      } else {
-        return res.text();
-      }
+      return raw ? res : res.json();
     },
 
+    create: async (payload) => {
+      const finalPayload = {
+        ...payload,
+      };
+
+      const res = await fetch(baseUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify(finalPayload),
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || "Failed to create record");
+      }
+
+      return res.json();
+    },
     // inside useCrudApi
     // create: async (payload = null, extra = {}, dynamicId) => {
     //   let url = baseUrl;

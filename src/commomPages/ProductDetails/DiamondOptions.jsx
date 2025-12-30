@@ -20,6 +20,7 @@ const DiamondOptions = ({
   showSizeSection,
   selectedCarat,
   setSelectedCarat,
+  occasion,
 }) => {
   /** ---------------- SHAPE SCROLL ---------------- */
   const {
@@ -51,6 +52,7 @@ const DiamondOptions = ({
   const activeRef = useRef(null);
   const searchParams = useSearchParams();
   const shapeFromUrl = searchParams.get("shape");
+  const didInitShape = useRef(false);
 
   const [stableVariants, setStableVariants] = useState([]);
   const [selectedShapeLabel, setSelectedShapeLabel] = useState("");
@@ -127,7 +129,8 @@ const DiamondOptions = ({
     if (activeVariant) {
       setSelectedShapeLabel(toTitleCase(getDisplayShape(activeVariant)));
     }
-  }, [activeVariant]);
+    setSelectedShapeLabel(occasion?.custom_title || "");
+  }, []);
 
   /** ---------------- AUTO SELECT DEFAULT CARAT ---------------- */
 
@@ -244,7 +247,8 @@ const DiamondOptions = ({
               const isActive =
                 String(shapeFromUrl)?.toLowerCase() ===
                   String(getDisplayShape(variant))?.toLowerCase() ||
-                designNo === variant.designno;
+                designNo === variant.designno ||
+                variant?.shape === productInfo?.occasion?.name;
 
               return (
                 <div
@@ -354,7 +358,9 @@ const DiamondOptions = ({
         )}
 
       {/* ---------- SIZE SECTION ---------- */}
-      {productInfo?.productsizevariant?.some((v) => v.size) && (
+      {productInfo?.productsizevariant?.some((v) =>
+        ["small", "medium", "large"].includes(v?.size?.toLowerCase())
+      ) && (
         <div className="space-y-4">
           <HeadingWithNavigation
             title="Size :"

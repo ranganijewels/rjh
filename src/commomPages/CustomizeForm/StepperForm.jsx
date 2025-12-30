@@ -42,7 +42,7 @@ const StepperForm = () => {
   const stepOneRef = useRef();
   const stepTwoRef = useRef();
   const stepThreeRef = useRef();
-  const stepFourRef = useRef();
+  const stepFourRef = useRef(); 
   const [stepTwoData, setStepTwoData] = useState({
     colorRange: ["D", "E", "F", "G", "H", "I"],
     cutRange: ["Excellent", "Ideal", "Very Good", "Good"],
@@ -62,10 +62,12 @@ const StepperForm = () => {
   };
 
   const nextStep = () => {
+    debugger;
     toast.dismiss();
     let isValid = true;
 
     if (currentStep === 1) {
+      debugger;
       const result = stepTwoRef.current?.validate();
       if (!result?.isValid) return;
 
@@ -121,6 +123,7 @@ const StepperForm = () => {
   });
 
   const handleCustomSubmit = async () => {
+    debugger;
     const stepFourData = stepFourRef.current?.validateAndGetData();
     if (!stepFourData) return;
     const base64Files = await convertFilesToBase64(files);

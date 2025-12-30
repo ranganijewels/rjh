@@ -11,7 +11,7 @@ export async function POST(req) {
     "x-tenant-id": tenantId,
     Authorization: `Bearer ${token}`,
     "x-customer-id": customerId,
-    currency: currency
+    currency: currency,
   };
 
   return handlePOST(req, `/api/store-web/customer/product-list`, headers);
