@@ -62,12 +62,10 @@ const StepperForm = () => {
   };
 
   const nextStep = () => {
-    debugger;
     toast.dismiss();
     let isValid = true;
 
     if (currentStep === 1) {
-      debugger;
       const result = stepTwoRef.current?.validate();
       if (!result?.isValid) return;
 
@@ -123,7 +121,6 @@ const StepperForm = () => {
   });
 
   const handleCustomSubmit = async () => {
-    debugger;
     const stepFourData = stepFourRef.current?.validateAndGetData();
     if (!stepFourData) return;
     const base64Files = await convertFilesToBase64(files);

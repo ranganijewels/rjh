@@ -17,7 +17,7 @@ import { getCurrencySymbol } from "@/utils/currencySymbol";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
-  { id: "express", label: "Express", price: 10 },
+  // { id: "express", label: "Express", price: 10 },
 ];
 
 const Cart = () => {
@@ -25,7 +25,6 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponDetails, setCouponDetails] = useState([]);
-
   const dispatch = useDispatch();
   const router = useRouter();
   const { token } = useSelector((state) => state.auth);
@@ -43,9 +42,11 @@ const Cart = () => {
 
   const handleCoupon = async () => {
     try {
-      await dispatch(applyCoupon(couponCode)).unwrap();
+      const data = await dispatch(applyCoupon(couponCode)).unwrap();
+      setCouponDetails(data);
       toast.success("Coupon Applied");
     } catch (err) {
+      setCouponDetails(null);
       toast.error(err || "Failed to apply coupon");
     }
   };
@@ -105,7 +106,7 @@ const Cart = () => {
             >
               <div className="px-[21px] py-[12px] bg-[var(--product-bg)]">
                 <img
-                  src={item?.image}
+                  src={item?.media_image}
                   alt={item?.product_name}
                   className="h-[122px] w-[122px] object-cover"
                 />
@@ -118,6 +119,21 @@ const Cart = () => {
                 <Typography variant="h6" className="md:block hidden">
                   {item?.product_description}
                 </Typography>
+                <Typography variant="h6" className="md:block hidden">
+                  Metal:{" "}
+                  {item?.metal_type +
+                    " " +
+                    toTitleCase(item?.metal_color) +
+                    " Gold"}
+                </Typography>
+                <Typography variant="h6" className="md:block hidden">
+                  Stone Shape: {item?.diamond_shape}
+                </Typography>
+                {item?.ring_size && (
+                  <Typography variant="h6" className="md:block hidden">
+                    Size: {item?.ring_size}
+                  </Typography>
+                )}
               </div>
 
               <QuantitySelector
@@ -139,10 +155,10 @@ const Cart = () => {
         <div className="lg:w-[30%] w-full 2xl:pl-[84px] lg:pl-[24px] lg:py-[24px] space-y-[16px] lg:border-l lg:border-l-[var(--teal-3)]">
           <div>
             {" "}
-            <Typography variant="h4" className="font-[500]">
+            <Typography variant="h4" className="font-[500] mb-8">
               Cart summary
             </Typography>
-            <div className="space-y-[12px]">
+            <div className="space-y-[12px] mb-6">
               {shippingOptions?.map((option) => (
                 <RadioButton
                   key={option?.id}
@@ -178,7 +194,7 @@ const Cart = () => {
                 <Typography variant="h5" className="font-[500]">
                   {getCurrencySymbol(selectedCountry?.currency)}
                   {Number(
-                    couponDetails?.final_total ?? summary?.cart_total ?? 0
+                    couponDetails?.final_total || summary?.cart_total || 0
                   ).toFixed(2)}
                 </Typography>
               </div>

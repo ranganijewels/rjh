@@ -52,8 +52,6 @@ const DiamondOptions = ({
   const activeRef = useRef(null);
   const searchParams = useSearchParams();
   const shapeFromUrl = searchParams.get("shape");
-  const didInitShape = useRef(false);
-
   const [stableVariants, setStableVariants] = useState([]);
   const [selectedShapeLabel, setSelectedShapeLabel] = useState("");
   const [selectedSize, setSelectedSize] = useState(null);

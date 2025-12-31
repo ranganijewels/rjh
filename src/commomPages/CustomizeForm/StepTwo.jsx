@@ -35,7 +35,6 @@ const StepTwo = forwardRef(({ data, setData }, ref) => {
   const [matchedCategory, setMatchedCategory] = useState(null);
   const [availableSizes, setAvailableSizes] = useState([]);
   const [selectedShape, setSelectedShape] = useState(null);
-  console.log("sizes", sizes);
   const sizeFromUrl = searchParams.get("size");
 
   const setField = (field, value) =>
@@ -157,7 +156,6 @@ const StepTwo = forwardRef(({ data, setData }, ref) => {
       };
     },
   }));
-  console.log("data", data);
 
   /* ---------------- RENDER ---------------- */
   return (
