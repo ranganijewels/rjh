@@ -10,7 +10,7 @@ import JewelryCTA from "@/components/common/JewelryCTA";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { useHomepageData } from "../Home/useHomepageData";
 
-const About = () => {
+const About = () => { 
   const [aboutData, setAboutData] = useState([]);
   const { fetchAll } = useCrudApi(`/api/about`);
   const { homeData } = useHomepageData();
