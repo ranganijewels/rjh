@@ -93,7 +93,6 @@ const MetalSelector = ({
               background={getBackground(c)}
               variant="colorPalette"
               onClick={() => {
-                debugger;
                 if (setActiveColor) setActiveColor(c);
                 onChange?.({ karat, color: c });
               }}

@@ -762,7 +762,7 @@
 //                 </div>
 //                 <Typography variant="p" className="font-[600]">
 //                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-//                   {(items.subtotal ?? 0)?.toFixed(2)}
+//                   {(items.subtotal ?? 0)}
 //                 </Typography>
 //               </div>
 //             ))}
@@ -778,7 +778,7 @@
 //                 className="font-[600] text-[var(--teal-1)]"
 //               >
 //                 - {getCurrencySymbol(selectedCountry?.currency)}
-//                 {summary?.discount?.toFixed(2)}{" "}
+//                 {summary?.discount}{" "}
 //                 <span className="cursor-pointer" onClick={handleRemoveCoupon}>
 //                   [Remove]
 //                 </span>
@@ -791,7 +791,7 @@
 //             </Typography>
 //             <Typography variant="h5" className="font-[600]">
 //               {getCurrencySymbol(selectedCountry?.currency)}
-//               {shipping ?? shipping?.toFixed(2)}
+//               {shipping ?? shipping}
 //             </Typography>
 //           </div>
 //           <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
@@ -800,7 +800,7 @@
 //             </Typography>
 //             <Typography variant="h5" className="font-[600]">
 //               {getCurrencySymbol(selectedCountry?.currency)}
-//               {summary?.cart_total && summary?.cart_total?.toFixed(2)}
+//               {summary?.cart_total && summary?.cart_total}
 //             </Typography>
 //           </div>
 //           <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
@@ -809,7 +809,7 @@
 //             </Typography>
 //             <Typography variant="h4" className="font-[600]">
 //               {getCurrencySymbol(selectedCountry?.currency)}
-//               {summary?.cart_total ?? summary?.cart_total?.toFixed(2)}
+//               {summary?.cart_total ?? summary?.cart_total}
 //             </Typography>
 //           </div>
 //         </div>
@@ -914,7 +914,6 @@ const CheckOutDetails = () => {
   const { cartItems, summary, loading, error, shipping, coupon } = useSelector(
     (state) => state.cart
   );
-
   const shippingCharge = useSelector((state) => state.cart.shipping);
   const { create } = useCrudApi(`/api/cart/place-order`);
   const { create: removeCouponApi } = useCrudApi(`/api/cart/remove-coupon`);
@@ -967,7 +966,7 @@ const CheckOutDetails = () => {
       console.error("Error placing order:", error);
       toast.error("Failed to place order");
     } finally {
-      setPlacingOrder(false); // stop loading
+      setPlacingOrder(false);
     }
   };
 
@@ -1586,7 +1585,7 @@ const CheckOutDetails = () => {
                 </div>
                 <Typography variant="p" className="font-[600]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {(items.subtotal ?? 0)?.toFixed(2)}
+                  {items.subtotal ?? 0}
                 </Typography>
               </div>
             ))}
@@ -1602,7 +1601,7 @@ const CheckOutDetails = () => {
                 className="font-[600] text-[var(--teal-1)]"
               >
                 - {getCurrencySymbol(selectedCountry?.currency)}
-                {summary?.discount?.toFixed(2)}{" "}
+                {summary?.discount}{" "}
                 <span className="cursor-pointer" onClick={handleRemoveCoupon}>
                   [Remove]
                 </span>
@@ -1615,7 +1614,7 @@ const CheckOutDetails = () => {
             </Typography>
             <Typography variant="h5" className="font-[600]">
               {getCurrencySymbol(selectedCountry?.currency)}
-              {shipping ?? shipping?.toFixed(2)}
+              {shipping ?? shipping}
             </Typography>
           </div>
           <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
@@ -1624,7 +1623,7 @@ const CheckOutDetails = () => {
             </Typography>
             <Typography variant="h5" className="font-[600]">
               {getCurrencySymbol(selectedCountry?.currency)}
-              {summary?.cart_total && summary?.cart_total?.toFixed(2)}
+              {summary?.cart_total && summary?.cart_total}
             </Typography>
           </div>
           <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
@@ -1633,7 +1632,7 @@ const CheckOutDetails = () => {
             </Typography>
             <Typography variant="h4" className="font-[600]">
               {getCurrencySymbol(selectedCountry?.currency)}
-              {summary?.cart_total ?? summary?.cart_total?.toFixed(2)}
+              {summary?.grand_total}
             </Typography>
           </div>
         </div>
