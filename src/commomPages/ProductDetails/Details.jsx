@@ -112,7 +112,6 @@ const Details = () => {
   }, [selectedVariantId, selectedCountry]);
 
   // useEffect(() => {
-  //   console.log("Fetching product with ID:", selectedVariantId);
   // }, [selectedVariantId]);
 
   // useEffect(() => {

@@ -1,19 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CouponIcon } from "@/components/Icons/common";
+import { CouponIcon, MinusIcon } from "@/components/Icons/common";
 import Button from "@/components/ui/Button/Button";
 import RadioButton from "@/components/ui/Button/RadioButton";
 import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { applyCoupon, fetchCart, setShipping } from "@/store/slices/cartSlice";
+import { fetchCart, setShipping } from "@/store/slices/cartSlice";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import QuantitySelector from "./QuantitySelector";
 import { toTitleCase } from "@/utils/string";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
+import { useCoupon } from "@/hooks/useCoupon";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
@@ -22,10 +23,10 @@ const shippingOptions = [
 
 const Cart = () => {
   const [selectedShipping, setSelectedShipping] = useState(0);
-  const [couponCode, setCouponCode] = useState("");
-  const [couponError, setCouponError] = useState("");
-  const [couponDetails, setCouponDetails] = useState([]);
   const dispatch = useDispatch();
+  const { apply, remove, loading, error, setError, couponCode, setCouponCode } =
+    useCoupon();
+
   const router = useRouter();
   const { token } = useSelector((state) => state.auth);
   const { cartItems, summary } = useSelector((state) => state.cart);
@@ -41,23 +42,15 @@ const Cart = () => {
   }, [dispatch, token, selectedCountry?.currency]);
 
   const handleCoupon = async () => {
-    try {
-      const data = await dispatch(applyCoupon(couponCode)).unwrap();
-      setCouponDetails(data);
-      toast.success("Coupon Applied");
-    } catch (err) {
-      setCouponDetails(null);
-      toast.error(err || "Failed to apply coupon");
-    }
+    const success = await apply(couponCode);
+    if (success) setCouponCode("");
   };
 
-  // Checkout handler
   const handleCheckout = () => {
     dispatch(setShipping(selectedShipping));
     router.push("/cart/checkout");
   };
 
-  // Update cart quantity
   const handleUpdateQuantity = async (cart_item_id, quantity) => {
     const payload = { cart_items: [{ cart_item_id, quantity }] };
     const response = await updateQuantities(payload);
@@ -81,7 +74,7 @@ const Cart = () => {
 
   return (
     <section>
-      <div className="lg:flex-row flex-col flex 2xl:gap-[166px] gap-[50px] lg:py-[80px] py-[40px]">
+      <div className="lg:flex-row flex-col flex 2xl:gap-[112px] gap-[50px] lg:py-[80px] py-[40px]">
         {/* Cart Items */}
         <div className="lg:w-[70%] w-full">
           <div className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] border-b pb-[24px] border-[var(--teal-3)]">
@@ -101,14 +94,14 @@ const Cart = () => {
 
           {cartItems?.map((item) => (
             <div
-              key={item?.product_id}
+              key={item?.cart_item_id}
               className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center border-b border-b-[var(--teal-3)]"
             >
-              <div className="px-[21px] py-[12px] bg-[var(--product-bg)]">
+              <div className="px-0 py-[12px] bg-[var(--product-bg)]">
                 <img
                   src={item?.media_image}
                   alt={item?.product_name}
-                  className="h-[122px] w-[122px] object-cover"
+                  className="h-[122px] w-full object-fill"
                 />
               </div>
 
@@ -142,22 +135,73 @@ const Cart = () => {
               />
 
               <Typography variant="p" className="font-[600]">
-                {getCurrencySymbol(selectedCountry?.currency)}
-                {typeof item.subtotal === "number"
-                  ? item?.subtotal.toFixed(2)
-                  : "0.00"}
+                {getCurrencySymbol(selectedCountry?.currency) + " "}
+                {typeof item.subtotal === "number" ? item?.subtotal : "0.00"}
               </Typography>
             </div>
           ))}
         </div>
 
         {/* Cart Summary */}
-        <div className="lg:w-[30%] w-full 2xl:pl-[84px] lg:pl-[24px] lg:py-[24px] space-y-[16px] lg:border-l lg:border-l-[var(--teal-3)]">
+        <div className="lg:w-[30%] w-full 2xl:pl-[44px] lg:pl-[24px] lg:border-l lg:border-l-[var(--teal-3)] lg:sticky lg:top-[120px] h-fit">
+          {/* Coupon Section */}
           <div>
-            {" "}
-            <Typography variant="h4" className="font-[500] mb-8">
+            <Typography variant="h5" className="font-[500]">
+              Have a coupon?
+            </Typography>
+            <Typography
+              variant="h5"
+              className="font-[500]"
+              textColor="customGrey"
+            >
+              Add your code for an instant cart discount
+            </Typography>
+            <InputWithIconButton
+              icon={<CouponIcon className="w-5 h-5" />}
+              inputProps={{
+                placeholder: "Coupon Code",
+                value: couponCode,
+                onChange: (e) => {
+                  setCouponCode(e.target.value);
+                  setCouponError("");
+                },
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCoupon();
+                  }
+                },
+              }}
+              // buttonTitle="Apply"
+              className=" w-full"
+              onButtonClick={handleCoupon}
+            />
+            {error && (
+              <Typography variant="h6" className="mt-2 text-red-500">
+                {error}
+              </Typography>
+            )}
+
+            {summary?.coupon_code && (
+              <div className="inline-flex items-center justify-between gap-2 bg-[var(--product-bg)] border border-[var(--teal-3)] rounded-[5px] px-3 py-1 mt-3">
+                <span className="flex items-center gap-1 text-sm font-medium">
+                  <CouponIcon className="w-3 h-3" />
+                  {summary?.coupon_code}
+                </span>
+
+                <button onClick={remove} className="text-sm font-semibold">
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-[16px] mt-8">
+            <Typography variant="h4" className="font-[500] mb-4">
               Cart summary
             </Typography>
+
+            {/* SHIPPING */}
             <div className="space-y-[12px] mb-6">
               {shippingOptions?.map((option) => (
                 <RadioButton
@@ -170,35 +214,68 @@ const Cart = () => {
                   <div className="flex justify-between w-full">
                     <span>{option?.label} shipping</span>
                     <span>
-                      {getCurrencySymbol(selectedCountry?.currency)}
+                      {getCurrencySymbol(selectedCountry?.currency)}{" "}
                       {option?.price}
                     </span>
                   </div>
                 </RadioButton>
               ))}
             </div>
+
+            {/* TOTALS */}
             <div>
-              <div className="flex justify-between py-[13px] border-b border-b-[var(--teal-3)]">
-                <Typography variant="h5" className="font-[500]">
-                  Cart total
+              {/* SUBTOTAL */}
+              <div className="flex justify-between py-[13px]">
+                <Typography variant="h6" className="font-[500]">
+                  Subtotal
                 </Typography>
-                <Typography variant="h5" className="font-[500]">
-                  {getCurrencySymbol(selectedCountry?.currency)}
-                  {Number(summary?.cart_total ?? 0).toFixed(2)}
+                <Typography variant="h6" className="font-[500]">
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.cart_total ?? 0)}
                 </Typography>
               </div>
-              <div className="flex justify-between py-[13px]">
-                <Typography variant="h5" className="font-[500]">
+
+              {/* DISCOUNT ROW */}
+              {summary?.coupon_code && (
+                <>
+                  {" "}
+                  <Typography variant="h6" className="font-[500]">
+                    Order discount
+                  </Typography>
+                  <div className="flex justify-between items-center py-[13px] whitespace-nowrap gap-3">
+                    <Typography
+                      variant="h6"
+                      className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
+                      textColor="customGrey"
+                    >
+                      <CouponIcon className="w-5 h-5" />
+                      {summary?.coupon_code}
+                    </Typography>
+
+                    <Typography
+                      variant="h6"
+                      className="font-[500] flex items-center gap-1 whitespace-nowrap "
+                    >
+                      <MinusIcon />
+                      {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                      {Number(summary?.grand_total)}
+                    </Typography>
+                  </div>
+                </>
+              )}
+
+              {/* TOTAL */}
+              <div className="flex justify-between py-[13px] border-t border-t-[var(--teal-3)]">
+                <Typography variant="h5" className="font-[600]">
                   Total
                 </Typography>
-                <Typography variant="h5" className="font-[500]">
-                  {getCurrencySymbol(selectedCountry?.currency)}
-                  {Number(
-                    couponDetails?.final_total || summary?.cart_total || 0
-                  ).toFixed(2)}
+                <Typography variant="h5" className="font-[600]">
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.grand_total ?? 0)}
                 </Typography>
               </div>
             </div>
+
             <Button
               onClick={handleCheckout}
               title="Checkout"
@@ -206,38 +283,6 @@ const Cart = () => {
             />
           </div>
         </div>
-      </div>
-
-      {/* Coupon Section */}
-      <div>
-        <Typography variant="h5" className="font-[500]">
-          Have a coupon?
-        </Typography>
-        <Typography variant="h5" className="font-[500]" textColor="customGrey">
-          Add your code for an instant cart discount
-        </Typography>
-        <InputWithIconButton
-          icon={<CouponIcon className="w-5 h-5" />}
-          inputProps={{
-            placeholder: "Coupon Code",
-            value: couponCode,
-            onChange: (e) => setCouponCode(e.target.value),
-            onKeyDown: (e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleCoupon();
-              }
-            },
-          }}
-          buttonTitle="Apply"
-          className="lg:w-[442px] w-full mt-[16px]"
-          onButtonClick={handleCoupon}
-        />
-        {couponError && (
-          <Typography variant="h6" className="mt-2 text-red-500">
-            {couponError}
-          </Typography>
-        )}
       </div>
     </section>
   );
