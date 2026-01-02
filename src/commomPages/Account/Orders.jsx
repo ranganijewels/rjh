@@ -45,12 +45,34 @@ const Orders = () => {
     return (numericPrice * quantity).toFixed(2);
   };
 
+  // const handleViewInvoice = async (id, download = false) => {
+  //   try {
+  //     const blob = await fetchById(id);
+
+  //     const url = window.URL.createObjectURL(blob);
+  //     window.open(url, "_blank");
+
+  //     if (download) {
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       link.download = `invoice-${id}.pdf`;
+  //       document.body.appendChild(link);
+  //       link.click();
+  //       document.body.removeChild(link);
+  //     } else {
+  //       window.open(url, "_blank");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching invoice:", err);
+  //   }
+  // };
+
   const handleViewInvoice = async (id, download = false) => {
     try {
-      const blob = await fetchById(id);
+      const res = await fetchById(id, { raw: true });
 
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
 
       if (download) {
         const link = document.createElement("a");
@@ -62,6 +84,8 @@ const Orders = () => {
       } else {
         window.open(url, "_blank");
       }
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err) {
       console.error("Error fetching invoice:", err);
     }
