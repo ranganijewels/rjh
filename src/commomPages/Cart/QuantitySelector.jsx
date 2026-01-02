@@ -23,7 +23,7 @@ const QuantitySelector = ({ item, handleQuantities }) => {
   };
 
   return (
-    <div className="p-[12px_8px] flex gap-[13px] justify-between items-center border rounded-[4px] border-[var(--grey-1)]">
+    <div className="p-[4px_8px] w-[100px] flex gap-[13px] justify-between items-center border rounded-[4px] border-[var(--grey-1)]">
       <Button
         icon={<MinusIcon />}
         iconOnly
