@@ -13,14 +13,12 @@ export async function handleGET(apiPath, headers = {}, queryParams = {}) {
       headers,
       cache: "no-store",
     });
-    console.log("apiHandler handleGET response:", { url, status: res.status, ok: res.ok });
 
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ error: "Failed to fetch data" }));
-      return NextResponse.json(
-        errorData,
-        { status: res.status }
-      );
+      const errorData = await res
+        .json()
+        .catch(() => ({ error: "Failed to fetch data" }));
+      return NextResponse.json(errorData, { status: res.status });
     }
 
     const contentType = res.headers.get("content-type");

@@ -119,7 +119,6 @@ const Page = () => {
     return () => observer.disconnect();
   }, [loaderRef, hasNextPage]);
   const products = data?.pages?.flatMap((page) => page?.data || []) ?? [];
-  console.log("data", data);
   return (
     <>
       {" "}

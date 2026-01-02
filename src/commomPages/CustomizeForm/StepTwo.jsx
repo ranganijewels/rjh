@@ -299,6 +299,16 @@ const StepTwo = forwardRef(({ data, setData }, ref) => {
   const category = searchParams.get("category_id");
   const { create } = useCrudApi("/api/product/filters");
   const [filtersData, setFiltersData] = useState([]);
+  // const [sizes, setSizes] = useState([]);
+  // const [matchedCategory, setMatchedCategory] = useState(null);
+  // const [availableSizes, setAvailableSizes] = useState([]);
+  // const [selectedShape, setSelectedShape] = useState(null);
+  const sizeFromUrl = searchParams.get("size");
+
+  // const setField = (field, value) =>
+  //   setData((prev) => ({ ...prev, [field]: value }));
+
+  /* ---------------- FETCH FILTERS ---------------- */
   useEffect(() => {
     const fetchFilters = async () => {
       try {
