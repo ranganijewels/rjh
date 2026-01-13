@@ -7,6 +7,7 @@ import faqReducer from "@/store/slices/faqSlice";
 import productListReducer from "@/store/slices/productListSlice";
 import filtersReducer from "@/store/slices/filtersSlice";
 import orderReducer from "@/store/slices/orderSlice";
+import wishlistReducer from "@/store/slices/wishlistSlice";
 
 const authPersistConfig = {
   key: "auth_Elova",
@@ -23,11 +24,20 @@ const productPersistConfig = {
   storage,
 };
 
+const wishlistPersistConfig = {
+  key: "wishlist_Elova",
+  storage,
+};
+
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
 const persistedCartReducer = persistReducer(cartPersistConfig, cartReducer);
 const persistedProductReducer = persistReducer(
   productPersistConfig,
   productListReducer
+);
+const persistedWishlistReducer = persistReducer(
+  wishlistPersistConfig,
+  wishlistReducer
 );
 
 export const store = configureStore({
@@ -38,6 +48,7 @@ export const store = configureStore({
     productList: persistedProductReducer,
     filters: filtersReducer,
     order: orderReducer,
+    wishlist: persistedWishlistReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

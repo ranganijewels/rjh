@@ -70,6 +70,26 @@ const DiamondOptions = ({
     }
   }, [variantList]);
 
+  const filteredVariants = useMemo(() => {
+    if (!variantList?.length) return [];
+
+    return variantList.filter((v) => {
+      if (!v?.designno) return true;
+
+      const base = v.designno.replace(/-\d+$/, "");
+
+      return !variantList.some(
+        (other) => other !== v && other.designno === base
+      );
+    });
+  }, [variantList]);
+
+  useEffect(() => {
+    if (filteredVariants.length && stableVariants.length === 0) {
+      setStableVariants(filteredVariants);
+    }
+  }, [filteredVariants, stableVariants]);
+
   useEffect(() => {
     if (productInfo?.productsizevariant?.length > 0) {
       setTimeout(() => {
@@ -361,7 +381,7 @@ const DiamondOptions = ({
       ) && (
         <div className="space-y-4">
           <HeadingWithNavigation
-            title="Size :"
+            title="Width :"
             label={selectedSize || ""}
             onPrev={() => sizeScroll("prev")}
             onNext={() => sizeScroll("next")}

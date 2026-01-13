@@ -1,26 +1,15 @@
-// src/services/apiService.js
-
-
-// const apiBaseUrl = env.API_URL
-
 export const fetchMarqueeData = async () => {
   const res = await fetch(`${apiBaseUrl}/marquee`, {
-    cache: 'no-store',
+    cache: "no-store",
   });
-  if (!res.ok) throw new Error('Failed to fetch marquee');
+  if (!res.ok) throw new Error("Failed to fetch marquee");
   return res.json();
 };
 
 export const fetchSocialLinks = async () => {
   const res = await fetch(`${apiBaseUrl}/social-links`, {
-    cache: 'no-store',
+    cache: "no-store",
   });
-  if (!res.ok) throw new Error('Failed to fetch social-links');
-  return res.json();
-};
-
-export const fetchWishlist = async () => {
-
-  if (!res.ok) throw new Error('Failed to fetch wishlist');
+  if (!res.ok) throw new Error("Failed to fetch social-links");
   return res.json();
 };

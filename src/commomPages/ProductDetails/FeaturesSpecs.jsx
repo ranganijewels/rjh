@@ -95,11 +95,13 @@ const FeaturesSpecs = ({
       .filter((d) => d.center === 0)
       .reduce((sum, d) => sum + parseFloat(d.wt || 0), 0);
 
-      
-      return total.toFixed(3) + " CT";
-    }, [productDetail]);
-    
-    const totalPcs = productDetail.diamonds?.reduce((sum, d) => sum + (d.pcs || 0), 0);
+    return total.toFixed(3) + " CT";
+  }, [productDetail]);
+
+  const totalPcs = productDetail.diamonds?.reduce(
+    (sum, d) => sum + (d.pcs || 0),
+    0
+  );
 
   useEffect(() => {
     if (items.length === 0) {
@@ -124,7 +126,7 @@ const FeaturesSpecs = ({
         productDetail?.diamonds?.[0]?.color +
           " - " +
           productDetail?.diamonds?.[0]?.quality || "-",
-       totalPcs|| "-",
+        totalPcs || "-",
         ...(hasCenterDiamond ? [formatCarat(selectedCarat) || "-"] : []),
         ...(hasSideStones ? [sideStoneWeight] : []),
       ],

@@ -47,54 +47,6 @@ export const createCrudClient = (baseUrl) => {
       return raw ? res : res.json();
     },
 
-    create: async (payload) => {
-      const finalPayload = {
-        ...payload,
-      };
-
-      const res = await fetch(baseUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-        body: JSON.stringify(finalPayload),
-      });
-
-      if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to create record");
-      }
-
-      return res.json();
-    },
-    // inside useCrudApi
-    // create: async (payload = null, extra = {}, dynamicId) => {
-    //   let url = baseUrl;
-    //   if (dynamicId) url = `${baseUrl}/${dynamicId}`;
-
-    //   const hasPayload = payload !== null && payload !== undefined;
-    //   const headers = {
-    //     ...getAuthHeaders(),
-    //     "x-tenant-id": process.env.NEXT_PUBLIC_TENANT_ID || "",
-    //     ...(hasPayload && { "Content-Type": "application/json" }),
-    //     ...extra.headers,
-    //   };
-
-    //   const res = await fetch(url, {
-    //     method: "POST",
-    //     headers,
-    //     ...(hasPayload && { body: JSON.stringify(payload) }),
-    //   });
-
-    //   if (!res.ok) {
-    //     const errorData = await res.json().catch(() => ({}));
-    //     throw new Error(errorData.message || "Failed to perform POST request");
-    //   }
-
-    //   return res.json();
-    // },
-
     create: async (payload = null, extra = {}, dynamicId) => {
       let url = baseUrl;
       if (dynamicId) url = `${baseUrl}/${dynamicId}`;
@@ -104,7 +56,7 @@ export const createCrudClient = (baseUrl) => {
 
       const headers = {
         ...getAuthHeaders(),
-        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...(formBody ? { "Content-Type": "application/json" } : {}),
         ...extra.headers,
       };
 

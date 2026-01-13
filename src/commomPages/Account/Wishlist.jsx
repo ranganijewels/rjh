@@ -5,33 +5,50 @@ import ProductCard from "@/components/ui/Cards/ProductCard";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchWishlist,
+  moveWishlistToCart,
+} from "@/store/slices/wishlistSlice";
 
 const Wishlist = () => {
-  const [wishlistdata, setWishlistdata] = useState([]);
+  const dispatch = useDispatch();
+  const { items, count } = useSelector((state) => state.wishlist);
+
+  useEffect(() => {
+    dispatch(fetchWishlist());
+  }, []);
+  console.log("items", items, count);
+  // const [wishlistdata, setWishlistdata] = useState([]);
   const [loading, setLoading] = useState(false);
   const { fetchAll } = useCrudApi(`/api/wishlist`);
+  // const { create } = useCrudApi(`/api/wishlist/move-wishlist-to-cart`);
+  // console.log("wishlistData", wishlistdata);
+  // const handleAddToCart = async (wishlistItemId) => {
+  //   try {
+  //     await create(null, {}, wishlistItemId);
+  //     toast.success("Item moved to cart successfully!");
+  //     // setWishlistdata((prev) =>
+  //     //   prev.filter((item) => item.id !== wishlistItemId)
+  //     // );
+  //   } catch (error) {
+  //     console.error("Error moving to cart:", error.message);
+  //   }
+  // };
 
-  const { create } = useCrudApi(`/api/wishlist/move-wishlist-to-cart`);
-  const handleAddToCart = async (wishlistItemId) => {
-    try {
-      await create(null, {}, wishlistItemId);
-      toast.success("Item moved to cart successfully!");
-      setWishlistdata((prev) =>
-        prev.filter((item) => item.id !== wishlistItemId)
-      );
-    } catch (error) {
-      console.error("Error moving to cart:", error.message);
-    }
+  const handleAddToCart = (id) => {
+    dispatch(moveWishlistToCart(id));
   };
-  useEffect(() => {
-    setLoading(true);
-    fetchAll()
-      .then((res) => {
-        setWishlistdata(res.data || []);
-        setLoading(false);
-      })
-      .catch((err) => console.error("Error fetching filters", err));
-  }, [fetchAll]);
+
+  // useEffect(() => {
+  //   setLoading(true);
+  //   fetchAll()
+  //     .then((res) => {
+  //       setWishlistdata(res?.data || []);
+  //       setLoading(false);
+  //     })
+  //     .catch((err) => console.error("Error fetching filters", err));
+  // }, []);
 
   return (
     <>
@@ -45,8 +62,8 @@ const Wishlist = () => {
           Array.from({ length: 5 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))
-        ) : wishlistdata.length > 0 ? (
-          wishlistdata.map((item) => {
+        ) : items?.length > 0 ? (
+          items?.map((item) => {
             return (
               <div
                 key={item.id}
@@ -58,8 +75,21 @@ const Wishlist = () => {
                   productName={item?.product?.title}
                   price={item?.product_price}
                   productImg={item?.product?.image}
-                  designNo={item.designNo}
+                  hoverImage={item?.product?.image_rollover}
+                  designNo={item?.designNo || item?.product?.design_no}
                   wishlistStatus={item?.product?.wishlist}
+                  metalColor={item?.metal_color}
+                  shape={item?.diamond_shape}
+                  centerDiamondWeight={item?.center_diamond_weight}
+                  size={item?.size}
+                  metalType={item?.metal_type}
+                  ringSize={item?.ring_size}
+                  onWishlistRemoved={() => {
+                    setWishlistdata((prev) =>
+                      prev.filter((x) => x.id !== item.id)
+                    );
+                  }}
+                  isWishlistCard
                 />
                 <div className="flex xl:flex-row lg:gap-[20px] gap-[4px] flex-col lg:mt-4 mt-[9px]">
                   <Button
@@ -67,11 +97,11 @@ const Wishlist = () => {
                     className="w-full"
                     onClick={() => handleAddToCart(item.id)}
                   />
-                  <Button
+                  {/* <Button
                     title="View similar"
                     variant="outlineTeal"
                     className="w-full"
-                  />
+                  /> */}
                 </div>
               </div>
             );
