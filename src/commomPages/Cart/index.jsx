@@ -15,6 +15,7 @@ import { toTitleCase } from "@/utils/string";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useCoupon } from "@/hooks/useCoupon";
+import RingSizeSelector from "../ProductDetails/RingSizeSelector";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
@@ -34,6 +35,7 @@ const Cart = () => {
   const { create: updateQuantities } = useCrudApi(
     "/api/cart/update-quantities"
   );
+  console.log("cartItems", cartItems);
 
   useEffect(() => {
     if (token && selectedCountry?.currency) {
@@ -60,6 +62,13 @@ const Cart = () => {
     } else {
       toast.error(response.message || "Failed to update cart");
     }
+  };
+
+  const handleClick = (id, categoryId, selectedColor, shape) => {
+    debugger;
+    router.push(
+      `/product/${id}?categoryId=${categoryId}&selectedMetalColor=${selectedColor}&shape=${shape}`
+    );
   };
 
   if (!cartItems?.length) {
@@ -97,22 +106,70 @@ const Cart = () => {
               key={item?.cart_item_id}
               className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center border-b border-b-[var(--teal-3)]"
             >
-              <div className="px-0 py-[12px] bg-[var(--product-bg)]">
+              <div className="px-0 py-[12px] bg-[var(--product-bg)] !cursor-pointer">
                 <img
                   src={item?.media_image}
                   alt={item?.product_name}
-                  className="h-[122px] w-full object-fill"
+                  className="h-[122px] w-full object-fill cursor-pointer"
+                  onClick={() =>
+                    handleClick(
+                      item?.product_id,
+                      item?.category_id,
+                      item?.metal_color,
+                      item?.diamond_shape
+                    )
+                  }
                 />
               </div>
 
               <div className="flex flex-col gap-[10px] 2xl:col-span-2 md:col-span-1">
-                <Typography variant="h5" className="font-[500]">
+                <Typography variant="h5" className="font-[500] cursor-pointer">
                   {toTitleCase(item?.title)}
                 </Typography>
                 <Typography variant="h6" className="md:block hidden">
                   {item?.product_description}
                 </Typography>
-                <Typography variant="h6" className="md:block hidden">
+
+                <div className="space-y-[10px]">
+                  {item?.design_no && (
+                    <Typography variant="h6">
+                      Design No. :{" "}
+                      <span className="font-[500] text-[#222223]">
+                        {item?.design_no}
+                      </span>
+                    </Typography>
+                  )}
+                  {item?.diamond_shape && (
+                    <Typography variant="h6">
+                      Diamond Shape :{" "}
+                      <span className="font-[500] text-[#222223]">
+                        {item?.diamond_shape}
+                      </span>
+                    </Typography>
+                  )}
+                  {item?.metal_type && item?.metal_color && (
+                    <Typography variant="h6">
+                      Metal :{" "}
+                      <span className="font-[500] text-[#222223]">
+                        {item?.metal_type +
+                          " " +
+                          toTitleCase(item?.metal_color) +
+                          " Gold"}
+                      </span>
+                    </Typography>
+                  )}
+                  {item?.center_diamond_weight ? (
+                    <Typography variant="h6">
+                      Center Diamond Weight :
+                      <span className="font-[500] text-[#222223]">
+                        {item?.center_diamond_weight}
+                      </span>
+                    </Typography>
+                  ) : (
+                    ""
+                  )}
+                </div>
+                {/* <Typography variant="h6" className="md:block hidden">
                   Metal:{" "}
                   {item?.metal_type +
                     " " +
@@ -121,7 +178,7 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h6" className="md:block hidden">
                   Stone Shape: {item?.diamond_shape}
-                </Typography>
+                </Typography> */}
                 {item?.ring_size && (
                   <Typography variant="h6" className="md:block hidden">
                     Size: {item?.ring_size}

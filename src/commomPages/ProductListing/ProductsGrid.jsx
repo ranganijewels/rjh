@@ -42,6 +42,10 @@ const ProductGrid = ({ gridLayout, collections, loading }) => {
                   hoverImage={item?.rollover_image}
                   metalColor={item?.product_color}
                   wishlistStatus={item?.wishlist}
+                  metalType={item?.meta_quality}
+                  centerDiamondWeight={item?.center_diamond_weight}
+                  ringSize={item?.ring_size}
+                  size={"small"}
                   shape={item?.occasion}
                 />
               );

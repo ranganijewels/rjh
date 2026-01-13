@@ -60,6 +60,7 @@ const cartSlice = createSlice({
   initialState: {
     cartItems: [],
     summary: {},
+    cartCount: 0,
     loading: false,
     error: null,
     shipping: 0,
@@ -74,6 +75,7 @@ const cartSlice = createSlice({
       state.cartItems = [];
       state.summary = {};
       state.coupon = null;
+      state.cartCount = 0;
     },
     clearCoupon: (state) => {
       state.coupon = null;
@@ -93,6 +95,8 @@ const cartSlice = createSlice({
         state.cartItems = action.payload.cart_items || [];
         state.summary = action.payload.cart_summary || {};
         state.coupon = action.payload.coupon || null;
+
+        state.cartCount = state.cartItems.length;
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
@@ -101,6 +105,8 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {
         state.cartItems = action.payload.cart_items;
         state.summary = action.payload.cart_summary;
+
+        state.cartCount = state.cartItems.length;
       })
       .addCase(applyCoupon.pending, (state) => {
         state.loading = true;
@@ -110,6 +116,8 @@ const cartSlice = createSlice({
         state.loading = false;
         state.coupon = action.payload;
         state.summary = action.payload.cart_summary;
+
+        state.cartTotal = state.summary.cart_total || 0;
       })
       .addCase(applyCoupon.rejected, (state, action) => {
         state.loading = false;

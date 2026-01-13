@@ -16,17 +16,19 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { mapApiMenuToOptions } from "@/utils/mapMenuData";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const router = useRouter();
-
+  const cartCount = useSelector((state) => state.cart.cartCount);
   const { isTopBarHidden, isNavbarHidden } = useNavbarScroll();
   const [menuOptions, setMenuOptions] = useState(MENUS_OPTIONS);
   const { fetchAll } = useCrudApi("/api/nav-menu");
-
+  const wishlistCount = useSelector((s) => s.wishlist.count);
+  console.log("wishlistCount", wishlistCount);
   useEffect(() => {
     const loadMenus = async () => {
       const response = await fetchAll();
@@ -124,21 +126,26 @@ const Navbar = () => {
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="hidden lg:block cursor-pointer"
             />
-
-            <img
-              src="/icons/heart.svg"
-              onClick={() => {
-                // if (activeUser) {
-                router.push("/account/wishlist");
-                // }
-                // else {
-                //   alert("Please log in to access your wishlist.");
-                //   router.push("/login");
-                // }
-              }}
-              className="w-[20px] h-[20px] cursor-pointer"
-            />
-
+            <div className="relative">
+              <img
+                src="/icons/heart.svg"
+                onClick={() => {
+                  // if (activeUser) {
+                  router.push("/account/wishlist");
+                  // }
+                  // else {
+                  //   alert("Please log in to access your wishlist.");
+                  //   router.push("/login");
+                  // }
+                }}
+                className="w-[20px] h-[20px] cursor-pointer"
+              />
+              {wishlistCount > 0 && (
+                <span className=" absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
+                  {wishlistCount}
+                </span>
+              )}
+            </div>
             <img
               src="/icons/user.svg"
               onClick={() => router.push("/account")}
@@ -151,6 +158,11 @@ const Navbar = () => {
                 alt="cart"
                 className="w-[20px] h-[20px] cursor-pointer"
               />
+              {cartCount > 0 && (
+                <span className=" absolute top-[27px] right-[20px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
