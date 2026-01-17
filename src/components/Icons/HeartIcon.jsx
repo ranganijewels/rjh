@@ -83,7 +83,12 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
-const HeartIcon = ({ className, wishlistStatus, onClick }) => {
+const HeartIcon = ({
+  className,
+  wishlistStatus,
+  onClick,
+  iconColor = "#2F6F7A",
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -98,7 +103,7 @@ const HeartIcon = ({ className, wishlistStatus, onClick }) => {
     >
       <path
         d="M49.6777 21.4282C57.2594 7.54446 74.39 4.60296 83.2451 12.8364L83.6611 13.2368C94.1568 23.7329 94.3205 40.8117 84.1523 51.5132L83.6611 52.0171L52.2969 83.3813C50.2654 85.4129 47.0112 85.4764 44.9033 83.5718L44.7031 83.3813L13.3389 52.0171C2.8434 41.5211 2.67989 24.4432 12.8477 13.7417L13.3389 13.2368C22.0632 4.51227 39.6203 7.32411 47.3223 21.4282L48.5 23.5864L49.6777 21.4282Z"
-        stroke="#2F6F7A"
+        stroke={iconColor || "#2F6F7A"}
         fill={wishlistStatus ? "#2F6F7A" : "none"}
         strokeWidth="2.68481"
       />

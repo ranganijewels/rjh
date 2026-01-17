@@ -25,7 +25,7 @@ const ProductDetails = () => {
 
   return (
     <div className="xl:space-y-[80px] space-y-[40px] xl:mt-[50px] mt-[20px]">
-      <Details  />
+      <Details />
 
       <Collection
         title="Complete the Look"

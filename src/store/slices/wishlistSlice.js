@@ -49,11 +49,17 @@ const wishlistSlice = createSlice({
     count: 0,
     loading: false,
   },
-  reducers: {},
+  reducers: {
+    removeWishlistItem(state, action) {
+      const removedId = action.payload;
+
+      state.items = state.items.filter((item) => item.id !== removedId);
+      state.count = state.items.length;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchWishlist.fulfilled, (state, action) => {
-        debugger;
         state.items = action.payload.wishlist_items || [];
         state.count = action.payload.wishlist_count || 0;
         state.loading = false;

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 const Button = ({
   title,
   onClick,
-  type = "button", // ⭐ add default
+  type = "button",
   variant = "primary",
   className = "",
   icon = null,
@@ -75,6 +75,7 @@ const Button = ({
       className={clsx(
         baseStyle,
         !noBackground && variantStyles[variant],
+        icon && !iconOnly && "flex items-center gap-2 justify-center",
         className
       )}
       style={style}
@@ -86,6 +87,7 @@ const Button = ({
         if (hoverColor) e.currentTarget.style.background = background;
       }}
     >
+      {icon && !iconOnly && icon}
       {iconOnly ? icon : title}
     </button>
   );
