@@ -18,14 +18,13 @@ const RingSizeSelector = ({
   productInfo,
 }) => {
   const displayValue = selectedValue || "";
-
   return (
     <div className={`space-y-4 ${containerStyle}`}>
       <Typography
         variant="h6"
         className={`font-[500] ${labelStyle} capitalize`}
       >
-        {toTitleCase(`${label} size :`)}
+        {`${toTitleCase(label)} size (US) :`}
         {displayValue && (
           <span className="font-[400] text-[var(--teal-1)] ml-1">
             {displayValue}

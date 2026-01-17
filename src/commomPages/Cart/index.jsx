@@ -16,6 +16,10 @@ import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useCoupon } from "@/hooks/useCoupon";
 import RingSizeSelector from "../ProductDetails/RingSizeSelector";
+import HeartIcon from "@/components/Icons/HeartIcon";
+import DeleteIcon from "@/components/Icons/DeleteIcon";
+import { CloseIcon } from "@/components/Icons/common/CloseIcon";
+import Link from "next/link";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
@@ -35,7 +39,8 @@ const Cart = () => {
   const { create: updateQuantities } = useCrudApi(
     "/api/cart/update-quantities"
   );
-  console.log("cartItems", cartItems);
+  const { create: removeCartItem } = useCrudApi("/api/cart/remove-cart-item");
+  const { create: moveToWishlist } = useCrudApi("/api/cart/cart-to-wishlist");
 
   useEffect(() => {
     if (token && selectedCountry?.currency) {
@@ -65,7 +70,6 @@ const Cart = () => {
   };
 
   const handleClick = (id, categoryId, selectedColor, shape) => {
-    debugger;
     router.push(
       `/product/${id}?categoryId=${categoryId}&selectedMetalColor=${selectedColor}&shape=${shape}`
     );
@@ -81,6 +85,39 @@ const Cart = () => {
     );
   }
 
+  const handleRemoveCartItem = async (cart_item_id) => {
+    try {
+      const response = await removeCartItem(null, {}, cart_item_id);
+
+      if (response?.status) {
+        toast.success("Item removed from cart");
+
+        dispatch(fetchCart({ currency: selectedCountry.currency }));
+      } else {
+        toast.error(response?.message || "Failed to remove item");
+      }
+    } catch (error) {
+      console.error("Remove cart item failed:", error);
+      toast.error("An error occurred while removing the item");
+    }
+  };
+
+  const handleMoveToWishlist = async (cart_item_id) => {
+    try {
+      const response = await moveToWishlist(null, {}, cart_item_id);
+
+      if (response?.status) {
+        toast.success("Item moved from wishlist");
+
+        dispatch(fetchCart({ currency: selectedCountry.currency }));
+      } else {
+        toast.error(response?.message || "Failed to remove item");
+      }
+    } catch (error) {
+      console.error("Remove cart item failed:", error);
+      toast.error("An error occurred while removing the item");
+    }
+  };
   return (
     <section>
       <div className="lg:flex-row flex-col flex 2xl:gap-[112px] gap-[50px] lg:py-[80px] py-[40px]">
@@ -103,98 +140,128 @@ const Cart = () => {
 
           {cartItems?.map((item) => (
             <div
+              className=" border-b border-b-[var(--teal-3)]"
               key={item?.cart_item_id}
-              className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center border-b border-b-[var(--teal-3)]"
             >
-              <div className="px-0 py-[12px] bg-[var(--product-bg)] !cursor-pointer">
-                <img
-                  src={item?.media_image}
-                  alt={item?.product_name}
-                  className="h-[122px] w-full object-fill cursor-pointer"
-                  onClick={() =>
-                    handleClick(
-                      item?.product_id,
-                      item?.category_id,
-                      item?.metal_color,
-                      item?.diamond_shape
-                    )
-                  }
-                />
-              </div>
+              <div className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center">
+                <div className="flex justify-center px-0 py-[12px] bg-[var(--product-bg)] !cursor-pointer">
+                  <img
+                    src={item?.media_image}
+                    alt={item?.product_name}
+                    className="h-[122px] w-[122px] object-fill cursor-pointer"
+                    onClick={() =>
+                      handleClick(
+                        item?.product_id,
+                        item?.category_id,
+                        item?.metal_color,
+                        item?.diamond_shape
+                      )
+                    }
+                  />
+                </div>
 
-              <div className="flex flex-col gap-[10px] 2xl:col-span-2 md:col-span-1">
-                <Typography variant="h5" className="font-[500] cursor-pointer">
-                  {toTitleCase(item?.title)}
-                </Typography>
-                <Typography variant="h6" className="md:block hidden">
-                  {item?.product_description}
-                </Typography>
+                <div className="flex flex-col gap-[10px] 2xl:col-span-2 md:col-span-1">
+                  <Typography
+                    variant="h5"
+                    className="font-[500] cursor-pointer"
+                  >
+                    {toTitleCase(item?.title)}
+                  </Typography>
+                  <Typography variant="h6" className="md:block hidden">
+                    {item?.product_description}
+                  </Typography>
 
-                <div className="space-y-[10px]">
-                  {item?.design_no && (
-                    <Typography variant="h6">
-                      Design No. :{" "}
-                      <span className="font-[500] text-[#222223]">
-                        {item?.design_no}
-                      </span>
-                    </Typography>
-                  )}
-                  {item?.diamond_shape && (
-                    <Typography variant="h6">
-                      Diamond Shape :{" "}
-                      <span className="font-[500] text-[#222223]">
-                        {item?.diamond_shape}
-                      </span>
-                    </Typography>
-                  )}
-                  {item?.metal_type && item?.metal_color && (
-                    <Typography variant="h6">
-                      Metal :{" "}
-                      <span className="font-[500] text-[#222223]">
-                        {item?.metal_type +
-                          " " +
-                          toTitleCase(item?.metal_color) +
-                          " Gold"}
-                      </span>
-                    </Typography>
-                  )}
-                  {item?.center_diamond_weight ? (
-                    <Typography variant="h6">
-                      Center Diamond Weight :
-                      <span className="font-[500] text-[#222223]">
-                        {item?.center_diamond_weight}
-                      </span>
-                    </Typography>
-                  ) : (
-                    ""
+                  <div className="space-y-[10px]">
+                    {item?.design_no && (
+                      <Typography variant="h6">
+                        Design No. :{" "}
+                        <span className="font-[500] text-[#222223]">
+                          {item?.design_no}
+                        </span>
+                      </Typography>
+                    )}
+                    {item?.diamond_shape && (
+                      <Typography variant="h6">
+                        Diamond Shape :{" "}
+                        <span className="font-[500] text-[#222223]">
+                          {item?.diamond_shape}
+                        </span>
+                      </Typography>
+                    )}
+                    {item?.metal_type && item?.metal_color && (
+                      <Typography variant="h6">
+                        Metal :{" "}
+                        <span className="font-[500] text-[#222223]">
+                          {item?.metal_type +
+                            " " +
+                            toTitleCase(item?.metal_color) +
+                            " Gold"}
+                        </span>
+                      </Typography>
+                    )}
+                    {item?.center_diamond_weight ? (
+                      <Typography variant="h6">
+                        Center Diamond Weight :
+                        <span className="font-[500] text-[#222223]">
+                          {item?.center_diamond_weight}
+                        </span>
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+
+                  {item?.ring_size && (
+                    <div className="inline-flex gap-2 items-center">
+                      {" "}
+                      <Typography variant="h6">
+                        {toTitleCase(item?.category)} Size : {item?.ring_size}
+                      </Typography>{" "}
+                      <Link
+                        className="flex gap-2 items-center"
+                        href="/ring-size-guide"
+                      >
+                        <img
+                          src="/icons/info.svg"
+                          className="cursor-pointer w-[14px] h-[14px]"
+                        />
+                      </Link>
+                    </div>
                   )}
                 </div>
-                {/* <Typography variant="h6" className="md:block hidden">
-                  Metal:{" "}
-                  {item?.metal_type +
-                    " " +
-                    toTitleCase(item?.metal_color) +
-                    " Gold"}
+
+                <QuantitySelector
+                  item={item}
+                  handleQuantities={handleUpdateQuantity}
+                />
+
+                <Typography variant="p" className="font-[600]">
+                  {getCurrencySymbol(selectedCountry?.currency) + " "}
+                  {typeof item.subtotal === "number" ? item?.subtotal : "0.00"}
                 </Typography>
-                <Typography variant="h6" className="md:block hidden">
-                  Stone Shape: {item?.diamond_shape}
-                </Typography> */}
-                {item?.ring_size && (
-                  <Typography variant="h6" className="md:block hidden">
-                    Size: {item?.ring_size}
-                  </Typography>
-                )}
               </div>
-
-              <QuantitySelector
-                item={item}
-                handleQuantities={handleUpdateQuantity}
-              />
-
-              <Typography variant="p" className="font-[600]">
-                {getCurrencySymbol(selectedCountry?.currency) + " "}
-                {typeof item.subtotal === "number" ? item?.subtotal : "0.00"}
-              </Typography>
+              <div className="flex gap-4 items-centerpb-4 pb-[24px]">
+                <Button
+                  title={"Move To Wishlist"}
+                  background={"var(--grey-00)"}
+                  textColor={"var(--grey-2)"}
+                  className="w-full border border-[var(--teal-3)]"
+                  icon={<HeartIcon className="w-5 h-5" iconColor="#222223" />}
+                  onClick={() => handleMoveToWishlist(item.cart_item_id)}
+                >
+                  Move To Wishlist
+                </Button>
+                <Button
+                  background={"none"}
+                  textColor={"var(--grey-2)"}
+                  title={"remove"}
+                  className="w-full border border-[var(--teal-3)]"
+                  icon={<CloseIcon className="w-5 h-5" />}
+                  onClick={() => handleRemoveCartItem(item.cart_item_id)}
+                >
+                  Remove
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -253,7 +320,7 @@ const Cart = () => {
             )}
           </div>
 
-          <div className="space-y-[16px] mt-8">
+          <div className="mt-8">
             <Typography variant="h4" className="font-[500] mb-4">
               Cart summary
             </Typography>
@@ -280,9 +347,19 @@ const Cart = () => {
             </div>
 
             {/* TOTALS */}
-            <div>
+            <div className="space-y-[16px]">
+              <div className="flex justify-between">
+                <Typography variant="h6" className="font-[500]">
+                  No. of Products
+                </Typography>
+                <Typography variant="h6" className="font-[500]">
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.cart_total ?? 0)}
+                </Typography>
+              </div>
+
               {/* SUBTOTAL */}
-              <div className="flex justify-between py-[13px]">
+              <div className="flex justify-between">
                 <Typography variant="h6" className="font-[500]">
                   Subtotal
                 </Typography>
@@ -292,37 +369,50 @@ const Cart = () => {
                 </Typography>
               </div>
 
+              <div className="flex justify-between">
+                <Typography variant="h6" className="font-[500]">
+                  Taxes
+                </Typography>
+                <Typography variant="h6" className="font-[500]">
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.cart_total ?? 0)}
+                </Typography>
+              </div>
+
+              <div className="flex justify-between">
+                <Typography variant="h6" className="font-[500]">
+                  Shipping Chargess
+                </Typography>
+                <Typography variant="h6" className="font-[500]">
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.cart_total ?? 0)}
+                </Typography>
+              </div>
+
               {/* DISCOUNT ROW */}
               {summary?.coupon_code && (
-                <>
-                  {" "}
-                  <Typography variant="h6" className="font-[500]">
-                    Order discount
+                <div className="flex justify-between items-center whitespace-nowrap gap-3">
+                  <Typography
+                    variant="h6"
+                    className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
+                  >
+                    Discount
+                    {/* <CouponIcon className="w-5 h-5" />
+                      {summary?.coupon_code} */}
                   </Typography>
-                  <div className="flex justify-between items-center py-[13px] whitespace-nowrap gap-3">
-                    <Typography
-                      variant="h6"
-                      className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
-                      textColor="customGrey"
-                    >
-                      <CouponIcon className="w-5 h-5" />
-                      {summary?.coupon_code}
-                    </Typography>
-
-                    <Typography
-                      variant="h6"
-                      className="font-[500] flex items-center gap-1 whitespace-nowrap "
-                    >
-                      <MinusIcon />
-                      {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                      {Number(summary?.grand_total)}
-                    </Typography>
-                  </div>
-                </>
+                  <Typography
+                    variant="h6"
+                    className="font-[500] flex items-center gap-1 whitespace-nowrap "
+                  >
+                    <MinusIcon />
+                    {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                    {Number(summary?.grand_total)}{" "}
+                    <span className="text-[var(--teal-1)]">Remove</span>
+                  </Typography>
+                </div>
               )}
-
               {/* TOTAL */}
-              <div className="flex justify-between py-[13px] border-t border-t-[var(--teal-3)]">
+              <div className="flex justify-between border-t pt-[16px] mb-[16px] border-t-[var(--teal-3)]">
                 <Typography variant="h5" className="font-[600]">
                   Total
                 </Typography>

@@ -1,54 +1,57 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import Button from "@/components/ui/Button/Button";
 import ProductCard from "@/components/ui/Cards/ProductCard";
-import { useCrudApi } from "@/hooks/useCrudApi";
 import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
-import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchWishlist,
   moveWishlistToCart,
 } from "@/store/slices/wishlistSlice";
+import { toTitleCase } from "@/utils/string";
+import Typography from "@/components/ui/Typography/Typography";
+
+const CATEGORY_ORDER = ["RING", "EARRING", "NECKLACE", "BRACELET", "PENDANT"];
 
 const Wishlist = () => {
   const dispatch = useDispatch();
-  const { items, count } = useSelector((state) => state.wishlist);
+  const { items, count, loading } = useSelector((state) => state.wishlist);
 
   useEffect(() => {
     dispatch(fetchWishlist());
   }, []);
-  console.log("items", items, count);
-  // const [wishlistdata, setWishlistdata] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { fetchAll } = useCrudApi(`/api/wishlist`);
-  // const { create } = useCrudApi(`/api/wishlist/move-wishlist-to-cart`);
-  // console.log("wishlistData", wishlistdata);
-  // const handleAddToCart = async (wishlistItemId) => {
-  //   try {
-  //     await create(null, {}, wishlistItemId);
-  //     toast.success("Item moved to cart successfully!");
-  //     // setWishlistdata((prev) =>
-  //     //   prev.filter((item) => item.id !== wishlistItemId)
-  //     // );
-  //   } catch (error) {
-  //     console.error("Error moving to cart:", error.message);
-  //   }
-  // };
 
   const handleAddToCart = (id) => {
     dispatch(moveWishlistToCart(id));
   };
 
-  // useEffect(() => {
-  //   setLoading(true);
-  //   fetchAll()
-  //     .then((res) => {
-  //       setWishlistdata(res?.data || []);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => console.error("Error fetching filters", err));
-  // }, []);
+  const groupedWishlist = useMemo(() => {
+    if (!items?.length) return {};
+
+    return items.reduce((acc, item) => {
+      const rawName = item?.product?.category?.name || "Others";
+      const key = rawName.toUpperCase(); // normalize
+
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(item);
+
+      return acc;
+    }, {});
+  }, [items]);
+
+  const orderedCategories = useMemo(() => {
+    return Object.keys(groupedWishlist).sort((a, b) => {
+      const indexA = CATEGORY_ORDER.indexOf(a);
+      const indexB = CATEGORY_ORDER.indexOf(b);
+
+      // Categories not in list go to the end
+      if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+
+      return indexA - indexB;
+    });
+  }, [groupedWishlist]);
 
   return (
     <>
@@ -57,51 +60,55 @@ const Wishlist = () => {
           Wishlist
         </p>
       </div>
-      <div className="grid md:grid-cols-3 grid-cols-2 md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] max-[320px]:grid-cols-1">
+      <div className="flex flex-col">
         {loading ? (
           Array.from({ length: 5 }).map((_, idx) => (
             <ProductCardSkeleton key={idx} />
           ))
-        ) : items?.length > 0 ? (
-          items?.map((item) => {
+        ) : Object.keys(groupedWishlist).length > 0 ? (
+          orderedCategories.map((categoryKey) => {
+            const categoryItems = groupedWishlist[categoryKey];
+
             return (
-              <div
-                key={item.id}
-                className="flex flex-col justify-between lg:min-h-[400px]"
-              >
-                <ProductCard
-                  categoryId={item?.product?.category_id}
-                  productId={item?.product_id}
-                  productName={item?.product?.title}
-                  price={item?.product_price}
-                  productImg={item?.product?.image}
-                  hoverImage={item?.product?.image_rollover}
-                  designNo={item?.designNo || item?.product?.design_no}
-                  wishlistStatus={item?.product?.wishlist}
-                  metalColor={item?.metal_color}
-                  shape={item?.diamond_shape}
-                  centerDiamondWeight={item?.center_diamond_weight}
-                  size={item?.size}
-                  metalType={item?.metal_type}
-                  ringSize={item?.ring_size}
-                  onWishlistRemoved={() => {
-                    setWishlistdata((prev) =>
-                      prev.filter((x) => x.id !== item.id)
-                    );
-                  }}
-                  isWishlistCard
-                />
-                <div className="flex xl:flex-row lg:gap-[20px] gap-[4px] flex-col lg:mt-4 mt-[9px]">
-                  <Button
-                    title="Add to bag"
-                    className="w-full"
-                    onClick={() => handleAddToCart(item.id)}
-                  />
-                  {/* <Button
-                    title="View similar"
-                    variant="outlineTeal"
-                    className="w-full"
-                  /> */}
+              <div key={categoryKey} className="mb-[60px]">
+                {/* CATEGORY TITLE */}
+                <Typography variant="h3">{toTitleCase(categoryKey)}</Typography>
+
+                {/* CATEGORY GRID */}
+                <div className="grid md:grid-cols-3 grid-cols-2 md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] max-[320px]:grid-cols-1">
+                  {categoryItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-col justify-between lg:min-h-[400px]"
+                    >
+                      <ProductCard
+                        categoryId={item?.product?.category_id}
+                        productId={item?.product_id}
+                        productName={item?.product?.title}
+                        price={item?.product_price}
+                        productImg={item?.product?.image}
+                        hoverImage={item?.product?.image_rollover}
+                        designNo={item?.product?.design_no}
+                        wishlistStatus={item?.product?.wishlist}
+                        metalColor={item?.metal_color}
+                        shape={item?.diamond_shape}
+                        centerDiamondWeight={item?.center_diamond_weight}
+                        size={item?.size}
+                        metalType={item?.metal_type}
+                        ringSize={item?.ring_size}
+                        isWishlistCard
+                        category={categoryKey}
+                      />
+
+                      <div className="flex xl:flex-row lg:gap-[20px] gap-[4px] flex-col lg:mt-4 mt-[9px]">
+                        <Button
+                          title="Add to bag"
+                          className="w-full"
+                          onClick={() => handleAddToCart(item.id)}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             );

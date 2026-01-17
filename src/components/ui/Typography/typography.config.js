@@ -15,7 +15,7 @@ export const typographyStyles = {
   //   md: "md:text-[32px] md:font-[700]",
   //   sm: "text-[20px] font-[700]",
   // },
-  h4: {
+  h3: {
     base: "xl:text-[28px]",
     lg: "lg:text-[24px]",
     sm: "text-[16px] font-[500]",

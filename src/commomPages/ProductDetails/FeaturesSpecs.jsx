@@ -1,10 +1,5 @@
 import Accordion from "@/components/ui/Accordion/Accordion";
-
-import {
-  ACCORDION_DATA,
-  FEATURES_DATA,
-  SHIPPING_RETURNS_DATA,
-} from "./constants";
+import { SHIPPING_RETURNS_DATA } from "./constants";
 import {
   CareGuideIcon,
   CleaningDiamondIcon,
@@ -13,32 +8,10 @@ import {
   TravelTips,
 } from "@/components/Icons/common/CareGuideIcon";
 import Typography from "@/components/ui/Typography/Typography";
-import { DIAMONDS_SHAPS, SHAPE_CODES } from "@/constants/constant";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFaqs } from "@/store/slices/faqSlice";
 import { formatCarat, toTitleCase } from "@/utils/string";
-
-const SpecsGrid = ({ labels = [], values = [] }) => {
-  return (
-    <div className="grid grid-cols-2">
-      <div className="inline-flex flex-col justify-start items-start gap-[3px]">
-        {labels.map((label, idx) => (
-          <Typography variant="h6" key={idx}>
-            {label}
-          </Typography>
-        ))}
-      </div>
-      <div className="inline-flex flex-col justify-start items-start gap-[3px]">
-        {values.map((value, idx) => (
-          <Typography variant="h6" key={idx} textColor="teal">
-            {value}
-          </Typography>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const AccordionListSection = ({ title, icon, points, isLast }) => {
   return (
@@ -77,16 +50,6 @@ const FeaturesSpecs = ({
   const { items, loading, error } = useSelector((state) => state.faq);
   const hasCenterDiamond = productDetail?.diamonds?.some((d) => d.center === 1);
   const hasSideStones = productDetail?.diamonds?.some((d) => d.center === 0);
-
-  // const sideStoneWeight = useMemo(() => {
-  //   if (!productDetail?.diamonds) return "-";
-
-  //   const total = productDetail.diamonds
-  //     .filter((d) => d.center === 0) // side stones only
-  //     .reduce((sum, d) => sum + parseFloat(d.wt || 0), 0);
-
-  //   return total > 0 ? total.toFixed(3) + " CT" : "-";
-  // }, [productDetail]);
 
   const sideStoneWeight = useMemo(() => {
     if (!hasSideStones) return null;
@@ -210,11 +173,32 @@ const FeaturesSpecs = ({
 
   return (
     <div>
-      {features.map((item, index) => (
-        <Accordion key={index} title={item.title} btnStyle="!capitalize">
-          <SpecsGrid labels={item.labels} values={item.values} />
-        </Accordion>
-      ))}
+      <Accordion title={"Product Detail"} btnStyle="!capitalize">
+        {features.map((item, index) => (
+          <div key={index} className="mt-[18px]">
+            <Typography variant="h6" className="font-[500] mb-3">
+              {item?.title}
+            </Typography>
+            <div className="grid grid-cols-2">
+              <div className="inline-flex flex-col justify-start items-start gap-[3px]">
+                {item?.labels.map((label, idx) => (
+                  <Typography variant="h6" key={idx}>
+                    {label}
+                  </Typography>
+                ))}
+              </div>
+              <div className="inline-flex flex-col justify-start items-start gap-[3px]">
+                {item?.values.map((value, idx) => (
+                  <Typography variant="h6" key={idx} textColor="teal">
+                    {value}
+                  </Typography>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </Accordion>
+
       {/* price breakdown */}
       {/* <Accordion
         title="Price Breakdown"
@@ -304,7 +288,6 @@ const FeaturesSpecs = ({
           />
         </div>
       </Accordion> */}
-
       <Accordion title="Care Guide" btnStyle="!capitalize">
         <AccordionListSection
           title="Everyday Care"
@@ -354,7 +337,6 @@ const FeaturesSpecs = ({
           isLast
         />
       </Accordion>
-
       <Accordion title="Shipping & Returns" btnStyle="!capitalize">
         <div className="flex flex-col gap-5">
           {SHIPPING_RETURNS_DATA.map((section, index) => (
@@ -374,7 +356,6 @@ const FeaturesSpecs = ({
           ))}
         </div>
       </Accordion>
-
       <div>
         <Accordion title="FAQs" btnStyle="!capitalize">
           {items

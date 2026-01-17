@@ -45,7 +45,7 @@ const ProductGrid = ({ gridLayout, collections, loading }) => {
                   metalType={item?.meta_quality}
                   centerDiamondWeight={item?.center_diamond_weight}
                   ringSize={item?.ring_size}
-                  size={"small"}
+                  size={item?.size}
                   shape={item?.occasion}
                 />
               );
