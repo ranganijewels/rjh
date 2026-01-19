@@ -14,6 +14,8 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { fetchWishlist } from "@/store/slices/wishlistSlice";
 import { useDispatch } from "react-redux";
+import { useWishlistPopup } from "@/context/WishlistPopupContext";
+import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 
 const ProductCard = ({
   productName,
@@ -38,6 +40,7 @@ const ProductCard = ({
   isWishlistCard,
   designNo,
   category,
+  disableWishlistPopup = false,
 }) => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -51,10 +54,30 @@ const ProductCard = ({
   const [isWishlisted, setIsWishlisted] = useState(wishlistStatus);
   const { create: checkWishlist } = useCrudApi(`/api/wishlist/check-wishlist`);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
+  const { openFor } = useWishlistPopup();
 
+  const { toggleWishlist } = useWishlistLogic({
+    createWishlistApi: createWishlist,
+    onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
+  });
+
+  const handleWishlistToggle = async () => {
+    debugger;
+    const wishlisted = await toggleWishlist({
+      product_id: productId,
+      product_price: price,
+      category_id: categoryId,
+      metal_type: metalType,
+      metal_color: selectedColor.toUpperCase(),
+      diamond_shape: shape,
+      center_diamond_weight: centerDiamondWeight?.toString() || "",
+      ring_size: ringSize?.toString() || "",
+      size: size?.toString() || "",
+    });
+
+    setIsWishlisted(wishlisted);
+  };
   const checkIfWishlisted = async (color) => {
-    // if (!customerId || !productId || !color || !shape) return;
-
     try {
       const res = await checkWishlist({
         product_id: productId,
@@ -73,17 +96,6 @@ const ProductCard = ({
       console.error("checkWishlist failed", err);
     }
   };
-
-  // useEffect(() => {
-  //   if (!metalColor) return;
-
-  //   setSelectedColor(metalColor); // sync initial color
-  //   checkIfWishlisted(metalColor); // call API once on load
-  // }, [metalColor, productId, shape]);
-
-  // useEffect(() => {
-  //   setIsWishlisted(wishlistStatus);
-  // }, [wishlistStatus]);
 
   useEffect(() => {
     if (wishlistStatus !== undefined) {
@@ -135,39 +147,43 @@ const ProductCard = ({
     }
   };
 
-  const handleWishlistToggle = async () => {
-    const token = localStorage.getItem("authTokenElova");
+  // const handleWishlistToggle = async () => {
+  //   const token = localStorage.getItem("authTokenElova");
 
-    if (!token || !customerId) {
-      toast.error("Please login first");
-      router.push("/login");
-      return;
-    }
+  //   if (!token || !customerId) {
+  //     toast.error("Please login first");
+  //     router.push("/login");
+  //     return;
+  //   }
 
-    try {
-      const res = await createWishlist({
-        product_id: productId,
-        product_price: price,
-        category_id: categoryId,
-        metal_type: metalType,
-        metal_color: selectedColor.toUpperCase(),
-        diamond_shape: shape,
-        center_diamond_weight: centerDiamondWeight
-          ? String(centerDiamondWeight)
-          : "",
-        ring_size: (ringSize && ringSize.toString()) || "",
-        size: (size && size.toString()) || "",
-      });
+  //   try {
+  //     const res = await createWishlist({
+  //       product_id: productId,
+  //       product_price: price,
+  //       category_id: categoryId,
+  //       metal_type: metalType,
+  //       metal_color: selectedColor.toUpperCase(),
+  //       diamond_shape: shape,
+  //       center_diamond_weight: centerDiamondWeight
+  //         ? String(centerDiamondWeight)
+  //         : "",
+  //       ring_size: (ringSize && ringSize.toString()) || "",
+  //       size: (size && size.toString()) || "",
+  //     });
 
-      // backend is source of truth
-      setIsWishlisted(Boolean(res?.data?.wishlist));
+  //     const wishlisted = Boolean(res?.data?.wishlist);
+  //     setIsWishlisted(wishlisted);
 
-      dispatch(fetchWishlist());
-    } catch (err) {
-      console.error("Wishlist toggle failed", err);
-      toast.error("Wishlist failed");
-    }
-  };
+  //     dispatch(fetchWishlist());
+
+  //     if (wishlisted) {
+  //       openFor(2000);
+  //     }
+  //   } catch (err) {
+  //     console.error("Wishlist toggle failed", err);
+  //     toast.error("Wishlist failed");
+  //   }
+  // };
 
   return (
     <div className={`${className} cursor-pointer`}>

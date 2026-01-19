@@ -80,26 +80,35 @@ const Collection = ({ title, collectionName, apiPath, itemId = null }) => {
           ? Array.from({ length: 5 }).map((_, idx) => (
               <ProductCardSkeleton key={idx} />
             ))
-          : products?.map((item) => (
-              <ProductCard
-                key={`${item?.product_id}-${item?.product_color || "default"}`}
-                productId={item?.product_id}
-                categoryId={item?.category_id}
-                productName={item?.title}
-                price={item?.product_price}
-                productImg={item?.product_image}
-                colorsPalettes={item?.metal_color}
-                designNo={item?.design_no}
-                hoverImage={item?.rollover_image}
-                metalColor={item?.product_color}
-                wishlistStatus={item?.wishlist}
-                className="slide-card"
-                cardClass="2xl:w-[390px] 2xl:h-[500px] xl:w-[344px] xl:h-[416px] w-[182px] h-[249px] flex items-center justify-center"
-                imgClass="xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full "
-                gridLayout="lg:grid-cols-5 grid-cols-2"
-                customWidth
-              />
-            ))}
+          : products?.map((item) => {
+              return (
+                <ProductCard
+                  key={`${item?.product_id}-${
+                    item?.product_color || "default"
+                  }`}
+                  productId={item?.product_id}
+                  categoryId={item?.category_id}
+                  productName={item?.title}
+                  price={item?.product_price}
+                  productImg={item?.product_image}
+                  colorsPalettes={item?.metal_color}
+                  designNo={item?.design_no}
+                  hoverImage={item?.rollover_image}
+                  metalColor={item?.product_color}
+                  wishlistStatus={item?.wishlist}
+                  className="slide-card"
+                  cardClass="2xl:w-[390px] 2xl:h-[500px] xl:w-[344px] xl:h-[416px] w-[182px] h-[249px] flex items-center justify-center"
+                  imgClass="xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full "
+                  gridLayout="lg:grid-cols-5 grid-cols-2"
+                  customWidth
+                  centerDiamondWeight={item?.center_diamond_weight}
+                  shape={item?.occasion}
+                  metalType={item?.meta_quality}
+                  ringSize={item?.ring_size}
+                  size={item?.size}
+                />
+              );
+            })}
       </div>
     </section>
   );

@@ -10,12 +10,13 @@ import RingSizeSelector from "./RingSizeSelector";
 import FeaturesSpecs from "./FeaturesSpecs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import { toTitleCase } from "@/utils/string";
+import { cleanCarat, toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import HeartIcon from "@/components/Icons/HeartIcon";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useSelector } from "react-redux";
+import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 
 const Details = () => {
   const router = useRouter();
@@ -27,7 +28,6 @@ const Details = () => {
   const { create } = useCrudApi(`/api/cart/add-to-cart`);
   const { create: filters } = useCrudApi("/api/product/filters");
   const [filtersData, setFiltersData] = useState([]);
-  const { create: checkWishlist } = useCrudApi(`/api/wishlist/check-wishlist`);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
 
   useEffect(() => {
@@ -70,6 +70,10 @@ const Details = () => {
   const [selectedCarat, setSelectedCarat] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const customerId = useSelector((state) => state.auth?.customer?.id);
+
+  const { checkIfWishlisted, toggleWishlist } = useWishlistLogic({
+    createWishlistApi: createWishlist,
+  });
 
   const pricingEnabledRef = useRef(false);
 
@@ -149,7 +153,65 @@ const Details = () => {
     }
   };
 
-  const checkIfWishlisted = async () => {
+  // const checkIfWishlisted = async () => {
+  //   if (
+  //     !customerId ||
+  //     !productInfo?.id ||
+  //     !selectedMetal?.karat?.value ||
+  //     !activeColor ||
+  //     !selectedShape
+  //   ) {
+  //     return;
+  //   }
+
+  //   try {
+  //     const payload = {
+  //       product_id: productInfo.id,
+  //       metal_color: activeColor.toUpperCase(),
+  //       metal_type: selectedMetal.karat.value,
+  //       diamond_shape: selectedShape,
+  //       ring_size: selectedRingSize ? String(selectedRingSize) : "",
+  //       size: selectedWidth ? selectedWidth.toString() : "",
+  //     };
+
+  //     if (selectedWeight != null) {
+  //       payload.center_diamond_weight = String(selectedWeight);
+  //     }
+
+  //     const res = await checkWishlist(payload);
+  //     setIsWishlisted(Boolean(res?.data?.wishlist));
+  //   } catch (err) {
+  //     console.error("Error checking wishlist status:", err);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   checkIfWishlisted();
+  // }, [
+  //   customerId,
+  //   productInfo?.id,
+  //   selectedMetal?.karat?.value,
+  //   activeColor,
+  //   selectedWeight,
+  //   selectedRingSize,
+  //   // selectedShape,
+  // ]);
+
+  const syncWishlistState = async () => {
+    const isWishlisted = await checkIfWishlisted({
+      product_id: productInfo.id,
+      metal_color: activeColor,
+      metal_type: selectedMetal.karat.value,
+      diamond_shape: selectedShape,
+      center_diamond_weight: selectedWeight,
+      ring_size: selectedRingSize,
+      size: selectedWidth,
+    });
+
+    setIsWishlisted(isWishlisted);
+  };
+
+  useEffect(() => {
     if (
       !customerId ||
       !productInfo?.id ||
@@ -157,81 +219,77 @@ const Details = () => {
       !activeColor ||
       !selectedShape
     ) {
+      setIsWishlisted(false);
       return;
     }
 
-    try {
-      const payload = {
-        product_id: productInfo.id,
-        metal_color: activeColor.toUpperCase(),
-        metal_type: selectedMetal.karat.value,
-        diamond_shape: selectedShape,
-        ring_size: selectedRingSize ? String(selectedRingSize) : "",
-        size: selectedWidth ? selectedWidth.toString() : "",
-      };
-
-      if (selectedWeight != null) {
-        payload.center_diamond_weight = String(selectedWeight);
-      }
-
-      const res = await checkWishlist(payload);
-      setIsWishlisted(Boolean(res?.data?.wishlist));
-    } catch (err) {
-      console.error("Error checking wishlist status:", err);
-    }
-  };
-
-  useEffect(() => {
-    checkIfWishlisted();
+    syncWishlistState();
   }, [
     customerId,
     productInfo?.id,
     selectedMetal?.karat?.value,
     activeColor,
+    selectedShape,
     selectedWeight,
     selectedRingSize,
-    // selectedShape,
+    selectedWidth,
   ]);
 
+  // const handleWishlist = async () => {
+  //   const token = localStorage.getItem("authTokenElova");
+
+  //   if (!token || !customerId) {
+  //     toast.error("Please login first");
+  //     router.push("/login");
+  //     return;
+  //   }
+
+  //   if (
+  //     !productInfo?.id ||
+  //     !productInfo?.product_price ||
+  //     !productInfo?.category_id ||
+  //     !selectedMetal?.karat?.value ||
+  //     !activeColor ||
+  //     !selectedShape
+  //   ) {
+  //     console.warn("Wishlist blocked: incomplete data");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await createWishlist({
+  //       product_id: productInfo.id,
+  //       product_price: productInfo.product_price,
+  //       category_id: productInfo.category_id,
+  //       metal_type: selectedMetal.karat.value,
+  //       metal_color: activeColor.toUpperCase(),
+  //       diamond_shape: selectedShape,
+  //       center_diamond_weight: selectedWeight ? selectedWeight.toString() : "",
+  //       ring_size: selectedRingSize ? String(selectedRingSize) : "",
+  //       size: selectedWidth.toString() || "",
+  //     });
+
+  //     setIsWishlisted(Boolean(res?.data?.wishlist));
+  //   } catch (err) {
+  //     console.error("Wishlist error:", err);
+  //     toast.error("Wishlist failed");
+  //   }
+  // };
+
   const handleWishlist = async () => {
-    const token = localStorage.getItem("authTokenElova");
+    const wishlisted = await toggleWishlist({
+      product_id: productInfo.id,
+      product_price: productInfo.product_price,
+      category_id: productInfo.category_id,
+      metal_type: selectedMetal.karat.value,
+      metal_color: activeColor.toUpperCase(),
+      diamond_shape: selectedShape,
+      center_diamond_weight: selectedWeight ? cleanCarat(selectedWeight) : "",
+      ring_size: selectedRingSize ? String(selectedRingSize) : "",
+      size: selectedWidth?.toString() || "",
+    });
 
-    if (!token || !customerId) {
-      toast.error("Please login first");
-      router.push("/login");
-      return;
-    }
-
-    if (
-      !productInfo?.id ||
-      !productInfo?.product_price ||
-      !productInfo?.category_id ||
-      !selectedMetal?.karat?.value ||
-      !activeColor ||
-      !selectedShape
-    ) {
-      console.warn("Wishlist blocked: incomplete data");
-      return;
-    }
-
-    try {
-      const res = await createWishlist({
-        product_id: productInfo.id,
-        product_price: productInfo.product_price,
-        category_id: productInfo.category_id,
-        metal_type: selectedMetal.karat.value,
-        metal_color: activeColor.toUpperCase(),
-        diamond_shape: selectedShape,
-        center_diamond_weight: selectedWeight ? selectedWeight.toString() : "",
-        ring_size: selectedRingSize ? String(selectedRingSize) : "",
-        size: selectedWidth.toString() || "",
-      });
-
-      setIsWishlisted(Boolean(res?.data?.wishlist));
-    } catch (err) {
-      console.error("Wishlist error:", err);
-      toast.error("Wishlist failed");
-    }
+    setIsWishlisted(wishlisted);
   };
 
   const handleAddToCart = async () => {
@@ -260,6 +318,7 @@ const Details = () => {
         unit_price: pricing,
         metal_color: activeColor,
         size: selectedWidth,
+        is_wishlist: isWishlisted,
       };
       const response = await create(payload);
       if (response.status) router.push("/cart");

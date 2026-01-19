@@ -38,6 +38,7 @@ export const moveWishlistToCart = createAsyncThunk(
     return {
       id: wishlistItemId,
       wishlist_count: res.data.wishlist_count,
+      cart: res.data.cart,
     };
   }
 );
@@ -52,7 +53,6 @@ const wishlistSlice = createSlice({
   reducers: {
     removeWishlistItem(state, action) {
       const removedId = action.payload;
-
       state.items = state.items.filter((item) => item.id !== removedId);
       state.count = state.items.length;
     },
@@ -115,4 +115,5 @@ const wishlistSlice = createSlice({
   },
 });
 
+export const { removeWishlistItem } = wishlistSlice.actions;
 export default wishlistSlice.reducer;

@@ -1,13 +1,13 @@
 "use client";
 
-import { CouponIcon } from "@/components/Icons/common";
+import { CouponIcon, MinusIcon } from "@/components/Icons/common";
 import Button from "@/components/ui/Button/Button";
 import RadioButton from "@/components/ui/Button/RadioButton";
 import Checkbox from "@/components/ui/Checkbox/Checkbox";
 import Input from "@/components/ui/Input/Input";
 import Typography from "@/components/ui/Typography/Typography";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { clearCoupon, fetchCart } from "@/store/slices/cartSlice";
+import { clearCoupon, fetchCart, removeCoupon } from "@/store/slices/cartSlice";
 import { setOrder } from "@/store/slices/orderSlice";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -245,17 +245,12 @@ const CheckOutDetails = () => {
   };
 
   const handleRemoveCoupon = async () => {
-    try {
-      const res = await removeCouponApi();
+    const result = await dispatch(removeCoupon());
 
-      if (res.status) {
-        dispatch(clearCoupon());
-        dispatch(fetchCart());
-        toast.success("Coupon removed successfully");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to remove coupon");
+    if (removeCoupon.fulfilled.match(result)) {
+      toast.success("Coupon removed successfully");
+    } else {
+      toast.error(result.payload || "Failed to remove coupon");
     }
   };
 
@@ -320,7 +315,7 @@ const CheckOutDetails = () => {
       }
     }
   };
-  
+
   return (
     <section className="flex lg:flex-row flex-col xl:gap-[64px] lg:gap-[50px]">
       <div className="lg:w-[50%] lg:order-1 order-2 w-full space-y-[24px]">
@@ -853,8 +848,86 @@ const CheckOutDetails = () => {
               </div>
             )}
           </div>
+          <div className="space-y-[16px]">
+            <div className="flex justify-between">
+              <Typography variant="h5" className="font-[500]">
+                No. of Products
+              </Typography>
+              <Typography variant="h5" className="font-[500]">
+                {Number(summary?.number_of_cart_products ?? 0)}
+              </Typography>
+            </div>
 
-          <div className="flex justify-between w-full">
+            {/* SUBTOTAL */}
+            <div className="flex justify-between">
+              <Typography variant="h5" className="font-[500]">
+                Subtotal
+              </Typography>
+              <Typography variant="h5" className="font-[500]">
+                {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                {Number(summary?.cart_total ?? 0)}
+              </Typography>
+            </div>
+
+            <div className="flex justify-between">
+              <Typography variant="h5" className="font-[500]">
+                Taxes
+              </Typography>
+              <Typography variant="h5" className="font-[500]">
+                {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                {Number(summary?.cart_total ?? 0)}
+              </Typography>
+            </div>
+
+            <div className="flex justify-between">
+              <Typography variant="h5" className="font-[500]">
+                Shipping Chargess
+              </Typography>
+              <Typography variant="h5" className="font-[500]">
+                {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                {Number(summary?.selectedShipping ?? 0)}
+              </Typography>
+            </div>
+
+            {/* DISCOUNT ROW */}
+            {summary?.coupon_code && (
+              <div className="flex justify-between items-center whitespace-nowrap gap-3">
+                <Typography
+                  variant="h5"
+                  className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
+                >
+                  Discount
+                </Typography>
+                <Typography
+                  variant="h5"
+                  className="font-[500] flex items-center gap-1 whitespace-nowrap "
+                >
+                  <MinusIcon />
+                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                  {Number(summary?.discount)}{" "}
+                  <span
+                    className="cursor-pointer text-[var(--teal-1)]"
+                    onClick={handleRemoveCoupon}
+                  >
+                    [Remove]
+                  </span>
+                </Typography>
+              </div>
+            )}
+
+            {/* TOTAL */}
+            <div className="flex justify-between border-t pt-[16px] mb-[16px] border-t-[var(--teal-3)]">
+              <Typography variant="h4" className="flex gap-2 font-[500]">
+                Total
+              </Typography>
+              <Typography variant="h4" className="font-[600]">
+                {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                {Number(summary?.grand_total ?? 0)}
+              </Typography>
+            </div>
+          </div>
+
+          {/* <div className="flex justify-between w-full">
             <Typography variant="h5" className="flex gap-2">
               Subtotal
             </Typography>
@@ -900,7 +973,7 @@ const CheckOutDetails = () => {
               {getCurrencySymbol(selectedCountry?.currency) + " "}
               {summary?.grand_total}
             </Typography>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
