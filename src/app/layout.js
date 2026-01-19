@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer/Footer";
 import { PreferencesProvider } from "@/context/PreferencesContext";
 import { ReduxProvider } from "./providers/ReduxProvider";
 import ReactQueryProvider from "./providers/ReactQueryProvider";
+import { WishlistPopupProvider } from "@/context/WishlistPopupContext";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -52,31 +53,33 @@ export default function RootLayout({ children }) {
       <body
         className={`${montserrat.variable} ${sourceSerif.variable}  antialiased min-h-screen flex flex-col overflow-y-scroll`}
       >
-        <PreferencesProvider>
-          <ReduxProvider>
-            <ReactQueryProvider>
-              <Navbar />
-              <Toaster
-                position="top-right"
-                containerStyle={{
-                  marginTop: "68px",
-                  marginRight: "16px",
-                  zIndex: 9999999,
-                }}
-                toastOptions={{
-                  error: {
-                    style: {
-                      background: "#ef4444",
-                      color: "#fff",
+        <ReduxProvider>
+          <PreferencesProvider>
+            <WishlistPopupProvider>
+              <ReactQueryProvider>
+                <Navbar />
+                <Toaster
+                  position="top-right"
+                  containerStyle={{
+                    marginTop: "68px",
+                    marginRight: "16px",
+                    zIndex: 9999999,
+                  }}
+                  toastOptions={{
+                    error: {
+                      style: {
+                        background: "#ef4444",
+                        color: "#fff",
+                      },
                     },
-                  },
-                }}
-              />
-              <main className="flex-1 flex flex-col">{children}</main>
-              <Footer />
-            </ReactQueryProvider>
-          </ReduxProvider>
-        </PreferencesProvider>
+                  }}
+                />
+                <main className="flex-1 flex flex-col">{children}</main>
+                <Footer />
+              </ReactQueryProvider>
+            </WishlistPopupProvider>
+          </PreferencesProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

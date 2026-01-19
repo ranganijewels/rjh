@@ -18,6 +18,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { mapApiMenuToOptions } from "@/utils/mapMenuData";
 import { useSelector } from "react-redux";
 import WishlistPopUp from "@/components/ui/PopUp/WishlistPopUp";
+import { useWishlistPopup } from "@/context/WishlistPopupContext";
 
 const Navbar = () => {
   const router = useRouter();
@@ -25,11 +26,11 @@ const Navbar = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const [showWishlistPopup, setShowWishlistPopup] = useState(false);
   const { isTopBarHidden, isNavbarHidden } = useNavbarScroll();
   const [menuOptions, setMenuOptions] = useState(MENUS_OPTIONS);
   const { fetchAll } = useCrudApi("/api/nav-menu");
   const wishlistCount = useSelector((s) => s.wishlist.count);
+  const { isOpen, open, close } = useWishlistPopup();
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -128,11 +129,7 @@ const Navbar = () => {
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="hidden lg:block cursor-pointer"
             />
-            <div
-              className="relative"
-              onMouseEnter={() => setShowWishlistPopup(true)}
-              onMouseLeave={() => setShowWishlistPopup(false)}
-            >
+            <div className="relative" onMouseEnter={open} onMouseLeave={close}>
               <img
                 src="/icons/heart.svg"
                 onClick={() => router.push("/account/wishlist")}
@@ -146,9 +143,9 @@ const Navbar = () => {
               )}
 
               <WishlistPopUp
-                isOpen={showWishlistPopup}
-                onMouseEnter={() => setShowWishlistPopup(true)}
-                onMouseLeave={() => setShowWishlistPopup(true)}
+                isOpen={isOpen}
+                onMouseEnter={open}
+                onMouseLeave={close}
               />
             </div>
 

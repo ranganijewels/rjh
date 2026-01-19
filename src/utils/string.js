@@ -22,6 +22,9 @@ export const formatCarat = (value) => {
   return hasCT ? value : `${value} CT`;
 };
 
+export const cleanCarat = (value) =>
+  value ? String(value).replace(/[^0-9.]/g, "") : "";
+
 // Removes non-numeric characters except the decimal point.
 export const normalizeCarat = (value) => {
   if (value === null || value === undefined || value === "") return "";

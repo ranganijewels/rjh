@@ -293,7 +293,6 @@ import { CUSTOM_DIAMOND_WEIGHTS } from "../ProductDetails/constants";
 import { SHAPE_CODES_IMAGE } from "@/constants/constant";
 
 const StepTwo = forwardRef(({ data, setData }, ref) => {
-  console.log("data", data);
   const { data: filters } = useSelector((state) => state.filters);
   const searchParams = useSearchParams();
   const category = searchParams.get("category_id");

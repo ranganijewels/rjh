@@ -55,6 +55,31 @@ export const applyCoupon = createAsyncThunk(
   }
 );
 
+export const removeCoupon = createAsyncThunk(
+  "cart/removeCoupon",
+  async (_, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const token = state.auth?.token;
+
+      const response = await apiPost("/api/cart/remove-coupon", {}, token);
+
+      if (!response.status) {
+        return thunkAPI.rejectWithValue(
+          response.message || "Failed to remove coupon"
+        );
+      }
+
+      // fetch updated cart
+      const cartResponse = await apiGet("/api/cart/cart-details", token);
+
+      return cartResponse.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -120,6 +145,23 @@ const cartSlice = createSlice({
         state.cartTotal = state.summary.cart_total || 0;
       })
       .addCase(applyCoupon.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(removeCoupon.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeCoupon.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.cartItems = action.payload.cart_items || [];
+        state.summary = action.payload.cart_summary || {};
+        state.coupon = null;
+
+        state.cartCount = state.cartItems.length;
+      })
+      .addCase(removeCoupon.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

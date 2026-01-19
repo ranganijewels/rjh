@@ -7,7 +7,7 @@ import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCart, setShipping } from "@/store/slices/cartSlice";
+import { fetchCart, removeCoupon, setShipping } from "@/store/slices/cartSlice";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import QuantitySelector from "./QuantitySelector";
@@ -20,6 +20,7 @@ import HeartIcon from "@/components/Icons/HeartIcon";
 import DeleteIcon from "@/components/Icons/DeleteIcon";
 import { CloseIcon } from "@/components/Icons/common/CloseIcon";
 import Link from "next/link";
+import { fetchWishlist } from "@/store/slices/wishlistSlice";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
@@ -90,8 +91,6 @@ const Cart = () => {
       const response = await removeCartItem(null, {}, cart_item_id);
 
       if (response?.status) {
-        toast.success("Item removed from cart");
-
         dispatch(fetchCart({ currency: selectedCountry.currency }));
       } else {
         toast.error(response?.message || "Failed to remove item");
@@ -107,9 +106,8 @@ const Cart = () => {
       const response = await moveToWishlist(null, {}, cart_item_id);
 
       if (response?.status) {
-        toast.success("Item moved from wishlist");
-
         dispatch(fetchCart({ currency: selectedCountry.currency }));
+        dispatch(fetchWishlist());
       } else {
         toast.error(response?.message || "Failed to remove item");
       }
@@ -118,6 +116,17 @@ const Cart = () => {
       toast.error("An error occurred while removing the item");
     }
   };
+
+  const handleRemoveCoupon = async () => {
+    const result = await dispatch(removeCoupon());
+
+    if (removeCoupon.fulfilled.match(result)) {
+      toast.success("Coupon removed successfully");
+    } else {
+      toast.error(result.payload || "Failed to remove coupon");
+    }
+  };
+
   return (
     <section>
       <div className="lg:flex-row flex-col flex 2xl:gap-[112px] gap-[50px] lg:py-[80px] py-[40px]">
@@ -287,7 +296,6 @@ const Cart = () => {
                 value: couponCode,
                 onChange: (e) => {
                   setCouponCode(e.target.value);
-                  setCouponError("");
                 },
                 onKeyDown: (e) => {
                   if (e.key === "Enter") {
@@ -353,8 +361,7 @@ const Cart = () => {
                   No. of Products
                 </Typography>
                 <Typography variant="h6" className="font-[500]">
-                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.cart_total ?? 0)}
+                  {Number(summary?.number_of_cart_products ?? 0)}
                 </Typography>
               </div>
 
@@ -385,7 +392,7 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h6" className="font-[500]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.cart_total ?? 0)}
+                  {Number(summary?.selectedShipping ?? 0)}
                 </Typography>
               </div>
 
@@ -397,8 +404,6 @@ const Cart = () => {
                     className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
                   >
                     Discount
-                    {/* <CouponIcon className="w-5 h-5" />
-                      {summary?.coupon_code} */}
                   </Typography>
                   <Typography
                     variant="h6"
@@ -406,8 +411,13 @@ const Cart = () => {
                   >
                     <MinusIcon />
                     {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                    {Number(summary?.grand_total)}{" "}
-                    <span className="text-[var(--teal-1)]">Remove</span>
+                    {Number(summary?.discount)}{" "}
+                    <span
+                      className="text-[var(--teal-1)] cursor-pointer"
+                      onClick={handleRemoveCoupon}
+                    >
+                      [Remove]
+                    </span>
                   </Typography>
                 </div>
               )}
