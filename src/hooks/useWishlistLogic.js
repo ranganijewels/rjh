@@ -13,10 +13,6 @@ import { usePreferences } from "@/context/PreferencesContext";
 import { useRouter } from "next/navigation";
 import { useCrudApi } from "./useCrudApi";
 
-/**
- * Centralized wishlist business logic
- * ALL wishlist behavior lives here
- */
 export const useWishlistLogic = ({
   createWishlistApi,
   onWishlisted,
@@ -35,11 +31,6 @@ export const useWishlistLogic = ({
   /* ------------------ STATE ------------------ */
   const { items, loading, count } = useSelector((state) => state.wishlist);
   const customerId = useSelector((state) => state.auth?.customer?.id);
-
-  /* ------------------ INIT ------------------ */
-  useEffect(() => {
-    dispatch(fetchWishlist());
-  }, [dispatch]);
 
   /* ------------------ HELPERS ------------------ */
 

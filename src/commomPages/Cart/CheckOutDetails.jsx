@@ -7,7 +7,7 @@ import Checkbox from "@/components/ui/Checkbox/Checkbox";
 import Input from "@/components/ui/Input/Input";
 import Typography from "@/components/ui/Typography/Typography";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { clearCoupon, fetchCart, removeCoupon } from "@/store/slices/cartSlice";
+import { fetchCart } from "@/store/slices/cartSlice";
 import { setOrder } from "@/store/slices/orderSlice";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -98,10 +98,8 @@ const CheckOutDetails = () => {
   const { cartItems, summary, loading, error, shipping, coupon } = useSelector(
     (state) => state.cart
   );
-
   const shippingCharge = useSelector((state) => state.cart.shipping);
   const { create } = useCrudApi(`/api/cart/place-order`);
-  const { create: removeCouponApi } = useCrudApi(`/api/cart/remove-coupon`);
 
   const handlePaymentChange = (value) => {
     setSelectedPayment(value);
@@ -242,16 +240,6 @@ const CheckOutDetails = () => {
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setContactInfo((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleRemoveCoupon = async () => {
-    const result = await dispatch(removeCoupon());
-
-    if (removeCoupon.fulfilled.match(result)) {
-      toast.success("Coupon removed successfully");
-    } else {
-      toast.error(result.payload || "Failed to remove coupon");
-    }
   };
 
   const addressOptions = [
@@ -558,7 +546,8 @@ const CheckOutDetails = () => {
               <RadioButton
                 name="payment"
                 value="credit-card"
-                checked={selectedPayment === "card"}
+                checked
+                // checked={selectedPayment === "card"}
                 onChange={() => handlePaymentChange("card")}
               >
                 <div className="flex justify-between w-full">
@@ -907,7 +896,7 @@ const CheckOutDetails = () => {
                   {Number(summary?.discount)}{" "}
                   <span
                     className="cursor-pointer text-[var(--teal-1)]"
-                    onClick={handleRemoveCoupon}
+                    onClick={remove}
                   >
                     [Remove]
                   </span>

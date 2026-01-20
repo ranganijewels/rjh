@@ -8,7 +8,7 @@ export const fetchWishlist = createAsyncThunk(
       const state = thunkAPI.getState();
       const token = state.auth?.token;
 
-      const res = await apiGet("/api/wishlist", token);
+      const res = await apiGet("/api/wishlist/get-wishlist", token);
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

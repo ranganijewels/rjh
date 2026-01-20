@@ -71,40 +71,43 @@ const Wishlist = () => {
 
                 {/* CATEGORY GRID */}
                 <div className="grid md:grid-cols-3 grid-cols-2 md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] max-[320px]:grid-cols-1">
-                  {categoryItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex flex-col justify-between lg:min-h-[400px]"
-                    >
-                      <ProductCard
-                        categoryId={item?.product?.category_id}
-                        productId={item?.product_id}
-                        productName={item?.product?.title}
-                        price={item?.product_price}
-                        productImg={item?.product?.image}
-                        hoverImage={item?.product?.image_rollover}
-                        designNo={item?.product?.design_no}
-                        wishlistStatus={item?.product?.wishlist}
-                        metalColor={item?.metal_color}
-                        shape={item?.diamond_shape}
-                        centerDiamondWeight={item?.center_diamond_weight}
-                        size={item?.size}
-                        metalType={item?.metal_type}
-                        ringSize={item?.ring_size}
-                        isWishlistCard
-                        category={categoryKey}
-                        disableWishlistPopup
-                      />
-
-                      <div className="flex xl:flex-row lg:gap-[20px] gap-[4px] flex-col lg:mt-4 mt-[9px]">
-                        <Button
-                          title="Add to bag"
-                          className="w-full"
-                          onClick={() => addToCart(item.id)}
+                  {categoryItems.map((item) => {
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex flex-col justify-between lg:min-h-[400px]"
+                      >
+                        <ProductCard
+                          categoryId={item?.product?.category_id}
+                          productId={item?.product_id}
+                          productName={item?.product?.title}
+                          price={item?.product_price}
+                          productImg={item?.product?.image}
+                          hoverImage={item?.product?.image_rollover}
+                          designNo={item?.product?.design_no}
+                          wishlistStatus={item?.product?.wishlist}
+                          metalColor={item?.metal_color}
+                          shape={item?.diamond_shape}
+                          centerDiamondWeight={item?.center_diamond_weight}
+                          size={item?.size}
+                          metalType={item?.metal_type}
+                          ringSize={item?.ring_size}
+                          isWishlistCard
+                          category={categoryKey}
+                          disableWishlistPopup
+                          id={item.id}
                         />
+
+                        <div className="flex xl:flex-row lg:gap-[20px] gap-[4px] flex-col lg:mt-4 mt-[9px]">
+                          <Button
+                            title="Add to bag"
+                            className="w-full"
+                            onClick={() => addToCart(item.id)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );

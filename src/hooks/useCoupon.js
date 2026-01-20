@@ -5,11 +5,12 @@ import { applyCoupon, fetchCart, clearCoupon } from "@/store/slices/cartSlice";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { usePreferences } from "@/context/PreferencesContext";
 
 export const useCoupon = () => {
   const dispatch = useDispatch();
   const { create: removeCouponApi } = useCrudApi(`/api/cart/remove-coupon`);
-
+  const { selectedCountry } = usePreferences();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [couponCode, setCouponCode] = useState("");
@@ -46,20 +47,28 @@ export const useCoupon = () => {
   const remove = async () => {
     try {
       setLoading(true);
-
+  
       const res = await removeCouponApi();
+  
       if (res?.status) {
         dispatch(clearCoupon());
-        dispatch(fetchCart());
+  
+        await dispatch(
+          fetchCart({
+            currency: selectedCountry?.currency,
+          })
+        ).unwrap();
+  
         toast.success("Coupon removed");
       }
     } catch (err) {
+      console.error(err);
       toast.error("Failed to remove coupon");
     } finally {
       setLoading(false);
     }
   };
-
+  
   return {
     apply,
     remove,

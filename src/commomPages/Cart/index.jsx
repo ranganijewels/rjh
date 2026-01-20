@@ -7,7 +7,7 @@ import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCart, removeCoupon, setShipping } from "@/store/slices/cartSlice";
+import { fetchCart, setShipping } from "@/store/slices/cartSlice";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import QuantitySelector from "./QuantitySelector";
@@ -15,9 +15,7 @@ import { toTitleCase } from "@/utils/string";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useCoupon } from "@/hooks/useCoupon";
-import RingSizeSelector from "../ProductDetails/RingSizeSelector";
 import HeartIcon from "@/components/Icons/HeartIcon";
-import DeleteIcon from "@/components/Icons/DeleteIcon";
 import { CloseIcon } from "@/components/Icons/common/CloseIcon";
 import Link from "next/link";
 import { fetchWishlist } from "@/store/slices/wishlistSlice";
@@ -114,16 +112,6 @@ const Cart = () => {
     } catch (error) {
       console.error("Remove cart item failed:", error);
       toast.error("An error occurred while removing the item");
-    }
-  };
-
-  const handleRemoveCoupon = async () => {
-    const result = await dispatch(removeCoupon());
-
-    if (removeCoupon.fulfilled.match(result)) {
-      toast.success("Coupon removed successfully");
-    } else {
-      toast.error(result.payload || "Failed to remove coupon");
     }
   };
 
@@ -414,7 +402,7 @@ const Cart = () => {
                     {Number(summary?.discount)}{" "}
                     <span
                       className="text-[var(--teal-1)] cursor-pointer"
-                      onClick={handleRemoveCoupon}
+                      onClick={remove}
                     >
                       [Remove]
                     </span>
