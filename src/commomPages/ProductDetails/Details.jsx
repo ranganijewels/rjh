@@ -63,7 +63,7 @@ const Details = () => {
   const DEFAULT_COLOR = "YELLOW";
   const selectedColor = searchParams.get("selectedMetalColor");
   const [activeColor, setActiveColor] = useState(
-    selectedColor?.toUpperCase() || DEFAULT_COLOR
+    selectedColor?.toUpperCase() ? selectedColor : DEFAULT_COLOR
   );
   const [selectDiamondWeightId, setSelectDiamondWeightId] = useState();
   const { selectedCountry } = usePreferences();
@@ -463,6 +463,15 @@ const Details = () => {
     if (ring) setSelectedRingSize(ring);
   }, [productInfo]);
 
+  const displayPrice = useMemo(() => {
+    if (pricing === null || pricing === undefined) return null;
+
+    const num = Number(pricing);
+    if (!Number.isFinite(num) || num <= 0) return null;
+
+    return Math.floor(num);
+  }, [pricing]);
+
   return (
     <section className="xl:px-[172px] lg:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
       {/* Gallery */}
@@ -473,6 +482,7 @@ const Details = () => {
           selectDiamond={selectedShape}
           loadingProductInfo={loadingGallery}
           activeColor={activeColor}
+          setActiveColor={setActiveColor}
         />
       </div>
 
@@ -488,7 +498,9 @@ const Details = () => {
         </div>
         <div className="space-y-[12px]">
           <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
-            {getCurrencySymbol(selectedCountry?.currency) + " " + pricing}
+            {getCurrencySymbol(selectedCountry?.currency) +
+              " " +
+              Math.floor(Number(displayPrice))}
           </label>
           {/* <div
             className="flex gap-2 items-center"
@@ -621,7 +633,7 @@ const Details = () => {
 
               updatePricing(
                 data?.variantId,
-                data?.designNo,
+                designNo,
                 selectedMetal,
                 selectedRingSize,
                 data.carat
@@ -629,6 +641,13 @@ const Details = () => {
             }}
             onSizeChange={(data) => {
               setSelectedWidth(data?.size);
+              updatePricing(
+                productInfo?.id,
+                designNo,
+                selectedMetal,
+                selectedWidth,
+                selectedWeight
+              );
             }}
             occasion={productInfo?.occasion}
             selectedWeight={selectedWeight}
@@ -667,13 +686,13 @@ const Details = () => {
 
                 setSelectDiamondWeightId(variantId);
               }
-              updatePricing(
-                productInfo?.id,
-                productInfo?.design_no,
-                selectedMetal,
-                option.value,
-                selectedWeight
-              );
+              // updatePricing(
+              //   productInfo?.id,
+              //   productInfo?.design_no,
+              //   selectedMetal,
+              //   option.value,
+              //   selectedWeight
+              // );
             }}
             isInvalid={!!errorMessage}
           />

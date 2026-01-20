@@ -23,7 +23,6 @@ const Page = () => {
   const { selectedCountry } = usePreferences();
   const searchParams = useSearchParams();
 
-  // Map URL params to API payload
   const mapParamsToPayload = (params) => {
     const payload = {};
     if (params.get("search")) payload.search = params.get("search");
@@ -59,27 +58,6 @@ const Page = () => {
     return payload;
   };
 
-  // const {
-  //   data: products = [],
-  //   isFetching,
-  //   isLoading,
-  // } = useQuery({
-  //   queryKey: [
-  //     "product-list",
-  //     Object.fromEntries(searchParams.entries()),
-  //     selectedCountry?.currency,
-  //   ],
-  //   queryFn: async () => {
-  //     const payload = mapParamsToPayload(searchParams);
-  //     const res = await create(payload, {
-  //       headers: { currency: selectedCountry?.currency },
-  //     });
-  //     return res || [];
-  //   },
-  //   staleTime: 1000 * 60 * 5,
-  //   keepPreviousData: true,
-  // });
-
   const payload = mapParamsToPayload(searchParams);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
@@ -105,7 +83,7 @@ const Page = () => {
 
   const loaderRef = React.useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loaderRef.current || !hasNextPage) return;
 
     const observer = new IntersectionObserver(

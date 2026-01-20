@@ -5,14 +5,12 @@ import Typography from "../Typography/Typography";
 import HeartIcon from "@/components/Icons/HeartIcon";
 import { useRouter } from "next/navigation";
 import { useProductCardLayout } from "./useProductCardLayout";
-import { formatCarat, toTitleCase } from "@/utils/string";
+import { toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { store } from "@/store/store";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
-import toast from "react-hot-toast";
 import Link from "next/link";
-import { fetchWishlist } from "@/store/slices/wishlistSlice";
 import { useDispatch } from "react-redux";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
@@ -41,9 +39,9 @@ const ProductCard = ({
   designNo,
   category,
   disableWishlistPopup = false,
+  id,
 }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const [currentImage, setCurrentImage] = useState(productImg);
   const [hoverImage, setHoverImage] = useState(initialHoverImage);
   const [selectedColor, setSelectedColor] = useState(metalColor || null);
@@ -52,14 +50,37 @@ const ProductCard = ({
   const { create } = useCrudApi(`/api/product/change-color`);
   const { selectedCountry } = usePreferences();
   const [isWishlisted, setIsWishlisted] = useState(wishlistStatus);
-  const { create: checkWishlist } = useCrudApi(`/api/wishlist/check-wishlist`);
+  // const { create: checkWishlist } = useCrudApi(`/api/wishlist/check-wishlist`);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
   const { openFor } = useWishlistPopup();
 
-  const { toggleWishlist } = useWishlistLogic({
-    createWishlistApi: createWishlist,
-    onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
-  });
+  const { toggleWishlist, removeFromWishlist, checkIfWishlisted } =
+    useWishlistLogic({
+      createWishlistApi: createWishlist,
+      onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
+    });
+
+  // useEffect(() => {
+  //   if (!productId || !metalType || !shape || !selectedColor) return;
+
+  //   checkIfWishlisted({
+  //     product_id: productId,
+  //     metal_color: selectedColor,
+  //     metal_type: metalType,
+  //     diamond_shape: shape,
+  //     center_diamond_weight: centerDiamondWeight,
+  //     ring_size: ringSize,
+  //     size,
+  //   }).then(setIsWishlisted);
+  // }, [
+  //   productId,
+  //   metalType,
+  //   shape,
+  //   selectedColor,
+  //   centerDiamondWeight,
+  //   ringSize,
+  //   size,
+  // ]);
 
   const handleWishlistToggle = async () => {
     debugger;
@@ -77,25 +98,25 @@ const ProductCard = ({
 
     setIsWishlisted(wishlisted);
   };
-  const checkIfWishlisted = async (color) => {
-    try {
-      const res = await checkWishlist({
-        product_id: productId,
-        metal_color: color.toUpperCase(),
-        metal_type: metalType,
-        diamond_shape: shape,
-        center_diamond_weight: centerDiamondWeight
-          ? centerDiamondWeight.toString()
-          : "",
-        ring_size: ringSize.toString(),
-        size: size.toString() || "",
-      });
+  // const checkIfWishlisted = async (color) => {
+  //   try {
+  //     const res = await checkWishlist({
+  //       product_id: productId,
+  //       metal_color: color.toUpperCase(),
+  //       metal_type: metalType,
+  //       diamond_shape: shape,
+  //       center_diamond_weight: centerDiamondWeight
+  //         ? centerDiamondWeight.toString()
+  //         : "",
+  //       ring_size: ringSize.toString(),
+  //       size: size.toString() || "",
+  //     });
 
-      setIsWishlisted(Boolean(res?.data?.wishlist));
-    } catch (err) {
-      console.error("checkWishlist failed", err);
-    }
-  };
+  //     setIsWishlisted(Boolean(res?.data?.wishlist));
+  //   } catch (err) {
+  //     console.error("checkWishlist failed", err);
+  //   }
+  // };
 
   useEffect(() => {
     if (wishlistStatus !== undefined) {
@@ -141,7 +162,16 @@ const ProductCard = ({
       setCurrentImage(response.product_image);
       setHoverImage(response.rollover_image);
 
-      await checkIfWishlisted(palette);
+      const wishlisted = await checkIfWishlisted({
+        product_id: productId,
+        metal_color: palette,
+        metal_type: metalType,
+        diamond_shape: shape,
+        center_diamond_weight: centerDiamondWeight,
+        ring_size: ringSize,
+        size: size,
+      });
+      setIsWishlisted(wishlisted);
     } catch (error) {
       console.error("Error changing metal color:", error);
     }
@@ -212,7 +242,13 @@ const ProductCard = ({
         <div className="absolute top-0 right-0 m-[19px]">
           <HeartIcon
             wishlistStatus={isWishlisted}
-            onClick={handleWishlistToggle}
+            onClick={() => {
+              if (isWishlistCard) {
+                removeFromWishlist(id);
+              } else {
+                handleWishlistToggle();
+              }
+            }}
           />
         </div>
       </div>
