@@ -11,6 +11,7 @@ import { toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { updateCustomer } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const ProfileInfo = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
@@ -361,22 +362,31 @@ const ProfileInfo = () => {
             {passwordErrors.newPassword}
           </p>
         )}
-        <Input
-          placeholder="Confirm Password"
-          label="Confirm Password"
-          borderBottom
-          type="password"
-          value={passwordForm.confirmPassword}
-          onChange={(e) =>
-            handlePasswordChange("confirmPassword", e.target.value)
-          }
-        />
-        {passwordErrors.confirmPassword && (
-          <p className="text-red-500 text-sm mt-1">
-            {passwordErrors.confirmPassword}
-          </p>
-        )}
+        <div>
+          <Input
+            placeholder="Confirm Password"
+            label="Confirm Password"
+            borderBottom
+            type="password"
+            value={passwordForm.confirmPassword}
+            onChange={(e) =>
+              handlePasswordChange("confirmPassword", e.target.value)
+            }
+          />
+          {passwordErrors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {passwordErrors.confirmPassword}
+            </p>
+          )}
 
+          <Link
+            href="/forgot-password"
+            title="Forgot password"
+            className="text-[var(--teal-1)] mt-[18px] block"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <div className="flex gap-[20px] pt-[30px]">
           <Button
             title="Save"

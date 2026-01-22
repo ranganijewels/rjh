@@ -28,7 +28,10 @@ const Newsletter = () => {
       }
     } catch (err) {
       const errorMsg =
-        "The email field must be a valid email address." || err.message;
+        err?.response?.data?.message ||
+        err?.message ||
+        err ||
+        "Something went wrong";
       setError(errorMsg);
       toast.error(errorMsg);
       console.error(err);
@@ -50,7 +53,7 @@ const Newsletter = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            className="justify-start xl:w-[364px] w-[198px] xl:h-[52px] h-[28px] text-[var(--placeholder)] xl:text-[12px] text-[10px] font-[400] tracking-tight bg-[#FFFFFF] p-[11px_20px] focus-visible:border-transparent focus-visible:outline-none focus:ring-0"
+            className="justify-start xl:w-[510px] w-[198px] xl:h-[52px] h-[28px] text-[var(--placeholder)] xl:text-[16px] text-[14px] font-[400] tracking-tight bg-[#FFFFFF] p-[11px_20px] focus-visible:border-transparent focus-visible:outline-none focus:ring-0"
             placeholder="Enter email address*"
           />
 

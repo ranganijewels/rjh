@@ -44,7 +44,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                       //     shape?.description || ""
                       //   )}`
                       // );
-                      router.push('/product');
+                      router.push(`/product?shape=${shape?.shape_id}`);
                     }}
                   />
                   <Typography variant="p">{shape?.icon_title}</Typography>

@@ -76,12 +76,12 @@ const FeaturesSpecs = ({
     {
       title: "Diamond Information",
       labels: [
-        "Shape :",
-        "Setting :",
-        "Color - Clarity :",
-        "Quantity :",
-        ...(hasCenterDiamond ? ["Center Diamond Weight :"] : []),
-        ...(hasSideStones ? ["Side Stone Weight :"] : []),
+        "Shape ",
+        "Setting ",
+        "Color - Clarity ",
+        "Quantity ",
+        ...(hasCenterDiamond ? ["Center Diamond Weight "] : []),
+        ...(hasSideStones ? ["Side Stone Weight "] : []),
       ],
       values: [
         productDetail?.occasion?.custom_title || "-",

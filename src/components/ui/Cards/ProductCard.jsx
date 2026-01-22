@@ -50,7 +50,6 @@ const ProductCard = ({
   const { create } = useCrudApi(`/api/product/change-color`);
   const { selectedCountry } = usePreferences();
   const [isWishlisted, setIsWishlisted] = useState(wishlistStatus);
-  // const { create: checkWishlist } = useCrudApi(`/api/wishlist/check-wishlist`);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
   const { openFor } = useWishlistPopup();
 
@@ -60,30 +59,7 @@ const ProductCard = ({
       onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
     });
 
-  // useEffect(() => {
-  //   if (!productId || !metalType || !shape || !selectedColor) return;
-
-  //   checkIfWishlisted({
-  //     product_id: productId,
-  //     metal_color: selectedColor,
-  //     metal_type: metalType,
-  //     diamond_shape: shape,
-  //     center_diamond_weight: centerDiamondWeight,
-  //     ring_size: ringSize,
-  //     size,
-  //   }).then(setIsWishlisted);
-  // }, [
-  //   productId,
-  //   metalType,
-  //   shape,
-  //   selectedColor,
-  //   centerDiamondWeight,
-  //   ringSize,
-  //   size,
-  // ]);
-
   const handleWishlistToggle = async () => {
-    debugger;
     const wishlisted = await toggleWishlist({
       product_id: productId,
       product_price: price,
@@ -177,52 +153,15 @@ const ProductCard = ({
     }
   };
 
-  // const handleWishlistToggle = async () => {
-  //   const token = localStorage.getItem("authTokenElova");
-
-  //   if (!token || !customerId) {
-  //     toast.error("Please login first");
-  //     router.push("/login");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await createWishlist({
-  //       product_id: productId,
-  //       product_price: price,
-  //       category_id: categoryId,
-  //       metal_type: metalType,
-  //       metal_color: selectedColor.toUpperCase(),
-  //       diamond_shape: shape,
-  //       center_diamond_weight: centerDiamondWeight
-  //         ? String(centerDiamondWeight)
-  //         : "",
-  //       ring_size: (ringSize && ringSize.toString()) || "",
-  //       size: (size && size.toString()) || "",
-  //     });
-
-  //     const wishlisted = Boolean(res?.data?.wishlist);
-  //     setIsWishlisted(wishlisted);
-
-  //     dispatch(fetchWishlist());
-
-  //     if (wishlisted) {
-  //       openFor(2000);
-  //     }
-  //   } catch (err) {
-  //     console.error("Wishlist toggle failed", err);
-  //     toast.error("Wishlist failed");
-  //   }
-  // };
-
   return (
-    <div className={`${className} cursor-pointer`}>
+    <div className={`z-[999] ${className}`}>
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`bg-[#F5F5F5] relative mb-[14px] ${
+        className={`bg-[#F5F5F5] relative mb-[14px] cursor-pointer ${
           customWidth ? cardClass : container
         }`}
+        onClick={() => handleClick(productId)}
       >
         <img
           src={isHovered && hoverImage ? hoverImage : currentImage}
@@ -231,12 +170,10 @@ const ProductCard = ({
           onDragStart={(e) => e.preventDefault()}
           style={{
             userSelect: "none",
-            pointerEvents: "auto",
           }}
           className={`object-contain transition-transform duration-300 ease-in-out  hover:scale-105 ${
             customWidth ? imgClass : img
           }`}
-          onClick={() => handleClick(productId)}
         />
 
         <div className="absolute top-0 right-0 m-[19px]">

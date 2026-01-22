@@ -20,6 +20,7 @@ const Button = ({
   disabled,
   noBackground,
   target,
+  children,
 }) => {
   const router = useRouter();
 

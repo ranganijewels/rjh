@@ -12,7 +12,6 @@ import FindYourDiomond from "./FindYourDiomond";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { useHomepageData } from "../Home/useHomepageData";
 import { useRouter } from "next/navigation";
-import { LOVED_BY_HEARTS } from "./constant";
 
 const Customize = () => {
   const router = useRouter();
@@ -64,7 +63,7 @@ const Customize = () => {
             file: item.file,
           })
         )}
-        imageStyle="xl:w-[356px] lg:w-[184px] w-[169px] 2xl:h-[494px] xl:h-[450px] lg:h-[289px] h-[224px]"
+        imageStyle="w-full  2xl:h-[494px] xl:h-[450px] lg:h-[289px] h-[224px]"
         onClick={(product) => {
           if (!categories.length) return;
 
@@ -119,7 +118,7 @@ const Customize = () => {
         // data={testimonial}
       />
 
-      <FindYourDiomond
+      {/* <FindYourDiomond
         title="Personalized Shopping Experience"
         description="Your dream diamond awaits—whether it’s hidden in our exclusive vault or waiting to be crafted just for you. Let’s create something extraordinary together. Contact us today!"
         shapes={
@@ -128,7 +127,7 @@ const Customize = () => {
             : []
         }
         buttons={homeData?.diamond_icon_shape?.[0]?.buttons}
-      />
+      /> */}
       <JewelryCTA
         // testimonial={testimonial}
         backgroundUrl={customizeData?.cms_page?.banner_section?.[0]?.bg_file}

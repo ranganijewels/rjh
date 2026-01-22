@@ -62,7 +62,11 @@ const Dropdown = ({
         </Typography>
       )}
       <div
-        className={clsx("relative text-left", className, fullWidth && "!w-full")}
+        className={clsx(
+          "relative text-left",
+          className,
+          fullWidth && "!w-full"
+        )}
         ref={dropdownRef}
       >
         <button
@@ -137,7 +141,7 @@ const Dropdown = ({
         {isOpen && (
           <div
             className={clsx(
-              "absolute z-20 mt-2 origin-top-right shadow-lg ring-1 ring-[var(--teal-3)] ring-opacity-5 bg-[var(--grey-00)]",
+              "absolute z-[9999] mt-2 origin-top-right shadow-lg ring-1 ring-[var(--teal-3)] ring-opacity-5 bg-[var(--grey-00)]",
               customWidth ? customWidth : "w-[160px]",
               fullWidth ? "!w-[100%]" : ""
             )}

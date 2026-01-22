@@ -89,6 +89,20 @@ const ProductsGallery = ({
     setActiveIndex(0);
   }, [resolvedActiveColor, orderedMedia]);
 
+  const handleMouseEnter = (containerElement) => {
+    const videoElement = containerElement.querySelector("video");
+    if (videoElement) {
+      videoElement.pause();
+    }
+  };
+
+  const handleMouseLeave = (containerElement) => {
+    const videoElement = containerElement.querySelector("video");
+    if (videoElement) {
+      videoElement.play();
+    }
+  };
+
   return (
     <>
       {/* Mobile Main Preview */}
@@ -156,6 +170,16 @@ const ProductsGallery = ({
                 "bg-[var(--product-bg)] inline-flex items-center",
                 heightClass.container
               )}
+              onMouseEnter={
+                isMediaVideo
+                  ? (e) => handleMouseEnter(e.currentTarget)
+                  : undefined
+              }
+              onMouseLeave={
+                isMediaVideo
+                  ? (e) => handleMouseLeave(e.currentTarget)
+                  : undefined
+              }
             >
               {isMediaVideo ? (
                 <video

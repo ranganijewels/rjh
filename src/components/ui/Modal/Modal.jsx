@@ -1,20 +1,27 @@
 "use client";
 import React from "react";
 import Typography from "@/components/ui/Typography/Typography";
+import clsx from "clsx";
 
 const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed top-0 right-0 h-screen z-[9999] xl:w-[25%] lg:w-[40%] md:w-[50%] w-full">
+    <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-white/30 backdrop-blur-none"
         onClick={onClose}
+        className={clsx(
+          "fixed inset-0 z-[9998] bg-black/30 transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
       />
 
-      {/* Modal Content */}
-      <div className="relative bg-[var(--grey-00)] h-full ml-auto drop-shadow-md">
+      {/* Right Side Panel */}
+      <div
+        className={clsx(
+          "fixed top-0 right-0 z-[9999] h-screen xl:w-[25%] lg:w-[40%] md:w-[50%] w-full bg-[var(--grey-00)] drop-shadow-md transform transition-transform duration-300 ease-out",
+          isOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
         <div className="p-[25px_30px] flex justify-between items-center">
           <Typography variant="p" className="font-[500] capitalize">
             {title}
@@ -33,7 +40,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           {children}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

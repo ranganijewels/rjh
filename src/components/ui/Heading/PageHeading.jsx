@@ -1,12 +1,6 @@
 import React from "react";
 import Typography from "../Typography/Typography";
-
-const toTitleCase = (str) =>
-  str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+import { toTitleCase } from "@/utils/string";
 
 const PageHeading = ({ title }) => {
   return (

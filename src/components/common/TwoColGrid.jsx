@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useFileType } from "@/hooks/useFileType";
 
 const TwoColGrid = ({
+  index,
   title,
   designation,
   description,
@@ -21,7 +22,10 @@ const TwoColGrid = ({
   const router = useRouter();
   const { isVideo } = useFileType(file);
   return (
-    <div className="w-full flex md:flex-row flex-col md:gap-[20px] gap-0 xl:px-[30px] px-[18px]">
+    <div
+      className="w-full flex md:flex-row flex-col md:gap-[20px] gap-0 xl:px-[30px] px-[18px]"
+      key={index}
+    >
       <div className={`md:w-1/2 w-full ${isReverse && "md:order-2"}`}>
         {isVideo ? (
           <video

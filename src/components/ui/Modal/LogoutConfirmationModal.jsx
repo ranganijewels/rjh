@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Button from "../Button/Button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/store/authThunks";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 const LogoutConfirmationModal = ({ onClose }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const isLoggingOut = useSelector((state) => state.auth.loading);
 
   const handleLogout = () => {
     dispatch(logoutUser())
@@ -47,7 +48,10 @@ const LogoutConfirmationModal = ({ onClose }) => {
 
         {/* Buttons */}
         <div className="flex flex-col gap-[10px]">
-          <Button title="Logout" onClick={handleLogout} />
+          <Button
+            title={isLoggingOut ? "Logging out..." : "Logout"}
+            onClick={handleLogout}
+          />
           <Button onClick={onClose} title="Cancel" variant="secondary" />
         </div>
       </div>

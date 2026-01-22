@@ -13,7 +13,6 @@ const Footer = () => {
             src="/logo/elova-jewel-footer.png"
             alt="Elova Logo"
             className="xl:w-[198px] xl:h-[100px] lg:w-[130px] lg:h-[60px] w-[140px] h-[70px]"
-            // className="xl:w-[198px] xl:h-[40px]  lg:w-[105px] lg:h-[21px] w-[80px] h-[16px]"
           />
         </div>
 

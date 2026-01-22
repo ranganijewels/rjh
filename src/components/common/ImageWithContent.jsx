@@ -15,8 +15,13 @@ const ImageWithContent = ({
   sectionClass,
   redirectUrl,
 }) => {
-  const { containerRef, canScrollLeft, canScrollRight, scroll } =
-    useScrollControls();
+  const {
+    containerRef,
+    canScrollLeft,
+    canScrollRight,
+    scroll,
+    updateScrollState,
+  } = useScrollControls();
 
   return (
     <section className={`lg:px-[30px] px-[18px] ${sectionClass}`}>

@@ -82,11 +82,15 @@ export const MENUS_OPTIONS = [
           // },
           {
             label: "Virtual Consultation",
-            link: "/contact-us",
+            link: "/book-consultancy",
           },
           // "Ready-to-Ship Rings",
           "Free Resizing",
-          "Jewelry Care",
+          {
+            label: "Jewelry Care",
+            link: "/jewelry-care",
+          },
+          ,
         ],
       },
     ],
