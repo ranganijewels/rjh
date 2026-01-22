@@ -38,6 +38,7 @@ const ProductDetails = () => {
           const isReverse = index % 2 !== 0;
           return (
             <TwoColGrid
+              index={index}
               title={banner?.hero_text}
               description={banner?.hero_description}
               buttonText={banner?.button_text}

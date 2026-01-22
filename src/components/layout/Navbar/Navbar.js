@@ -19,6 +19,7 @@ import { mapApiMenuToOptions } from "@/utils/mapMenuData";
 import { useSelector } from "react-redux";
 import WishlistPopUp from "@/components/ui/PopUp/WishlistPopUp";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
+import useIsMobile from "@/utils/useIsMobile";
 
 const Navbar = () => {
   const router = useRouter();
@@ -30,7 +31,8 @@ const Navbar = () => {
   const [menuOptions, setMenuOptions] = useState(MENUS_OPTIONS);
   const { fetchAll } = useCrudApi("/api/nav-menu");
   const wishlistCount = useSelector((s) => s.wishlist.count);
-  const { isOpen, open, close } = useWishlistPopup();
+  const { open, close } = useWishlistPopup();
+  const { isMobile } = useIsMobile(1024);
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -91,7 +93,6 @@ const Navbar = () => {
                 src="/logo/elova-jewel.png"
                 alt="Elova Logo"
                 className="md:w-[125px] w-[100px]"
-                // className="md:w-auto w-[100px] h-[28px]"
               />
             </Link>
           </div>
@@ -142,11 +143,9 @@ const Navbar = () => {
                 </span>
               )}
 
-              <WishlistPopUp
-                isOpen={isOpen}
-                onMouseEnter={open}
-                onMouseLeave={close}
-              />
+              {!isMobile && (
+                <WishlistPopUp onMouseEnter={open} onMouseLeave={close} />
+              )}
             </div>
 
             <img

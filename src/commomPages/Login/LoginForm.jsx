@@ -12,14 +12,28 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
 
   const redirectTo = searchParams.get("redirect") || "/";
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e?.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
     const resultAction = await dispatch(loginUser({ email, password }));
+
+    setIsLoading(false);
 
     if (loginUser.fulfilled.match(resultAction)) {
       router.push(redirectTo);
@@ -29,7 +43,10 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="md:w-[50%] w-full space-y-[30px] 2xl:px-[240px] xl:px-[100px] lg:px-[67px] md:px-[47px] px-[18px] py-[41px] md:py-0 md:m-auto">
+    <form
+      onSubmit={handleLogin}
+      className="md:w-[50%] w-full space-y-[30px] 2xl:px-[240px] xl:px-[100px] lg:px-[67px] md:px-[47px] px-[18px] py-[41px] md:py-0 md:m-auto"
+    >
       <h2 className="xl:text-[18px] text-[16px] font-[500]">
         Login to Your ELOVA Account
       </h2>
@@ -41,6 +58,7 @@ const LoginForm = () => {
         onChange={(e) => setEmail(e.target.value)}
         borderBottom
       />
+
       <div>
         <Input
           placeholder="Password"
@@ -51,7 +69,8 @@ const LoginForm = () => {
           type="password"
           borderBottom
         />
-        <Link href={"/"} className="xl:text-[14px] text-[12px] font-[400]">
+
+        <Link href="/" className="xl:text-[14px] text-[12px] font-[400]">
           Forgot Password?
         </Link>
       </div>
@@ -59,15 +78,23 @@ const LoginForm = () => {
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="flex flex-col items-center gap-[12px]">
-        <Button title="Login" className="w-full" onClick={handleLogin} />
+        <Button
+          title={isLoading ? "Logging in..." : "Login"}
+          className="w-full"
+          type="submit"
+          disabled={isLoading}
+        />
+
         <p
-          onClick={() => router.push("/sign-up")}
-          className="text-[14px] font-[400] underline cursor-pointer uppercase"
+          onClick={() => !isLoading && router.push("/sign-up")}
+          className={`text-[14px] font-[400] underline uppercase ${
+            isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+          }`}
         >
           Create New Account
         </p>
       </div>
-    </div>
+    </form>
   );
 };
 

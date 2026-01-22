@@ -17,6 +17,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useSelector } from "react-redux";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
+import ShareModal from "@/components/ui/Modal/ShareModal";
 
 const Details = () => {
   const router = useRouter();
@@ -29,6 +30,7 @@ const Details = () => {
   const { create: filters } = useCrudApi("/api/product/filters");
   const [filtersData, setFiltersData] = useState([]);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
+  const [openShareModal, setOpenShareModal] = useState(false);
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -103,6 +105,7 @@ const Details = () => {
       .then((res) => res.json())
       .then((json) => {
         if (!isCurrent) return;
+        setSelectDiamondWeightId(null);
         if (!selectDiamondWeightId) {
           const data = json?.data ?? {};
           setProductInfo(data);
@@ -153,50 +156,6 @@ const Details = () => {
     }
   };
 
-  // const checkIfWishlisted = async () => {
-  //   if (
-  //     !customerId ||
-  //     !productInfo?.id ||
-  //     !selectedMetal?.karat?.value ||
-  //     !activeColor ||
-  //     !selectedShape
-  //   ) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const payload = {
-  //       product_id: productInfo.id,
-  //       metal_color: activeColor.toUpperCase(),
-  //       metal_type: selectedMetal.karat.value,
-  //       diamond_shape: selectedShape,
-  //       ring_size: selectedRingSize ? String(selectedRingSize) : "",
-  //       size: selectedWidth ? selectedWidth.toString() : "",
-  //     };
-
-  //     if (selectedWeight != null) {
-  //       payload.center_diamond_weight = String(selectedWeight);
-  //     }
-
-  //     const res = await checkWishlist(payload);
-  //     setIsWishlisted(Boolean(res?.data?.wishlist));
-  //   } catch (err) {
-  //     console.error("Error checking wishlist status:", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   checkIfWishlisted();
-  // }, [
-  //   customerId,
-  //   productInfo?.id,
-  //   selectedMetal?.karat?.value,
-  //   activeColor,
-  //   selectedWeight,
-  //   selectedRingSize,
-  //   // selectedShape,
-  // ]);
-
   const syncWishlistState = async () => {
     const isWishlisted = await checkIfWishlisted({
       product_id: productInfo.id,
@@ -234,47 +193,6 @@ const Details = () => {
     selectedRingSize,
     selectedWidth,
   ]);
-
-  // const handleWishlist = async () => {
-  //   const token = localStorage.getItem("authTokenElova");
-
-  //   if (!token || !customerId) {
-  //     toast.error("Please login first");
-  //     router.push("/login");
-  //     return;
-  //   }
-
-  //   if (
-  //     !productInfo?.id ||
-  //     !productInfo?.product_price ||
-  //     !productInfo?.category_id ||
-  //     !selectedMetal?.karat?.value ||
-  //     !activeColor ||
-  //     !selectedShape
-  //   ) {
-  //     console.warn("Wishlist blocked: incomplete data");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await createWishlist({
-  //       product_id: productInfo.id,
-  //       product_price: productInfo.product_price,
-  //       category_id: productInfo.category_id,
-  //       metal_type: selectedMetal.karat.value,
-  //       metal_color: activeColor.toUpperCase(),
-  //       diamond_shape: selectedShape,
-  //       center_diamond_weight: selectedWeight ? selectedWeight.toString() : "",
-  //       ring_size: selectedRingSize ? String(selectedRingSize) : "",
-  //       size: selectedWidth.toString() || "",
-  //     });
-
-  //     setIsWishlisted(Boolean(res?.data?.wishlist));
-  //   } catch (err) {
-  //     console.error("Wishlist error:", err);
-  //     toast.error("Wishlist failed");
-  //   }
-  // };
 
   const handleWishlist = async () => {
     const wishlisted = await toggleWishlist({
@@ -335,14 +253,6 @@ const Details = () => {
       if (button) button.click();
     }
   };
-
-  // useEffect(() => {
-  //   if (!productInfo) return;
-
-  //   if (!selectedSize) {
-  //     setSelectedSize(productInfo?.occasion?.custom_title || null);
-  //   }
-  // }, [productInfo]);
 
   const diamondWeightArray = productInfo?.variants
     ?.filter((v) => v?.carat && v?.carat.trim() !== "")
@@ -441,7 +351,7 @@ const Details = () => {
       return productInfo.productsizevariant
         .filter((v) => v.size?.toLowerCase() === selectedWidth.toLowerCase())
         .map((s) => ({
-          label: `${s.size_value}"`,
+          label: `${s.size_value}`,
           value: String(s.size_value),
           variantId: s.variant_product_id,
         }));
@@ -449,7 +359,7 @@ const Details = () => {
 
     return (
       productInfo.sizes?.map((s) => ({
-        label: `${s.size}"`,
+        label: `${s.size}`,
         value: String(s.size),
         variantId: null,
       })) || []
@@ -686,13 +596,13 @@ const Details = () => {
 
                 setSelectDiamondWeightId(variantId);
               }
-              // updatePricing(
-              //   productInfo?.id,
-              //   productInfo?.design_no,
-              //   selectedMetal,
-              //   option.value,
-              //   selectedWeight
-              // );
+              updatePricing(
+                productInfo?.id,
+                productInfo?.design_no,
+                selectedMetal,
+                option.value,
+                selectedWeight
+              );
             }}
             isInvalid={!!errorMessage}
           />
@@ -725,10 +635,7 @@ const Details = () => {
               iconOnly
               className="w-[42px] h-[42px] !p-[9px]"
               onClick={() => {
-                navigator.clipboard
-                  .writeText(window.location.href)
-                  .then(() => toast.success("URL copied!"))
-                  .catch(() => toast.error("Failed to copy URL"));
+                setOpenShareModal(true);
               }}
             />
           </div>
@@ -750,6 +657,9 @@ const Details = () => {
           />
         )}
       </div>
+      {openShareModal && (
+        <ShareModal onClose={() => setOpenShareModal(false)} />
+      )}
     </section>
   );
 };

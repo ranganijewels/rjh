@@ -1,12 +1,12 @@
 export const ACCOUNT_MENUS = [
-  { label: "Overview", path: "/account" },
+  { label: "Account Dashboard", path: "/account" },
   { label: "Orders", path: "/account/orders" },
   { label: "Wishlist", path: "/account/wishlist" },
   { label: "Addresses", path: "/account/addresses" },
   { label: "Profile Info", path: "/account/profile-info" },
   { label: "Size Profile", path: "/account/size-profile" },
   { label: "Support", path: "/account/support" },
-  { label: "Logout", path: "/login",action: "logout" },
+  { label: "Logout", path: "/login", action: "logout" },
 ];
 
 export const OVERVIEW_DETAILS = [

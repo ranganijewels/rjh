@@ -10,8 +10,10 @@ import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import { useRouter } from "next/navigation";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { usePreferences } from "@/context/PreferencesContext";
+import { useWishlistPopup } from "@/context/WishlistPopupContext";
 
-const WishlistPopUp = ({ isOpen, onMouseEnter, onMouseLeave }) => {
+const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
+  const { isOpen, close } = useWishlistPopup();
   const dispatch = useDispatch();
   const { selectedCountry } = usePreferences();
   const router = useRouter();
@@ -22,7 +24,6 @@ const WishlistPopUp = ({ isOpen, onMouseEnter, onMouseLeave }) => {
   }, [dispatch]);
 
   if (!isOpen) return null;
-console.log('wishlist popup rendered',wishlist);
   return (
     <div
       onMouseEnter={onMouseEnter}
@@ -34,18 +35,12 @@ console.log('wishlist popup rendered',wishlist);
           <Typography variant="p" className="font-[500] capitalize">
             Your Wishlist
           </Typography>
-          <img
-            src="/icons/close.svg"
-            className="w-[12px] h-[12px] cursor-pointer"
-            alt="close icon"
-          />
         </div>
 
         <hr className="hr-teal-3 shrink-0" />
 
         <div className="flex-1 overflow-y-auto space-y-[24px] px-[30px] my-[28px] custom-scroll">
           {wishlist?.map((item) => {
-            debugger;
             return (
               <div key={item.id} className="flex gap-[22px]">
                 <div className="p-[19px_20px] bg-[var(--product-bg)] shrink-0">
@@ -60,7 +55,7 @@ console.log('wishlist popup rendered',wishlist);
                     variant="h5"
                     className="!font-[500] mb-[15px] cursor-pointer hover:text-[var(--teal-1)]"
                     onClick={() => {
-                      debugger;
+                      close();
                       router.push(
                         `/product/${item?.product?.id}?categoryId=${item?.category_id}&selectedMetalColor=${item?.metal_color}&variantId=${item?.product_id}&shape=${item?.diamond_shape}`
                       );
