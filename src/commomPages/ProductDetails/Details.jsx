@@ -9,7 +9,7 @@ import DiamondOptions from "./DiamondOptions";
 import RingSizeSelector from "./RingSizeSelector";
 import FeaturesSpecs from "./FeaturesSpecs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast";
+
 import { cleanCarat, toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import HeartIcon from "@/components/Icons/HeartIcon";
@@ -18,6 +18,7 @@ import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useSelector } from "react-redux";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import ShareModal from "@/components/ui/Modal/ShareModal";
+import ReviewSummary from "@/components/ui/ReviewSummary";
 
 const Details = () => {
   const router = useRouter();
@@ -72,6 +73,7 @@ const Details = () => {
   const [selectedCarat, setSelectedCarat] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const customerId = useSelector((state) => state.auth?.customer?.id);
+  const wishlistCount = useSelector((state) => state.wishlist.count);
 
   const { checkIfWishlisted, toggleWishlist } = useWishlistLogic({
     createWishlistApi: createWishlist,
@@ -192,6 +194,7 @@ const Details = () => {
     selectedWeight,
     selectedRingSize,
     selectedWidth,
+    wishlistCount,
   ]);
 
   const handleWishlist = async () => {
@@ -403,9 +406,14 @@ const Details = () => {
             {productInfo?.title && toTitleCase(productInfo.title)}
           </p>
           <p className="xl:text-[14px] text-[12px] font-[300] italic">
-            {productInfo?.description}
+            {/* {productInfo?.description} */}
+            “A timeless Princess cut diamond set in 18k yellow gold — a modern
+            classic.”
           </p>
         </div>
+
+        <ReviewSummary rating={1} totalReviews={10} />
+
         <div className="space-y-[12px]">
           <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
             {getCurrencySymbol(selectedCountry?.currency) +
