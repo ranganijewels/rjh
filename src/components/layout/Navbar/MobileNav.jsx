@@ -60,11 +60,17 @@ const MobileNav = ({ closeMobile }) => {
         </div>
 
         {/* Bottom links */}
-        <a>
+        {/* <a>
           <div className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]">
             Book now
           </div>
-        </a>
+        </a> */}
+        <Link
+          href={"/book-an-appointment"}
+          className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]"
+        >
+          Book now
+        </Link>
         <a>
           <div className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]">
             Canada (CAD $) <img src="/icons/right-caret.svg" />

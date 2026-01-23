@@ -45,7 +45,7 @@ const ShareModal = ({ onClose }) => {
         </p>
 
         {/* Social Icons */}
-        <div className="flex justify-center">
+        <div className="flex justify-evenly">
           <ShareIcon
             label="WhatsApp"
             href={`https://wa.me/?text=${encodedUrl}`}

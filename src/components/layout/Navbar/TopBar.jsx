@@ -61,7 +61,7 @@ const TopBar = ({ isTopBarHidden }) => {
           </Swiper>
         </div>
         <div className="text-end lg:inline-flex hidden justify-end items-baseline gap-[16px] w-[300px]">
-          <Link href={"/contact-us"} className="uppercase shrink-0">
+          <Link href={"/book-an-appointment"} className="uppercase shrink-0">
             Book now
           </Link>
           <button

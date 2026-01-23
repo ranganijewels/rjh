@@ -11,7 +11,7 @@ import Button from "@/components/ui/Button/Button";
 const BookConsultancy = () => {
   return (
     <section>
-      <PageHeading title={"Book An Appointment"} />
+      <PageHeading title={"Book Consultancy"} />
 
       <div className="2xl:py-[100px] gap-[40px] lg:py-[54px] py-[40px] 2xl:px-[421px] xl:px-[320px] lg:px-[155px] md:px-[40px] px-[18px]">
         <Support />
