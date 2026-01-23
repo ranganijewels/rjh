@@ -74,25 +74,6 @@ const ProductCard = ({
 
     setIsWishlisted(wishlisted);
   };
-  // const checkIfWishlisted = async (color) => {
-  //   try {
-  //     const res = await checkWishlist({
-  //       product_id: productId,
-  //       metal_color: color.toUpperCase(),
-  //       metal_type: metalType,
-  //       diamond_shape: shape,
-  //       center_diamond_weight: centerDiamondWeight
-  //         ? centerDiamondWeight.toString()
-  //         : "",
-  //       ring_size: ringSize.toString(),
-  //       size: size.toString() || "",
-  //     });
-
-  //     setIsWishlisted(Boolean(res?.data?.wishlist));
-  //   } catch (err) {
-  //     console.error("checkWishlist failed", err);
-  //   }
-  // };
 
   useEffect(() => {
     if (wishlistStatus !== undefined) {
