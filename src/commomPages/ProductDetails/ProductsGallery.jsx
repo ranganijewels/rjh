@@ -128,7 +128,7 @@ const ProductsGallery = ({
       )}
 
       {/* Mobile Thumbnails */}
-      <div className="md:hidden flex gap-2 overflow-x-auto px-2">
+      <div className="md:hidden flex gap-2 overflow-x-auto px-2 mt-[18px]">
         {orderedMedia.map((media, index) => (
           <div
             key={index}

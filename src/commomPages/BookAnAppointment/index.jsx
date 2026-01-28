@@ -53,7 +53,7 @@ const BookAnAppointment = () => {
             borderBottom
             fullWidth
           />
-          <div className="grid grid-cols-2 gap-[40px]">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-[40px]">
             <div>
               <AppointmentCalendar />
             </div>
@@ -74,7 +74,7 @@ const BookAnAppointment = () => {
                 fullWidth
               />
 
-              <div className="px-[40px] space-y-[7px]">
+              <div className="md:px-[40px] space-y-[7px]">
                 <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />

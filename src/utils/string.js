@@ -35,3 +35,28 @@ export const normalizeCarat = (value) => {
 
   return Number.isInteger(num) ? String(num) : String(num);
 };
+
+export const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+export const getPreviewUrl = (file) => {
+  if (!file) return null;
+
+  if (file instanceof File || file instanceof Blob) {
+    return URL.createObjectURL(file);
+  }
+
+  if (typeof file === "string") {
+    return file;
+  }
+
+  if (file?.preview) return file.preview;
+  if (file?.url) return file.url;
+
+  return null;
+};
