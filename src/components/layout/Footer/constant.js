@@ -16,7 +16,7 @@ export const FOOTER_MENUS = [
     title: "About Us",
     links: [
       { label: "Track Order", url: "/account/orders" },
-      { label: "Resize & Repair", url: "/free-resizing" },
+      { label: "Resize & Repair", url: "/resize-repair-request" },
       { label: "Care Guide", url: "/jewelry-care" },
       { label: "Blog", url: "/blog" },
       { label: "Education", url: "/blog?cat=education" },

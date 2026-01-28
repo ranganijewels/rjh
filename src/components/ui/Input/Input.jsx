@@ -38,7 +38,7 @@ const Input = ({
           borderBottom
             ? "border-b focus:border-b-2 focus:border-[var(--teal-2)] py-[10px] pl-[10px] pr-[20px]"
             : "border focus:ring-2 focus:ring-[var(--teal-2)] focus:border-transparent p-[10px_20px]"
-        } border-[var(--placeholder)] focus:outline-none  caret-[var(--teal-2)]  text-[14px] font-[400] placeholder:capitalize ${className}`}
+        } border-[var(--placeholder)] focus:outline-none  caret-[var(--teal-2)]  md:text-[14px] text-[12px] font-[400] placeholder:md:text-[16px] placeholder:text-[12px] placeholder:capitalize ${className}`}
         {...rest}
       />
     </div>

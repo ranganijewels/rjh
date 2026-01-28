@@ -9,12 +9,6 @@ export const typographyStyles = {
     base: "lg:text-[38px] lg:font-[400] font-source-serif",
     sm: "text-[20px] font-source-serif",
   },
-  // h3: {
-  //   base: "xl:text-[67px] xl:font-[500] xl:leading-[1.1]",
-  //   lg: "lg:text-[46px] lg:font-[700] lg:leading-[1.1]",
-  //   md: "md:text-[32px] md:font-[700]",
-  //   sm: "text-[20px] font-[700]",
-  // },
   h3: {
     base: "xl:text-[28px]",
     lg: "lg:text-[24px]",

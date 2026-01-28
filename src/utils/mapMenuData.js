@@ -1,11 +1,11 @@
 export const mapApiMenuToOptions = (apiData, staticOptions) => {
-  return staticOptions.map((staticMenu) => {
+  return staticOptions?.map((staticMenu) => {
     const apiMenu = apiData.find(
-      (menu) => menu.name.toLowerCase() === staticMenu?.title.toLowerCase()
+      (menu) => menu?.name.toLowerCase() === staticMenu?.title.toLowerCase()
     );
 
-    let categories = [...staticMenu.categories];
-    let imageSection = [...(staticMenu.imageSection || [])];
+    let categories = [...staticMenu?.categories];
+    let imageSection = [...(staticMenu?.imageSection || [])];
 
     if (apiMenu) {
       const apiStyleGroup = (apiMenu?.menu_groups || []).find(

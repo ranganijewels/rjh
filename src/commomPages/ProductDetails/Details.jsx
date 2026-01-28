@@ -400,19 +400,19 @@ const Details = () => {
       </div>
 
       {/* Product details */}
-      <div className="lg:w-[29%] w-full space-y-[30px] lg:sticky lg:top-[20px]">
+      <div className="lg:w-[29%] w-full space-y-[18px] lg:sticky lg:top-[20px]">
         <div>
-          <p className="xl:text-[20px] text-[16px] font-[500]">
+          <p className="xl:text-[20px] text-[20px] font-[500] mb-[10px]">
             {productInfo?.title && toTitleCase(productInfo.title)}
           </p>
-          <p className="xl:text-[14px] text-[12px] font-[300] italic">
+          <p className="text-[14px] font-[300] mb-[18px]">
             {/* {productInfo?.description} */}
             “A timeless Princess cut diamond set in 18k yellow gold — a modern
             classic.”
           </p>
+        <ReviewSummary rating={1} totalReviews={10} />
         </div>
 
-        <ReviewSummary rating={1} totalReviews={10} />
 
         <div className="space-y-[12px]">
           <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
