@@ -30,6 +30,7 @@ const MetalSelector = ({
   activeColor,
   setActiveColor,
   useActiveSource,
+  className,
 }) => {
   const { karat, color } = value || {};
 
@@ -53,7 +54,7 @@ const MetalSelector = ({
       : colorMap[value] || "#ccc";
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${className}`}>
       {/* Title */}
       <div className="inline-flex gap-2">
         <p className="text-[14px] font-[500] text-[#000000]">Metal :</p>

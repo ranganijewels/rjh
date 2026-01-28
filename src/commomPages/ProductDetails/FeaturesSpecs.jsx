@@ -89,7 +89,7 @@ const FeaturesSpecs = ({
         productDetail?.diamonds?.[0]?.color +
           " - " +
           productDetail?.diamonds?.[0]?.quality || "-",
-        totalPcs || "-",
+          productDetail?.diamonds?.[0]?.pcs || "-",
         ...(hasCenterDiamond ? [formatCarat(selectedCarat) || "-"] : []),
         ...(hasSideStones ? [sideStoneWeight] : []),
       ],

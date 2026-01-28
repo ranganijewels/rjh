@@ -35,11 +35,16 @@ export const registerUser = createAsyncThunk(
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
+
+      if (!res.ok) {
+        return thunkAPI.rejectWithValue(data);
+      }
 
       return { customer: data.customer };
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.message);
+      return thunkAPI.rejectWithValue({
+        message: err.message || "Registration failed",
+      });
     }
   }
 );
@@ -82,6 +87,31 @@ export const logoutUser = createAsyncThunk(
       return data.message || "Logout successful";
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message || "Logout failed");
+    }
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async ({ email, otp }, thunkAPI) => {
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return thunkAPI.rejectWithValue(data);
+      }
+
+      return data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue({
+        message: err.message || "OTP verification failed",
+      });
     }
   }
 );

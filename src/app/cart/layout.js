@@ -1,11 +1,17 @@
 "use client";
-import CartStepper from "@/commomPages/Cart/CartStepper";
 import PageHeading from "@/components/ui/Heading/PageHeading";
+import Stepper from "@/components/ui/Stepper/Stepper";
 import { usePreferences } from "@/context/PreferencesContext";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
+const steps = [
+  { title: "Shopping cart", path: "/cart" },
+  { title: "Checkout details", path: "/cart/checkout" },
+  { title: "Order complete", path: "/cart/order-complete" },
+];
 
 const CartLayout = ({ children }) => {
   const dispatch = useDispatch();
@@ -57,7 +63,7 @@ const CartLayout = ({ children }) => {
             children
           ) : cartItems && cartItems.length > 0 ? (
             <>
-              <CartStepper currentPath={pathname} />
+              <Stepper currentPath={pathname} steps={steps} />
               {children}
             </>
           ) : (

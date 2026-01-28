@@ -22,6 +22,7 @@ const DiamondOptions = ({
   setSelectedCarat,
   occasion,
 }) => {
+  console.log("varantList", variantList);
   /** ---------------- SHAPE SCROLL ---------------- */
   const {
     containerRef: shapeRef,
@@ -135,7 +136,6 @@ const DiamondOptions = ({
           ["small", "medium", "large"].includes(s.toLowerCase())
       );
 
-    // ✅ no width exists → explicitly notify parent
     if (!sizes || sizes.length === 0) {
       onSizeChange?.({ size: "" });
       return;
