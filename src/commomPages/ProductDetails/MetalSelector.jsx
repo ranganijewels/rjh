@@ -77,6 +77,7 @@ const MetalSelector = ({
                 handleGetAmount?.(newMetal);
               }}
               className={clsx(
+                " w-full max-w-[70px]",
                 karat?.value === k.value && "border border-[var(--teal-1)]"
               )}
             />

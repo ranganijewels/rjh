@@ -16,10 +16,31 @@ export function toTitleCase(str) {
 }
 
 // Adds "CT" suffix if not already present.
+// export const formatCarat = (value) => {
+//   if (!value) return "";
+//   const hasCT = String(value).toUpperCase().includes("CT");
+//   return hasCT ? value : `${value} CT`;
+// };
+
 export const formatCarat = (value) => {
   if (!value) return "";
-  const hasCT = String(value).toUpperCase().includes("CT");
-  return hasCT ? value : `${value} CT`;
+
+  // If value is "Custom", return as-is
+  if (String(value).toLowerCase() === "custom") {
+    return "Custom";
+  }
+
+  const str = String(value).trim();
+
+  // Already contains ct or ctw
+  const hasCT = /ctw?|ct/i.test(str);
+  return hasCT ? str : `${str} CT`;
+};
+
+export const formatRange = (arr) => {
+  if (!Array.isArray(arr) || arr.length === 0) return "";
+  if (arr.length === 1) return arr[0];
+  return `${arr[0]}-${arr[arr.length - 1]}`;
 };
 
 export const cleanCarat = (value) =>

@@ -304,71 +304,133 @@ export const MENUS_OPTIONS = [
   },
   {
     title: "Customize",
-    categories: [
+    categoriesWithMedia: true,
+    mediaCategories: [
       {
-        title: "Customize Jewelry",
-        items: [
-          {
-            label: "Engagement Ring",
-            link: "/customize-form?category_id=10&size=ring",
-          },
-          {
-            label: "Wedding Band",
-            link: "/customize-form?category_id=1&size=band",
-          },
-          {
-            label: "Necklace",
-            link: "/customize-form?category_id=6&size=necklace",
-          },
-          {
-            label: "Bracelet",
-            link: "/customize-form?category_id=3&size=bracelet",
-          },
-          // { label: "Earrings", link: "/customize-form?category_id=4" },
-        ],
+        label: "Engagement Rings",
+        image: "/images/customize/engagement.jpg",
+        link: "/customize/form/reference?category_id=10&size=ring",
       },
       {
-        title: "Guides & Support",
-        items: [
-          { label: "Customization Guide", link: "/customize" },
-          { label: "Diamond Selection Guide", link: "/customize" },
-          { label: "Metal & Setting Options", link: "/customize" },
-          { label: "Ring Size Guide", link: "/customize" },
-        ],
+        label: "Wedding Bands",
+        image: "/images/customize/band.jpg",
+        link: "/customize/form/reference?category_id=1&size=band",
       },
       {
-        title: "Inspiration Gallery",
-        items: [
-          { label: "Past Custom Designs", link: "/customize" },
-          { label: "Customer Stories", link: "/customize" },
-          { label: "Behind the Craft", link: "/customize" },
-          { label: "Explore Signature Details", link: "/customize" },
-        ],
+        label: "Bracelets",
+        image: "/images/customize/bracelet.jpg",
+        link: "/customize/form/reference?category_id=3&size=bracelet",
       },
       {
-        title: "STYLE & EDUCATION",
-        items: [
-          { label: "Jewelry Styling Guide", link: "/jewelry" },
-          { label: "How to Layer & Stack", link: "/jewelry" },
-          { label: "Jewelry Care", link: "/jewelry" },
-          { label: "Metals & Materials", link: "/jewelry" },
-          { label: "Lab-Grown Diamond Info", link: "/jewelry" },
-        ],
+        label: "Necklaces",
+        image: "/images/customize/necklace.jpg",
+        link: "/customize/form/reference?category_id=6&size=necklace",
+      },
+      {
+        label: "Earrings",
+        image: "/images/customize/earring.jpg",
+        link: "/customize/form/reference?category_id=4&size=earring",
       },
     ],
-    imageSection: [
-      {
-        imageUrl: "/images/home/start-designing.png ",
-        callToAction: {
-          text: "START DESIGNING",
-          url: "/customize",
-        },
-        additionalTitle: "Your Vision. Our Craft.",
-        additionalDescription:
-          "From modern minimalism to timeless romance — design bespoke pieces that reflect you.",
-      },
-    ],
+    categories: [],
   },
+
+  // {
+  //   title: "Customize",
+  //   // categoriesWithMedia: true,
+  //   // mediaCategories: [
+  //   //   {
+  //   //     label: "Engagement Rings",
+  //   //     image: "/images/customize/engagement.jpg",
+  //   //     link: "/customize-form?category_id=10&size=ring",
+  //   //   },
+
+  //   //   {
+  //   //     label: "Wedding Bands",
+  //   //     image: "/images/customize/engagement.jpg",
+  //   //     link: "/customize-form?category_id=10&size=ring",
+  //   //   },
+  //   //   {
+  //   //     label: "Necklace & Pendants",
+  //   //     image: "/images/customize/engagement.jpg",
+  //   //     link: "/customize-form?category_id=10&size=ring",
+  //   //   },
+  //   //   {
+  //   //     label: "Bracelets",
+  //   //     image: "/images/customize/engagement.jpg",
+  //   //     link: "/customize-form?category_id=10&size=ring",
+  //   //   },
+  //   //   {
+  //   //     label: "Earring",
+  //   //     image: "/images/customize/engagement.jpg",
+  //   //     link: "/customize-form?category_id=10&size=ring",
+  //   //   },
+  //   // ],
+  //   categories: [
+  //     {
+  //       title: "Customize Jewelry",
+  //       items: [
+  //         {
+  //           label: "Engagement Ring",
+  //           link: "/customize-form?category_id=10&size=ring",
+  //         },
+  //         {
+  //           label: "Wedding Band",
+  //           link: "/customize-form?category_id=1&size=band",
+  //         },
+  //         {
+  //           label: "Necklace",
+  //           link: "/customize-form?category_id=6&size=necklace",
+  //         },
+  //         {
+  //           label: "Bracelet",
+  //           link: "/customize-form?category_id=3&size=bracelet",
+  //         },
+  //         // { label: "Earrings", link: "/customize-form?category_id=4" },
+  //       ],
+  //     },
+  //     {
+  //       title: "Guides & Support",
+  //       items: [
+  //         { label: "Customization Guide", link: "/customize" },
+  //         { label: "Diamond Selection Guide", link: "/customize" },
+  //         { label: "Metal & Setting Options", link: "/customize" },
+  //         { label: "Ring Size Guide", link: "/customize" },
+  //       ],
+  //     },
+  //     {
+  //       title: "Inspiration Gallery",
+  //       items: [
+  //         { label: "Past Custom Designs", link: "/customize" },
+  //         { label: "Customer Stories", link: "/customize" },
+  //         { label: "Behind the Craft", link: "/customize" },
+  //         { label: "Explore Signature Details", link: "/customize" },
+  //       ],
+  //     },
+  //     {
+  //       title: "STYLE & EDUCATION",
+  //       items: [
+  //         { label: "Jewelry Styling Guide", link: "/jewelry" },
+  //         { label: "How to Layer & Stack", link: "/jewelry" },
+  //         { label: "Jewelry Care", link: "/jewelry" },
+  //         { label: "Metals & Materials", link: "/jewelry" },
+  //         { label: "Lab-Grown Diamond Info", link: "/jewelry" },
+  //       ],
+  //     },
+  //   ],
+  //   imageSection: [
+  //     {
+  //       imageUrl: "/images/home/start-designing.png ",
+  //       callToAction: {
+  //         text: "START DESIGNING",
+  //         url: "/customize",
+  //       },
+  //       additionalTitle: "Your Vision. Our Craft.",
+  //       additionalDescription:
+  //         "From modern minimalism to timeless romance — design bespoke pieces that reflect you.",
+  //     },
+  //   ],
+  // },
   {
     title: "About us",
     categories: [

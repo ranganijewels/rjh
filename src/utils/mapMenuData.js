@@ -47,7 +47,7 @@ export const mapApiMenuToOptions = (apiData, staticOptions) => {
         );
       }
 
-      if (apiMenu.image) {
+      if (apiMenu.image && apiMenu.name.toLowerCase() !== "customize") {
         imageSection = [
           {
             imageUrl: apiMenu.image,

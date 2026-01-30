@@ -12,34 +12,35 @@ import FindYourDiomond from "./FindYourDiomond";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { useHomepageData } from "../Home/useHomepageData";
 import { useRouter } from "next/navigation";
+import { useCustomizeData } from "./useCustomizeData";
 
 const Customize = () => {
   const router = useRouter();
-  const { fetchAll } = useCrudApi(`/api/customize`);
-  const { homeData } = useHomepageData();
+  // const { fetchAll } = useCrudApi(`/api/customize`);
+  const { customizeData } = useCustomizeData();
   const { fetchAll: fetchCategories } = useCrudApi(`/api/product/categories`);
-  const [customizeData, setCustomizeData] = useState({});
+
   const [categories, setCategories] = useState([]);
+
   useEffect(() => {
-    Promise.all([fetchAll(), fetchCategories()])
-      .then(([customizeRes, categories]) => {
-        setCustomizeData(customizeRes.data || {});
+    fetchCategories()
+      .then((categories) => {
         setCategories(categories.data);
       })
       .catch((err) => console.error("Error fetching data:", err));
-  }, [fetchAll, fetchCategories]);
+  }, [fetchCategories]);
 
-  useEffect(() => {
-    const disableRightClick = (e) => {
-      e.preventDefault();
-    };
+  // useEffect(() => {
+  //   const disableRightClick = (e) => {
+  //     e.preventDefault();
+  //   };
 
-    document.addEventListener("contextmenu", disableRightClick);
+  //   document.addEventListener("contextmenu", disableRightClick);
 
-    return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", disableRightClick);
+  //   };
+  // }, []);
 
   const normalizeString = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
 
@@ -79,7 +80,7 @@ const Customize = () => {
           const categoryId = category.id;
 
           router.push(
-            `/customize-form?category_id=${categoryId}&size=${sizeSlug}`
+            `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
           );
         }}
       />
