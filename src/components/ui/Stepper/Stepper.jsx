@@ -2,18 +2,18 @@ import React from "react";
 import Typography from "../Typography/Typography";
 
 const Stepper = ({ steps, currentPath }) => {
-  // const currentIndex = steps.findIndex((step) =>
-  //   step?.matchPaths?.some((path) => currentPath.startsWith(path))
-  // );
-  const currentIndex = steps.findIndex((s) => s.path === currentPath);
+  const currentIndex = steps.findIndex((step) =>
+    step?.matchPaths?.some((path) => currentPath.startsWith(path))
+  );
+  // const currentIndex = steps.findIndex((s) => s.path === currentPath);
 
   // safety fallback
-  // const activeIndex = currentIndex === -1 ? 0 : currentIndex;
+  const activeIndex = currentIndex === -1 ? 0 : currentIndex;
 
   return (
     <div className="flex md:justify-center justify-start gap-[32px] mb-8 overflow-x-auto hide-scrollbar no-scrollbar scroll-smooth">
       {steps.map((step, index) => {
-        const isActive = index <= currentIndex;
+        const isActive = index == currentIndex;
 
         return (
           <div

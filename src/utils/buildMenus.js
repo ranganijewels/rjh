@@ -213,18 +213,18 @@ export const buildMenus = (apiData, options) => {
           ],
         },
       ],
-      imageSection: [
-        {
-          imageUrl: "/images/home/start-designing.png ",
-          callToAction: {
-            text: "START DESIGNING",
-            url: "/customize-form",
-          },
-          additionalTitle: "Your Vision. Our Craft.",
-          additionalDescription:
-            "From modern minimalism to timeless romance — design bespoke pieces that reflect you.",
-        },
-      ],
+      // imageSection: [
+      //   {
+      //     imageUrl: "/images/home/start-designing.png ",
+      //     callToAction: {
+      //       text: "START DESIGNING",
+      //       url: "/customize-form",
+      //     },
+      //     additionalTitle: "Your Vision. Our Craft.",
+      //     additionalDescription:
+      //       "From modern minimalism to timeless romance — design bespoke pieces that reflect you.",
+      //   },
+      // ],
     },
     {
       title: "About us",

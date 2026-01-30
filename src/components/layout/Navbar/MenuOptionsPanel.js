@@ -1,17 +1,35 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button/Button";
 import { MENUS_OPTIONS } from "./constant";
 import Link from "next/link";
 import clsx from "clsx";
 import { toTitleCase } from "@/utils/string";
+import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
+import { useCrudApi } from "@/hooks/useCrudApi";
+import { useRouter } from "next/navigation";
 
 const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
+  const router = useRouter();
   // const selectedMenu = MENUS_OPTIONS.find((menu) => menu.title === activeMenu);
   const selectedMenu = menus.find((menu) => menu.title === activeMenu);
   if (!selectedMenu) return null;
-
+  const isCustomize = selectedMenu?.categoriesWithMedia === true;
+  const { customizeData } = useCustomizeData();
   const panelRef = useRef();
+  const normalizeString = (str) => str?.toLowerCase().replace(/[^a-z]/g, "");
+
+  const { fetchAll: fetchCategories } = useCrudApi(`/api/product/categories`);
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories()
+      .then((categories) => {
+        setCategories(categories.data);
+      })
+      .catch((err) => console.error("Error fetching data:", err));
+  }, [fetchCategories]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -51,38 +69,108 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
       )}
       onMouseLeave={() => setActiveMenu(null)}
     >
-      {selectedMenu?.categories?.map((category, index) => {
-        return (
-          <div
-            className="flex xl:gap-[10px] lg:gap-[10px] flex-col"
-            key={index}
-          >
-            <h3 className="xl:text-[14px] lg:text-[12px] font-[500] xl:mb-[14px] lg:mb-[8px] uppercase">
-              {category.title}
-            </h3>
+      {!isCustomize &&
+        selectedMenu?.categories?.map((category, index) => {
+          return (
+            <div
+              className="flex xl:gap-[10px] lg:gap-[10px] flex-col"
+              key={index}
+            >
+              <h3 className="xl:text-[14px] lg:text-[12px] font-[500] xl:mb-[14px] lg:mb-[8px] uppercase">
+                {category.title}
+              </h3>
 
-            {category.items?.map((item, idx) => {
-              const href =
-                typeof item.link === "string"
-                  ? item.link
-                  : typeof item.href === "string"
-                  ? item.href
-                  : "/product";
+              {category.items?.map((item, idx) => {
+                const href =
+                  typeof item.link === "string"
+                    ? item.link
+                    : typeof item.href === "string"
+                    ? item.href
+                    : "/product";
+                return (
+                  <Link
+                    href={href}
+                    key={idx}
+                    className="text-[var(--grey-2)] xl:text-[14px] text-[12px] hover:text-[var(--teal-1)]"
+                    onClick={() => setActiveMenu(null)}
+                  >
+                    {toTitleCase(item.label) || toTitleCase(item)}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
 
+      {isCustomize && (
+        <div className="grid grid-cols-5 gap-[24px] w-full">
+          {customizeData?.cms_page?.collection_section?.[0]?.items.map(
+            (item, idx) => {
               return (
-                <Link
-                  href={href}
+                <div
                   key={idx}
-                  className="text-[var(--grey-2)] xl:text-[14px] text-[12px] hover:text-[var(--teal-1)]"
-                  onClick={() => setActiveMenu(null)}
+                  onClick={() => {
+                    if (!categories.length) return;
+
+                    const productNameNormalized = normalizeString(item.title);
+
+                    const category = categories.find((c) =>
+                      productNameNormalized?.includes(normalizeString(c.name))
+                    );
+
+                    if (!category) return;
+
+                    const sizeSlug = category.slug;
+                    const categoryId = category.id;
+
+                    router.push(
+                      `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
+                    );
+
+                    setActiveMenu(null);
+                  }}
+                  // onClick={() => setActiveMenu(null)}
+                  className="group cursor-pointer"
                 >
-                  {toTitleCase(item.label) || toTitleCase(item)}
-                </Link>
+                  <div className="overflow-hidden bg-white">
+                    <img
+                      src={item.file}
+                      alt={item.title}
+                      className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+
+                  <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide uppercase">
+                    {item.title}
+                  </p>
+                </div>
               );
-            })}
-          </div>
-        );
-      })}
+            }
+          )}
+        </div>
+      )}
+
+      {/* {isCustomize &&
+        selectedMenu.mediaCategories?.map((item, idx) => (
+          <Link
+            key={idx}
+            href={item.link}
+            onClick={() => setActiveMenu(null)}
+            className="group cursor-pointer"
+          >
+            <div className="overflow-hidden">
+              <img
+                src={item.image}
+                alt={item.label}
+                className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+
+            <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide">
+              {item.label}
+            </p>
+          </Link>
+        ))} */}
 
       {/* Image and CTA section */}
       {Array.isArray(selectedMenu.imageSection) &&

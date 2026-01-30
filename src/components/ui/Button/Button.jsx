@@ -38,7 +38,7 @@ const Button = ({
     secondary: "bg-[var(--grey-00)] text-[var(--teal-1)]",
     ghost: "bg-[var(--grey-0)] text-[var(--teal-1)]",
     filtersOutline:
-      "outline outline-[var(--teal-3)] text-[#000000] !p-2 flex items-center justify-center !text-[12px] w-full max-w-[70px] h-[30px]",
+      "outline outline-[var(--teal-3)] text-[#000000] !p-2 flex items-center justify-center !text-[12px] h-[30px]",
     colorPalette:
       "2xl:w-[20px] 2xl:h-[20px] w-[14px] h-[14px] rounded-[2px] !p-0",
   };

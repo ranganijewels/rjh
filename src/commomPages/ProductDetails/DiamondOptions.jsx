@@ -22,7 +22,6 @@ const DiamondOptions = ({
   setSelectedCarat,
   occasion,
 }) => {
-  console.log("varantList", variantList);
   /** ---------------- SHAPE SCROLL ---------------- */
   const {
     containerRef: shapeRef,
@@ -396,7 +395,7 @@ const DiamondOptions = ({
                         });
                       }}
                       className={clsx(
-                        "slide-card border !capitalize transition-all duration-200",
+                        "slide-card border !capitalize transition-all duration-200 min-w-[58px]",
                         isSelected
                           ? "border-[var(--teal-1)]"
                           : "border-[var(--teal-3)] hover:border-[var(--teal-1)]"
