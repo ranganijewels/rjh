@@ -7,11 +7,12 @@ import Input from "@/components/ui/Input/Input";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, verifyOtp } from "@/store/authThunks";
+import { Eye, EyeOff } from "lucide-react";
 
 const CreateAccount = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const [show, setShow] = useState(false);
   const { loading } = useSelector((state) => state.auth);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -117,6 +118,15 @@ const CreateAccount = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           borderBottom
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShow((p) => !p)}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          }
         />
       </div>
 

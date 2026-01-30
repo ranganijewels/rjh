@@ -12,11 +12,13 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { updateCustomer } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 const ProfileInfo = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const { isMobile } = useIsMobile();
+  const [show, setShow] = useState(false);
 
   const customer = useSelector((state) => state.auth.customer);
   const { fetchAll, update } = useCrudApi("/api/profile-info");
@@ -343,6 +345,15 @@ const ProfileInfo = () => {
           onChange={(e) =>
             handlePasswordChange("currentPassword", e.target.value)
           }
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShow((p) => !p)}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          }
         />
         {passwordErrors.currentPassword && (
           <p className="text-red-500 text-sm mt-1">
@@ -356,6 +367,15 @@ const ProfileInfo = () => {
           type="password"
           value={passwordForm.newPassword}
           onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShow((p) => !p)}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          }
         />
         {passwordErrors.newPassword && (
           <p className="text-red-500 text-sm mt-1">

@@ -7,12 +7,14 @@ import Input from "@/components/ui/Input/Input";
 import Link from "next/link";
 import { loginUser } from "@/store/authThunks";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [show, setShow] = useState(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -61,13 +63,21 @@ const LoginForm = () => {
 
       <div>
         <Input
-          placeholder="Password"
           label="Password"
-          className="mb-2"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          type="password"
+          type={show ? "text" : "password"}
           borderBottom
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShow((p) => !p)}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          }
         />
 
         <Link href="/" className="xl:text-[14px] text-[12px] font-[400]">

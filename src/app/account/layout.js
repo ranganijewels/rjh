@@ -18,17 +18,17 @@ const AccountLayout = ({ children }) => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    const disableRightClick = (e) => {
-      e.preventDefault();
-    };
+  // useEffect(() => {
+  //   const disableRightClick = (e) => {
+  //     e.preventDefault();
+  //   };
 
-    document.addEventListener("contextmenu", disableRightClick);
+  //   document.addEventListener("contextmenu", disableRightClick);
 
-    return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", disableRightClick);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (!isMounted) return;

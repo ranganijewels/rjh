@@ -410,9 +410,8 @@ const Details = () => {
             “A timeless Princess cut diamond set in 18k yellow gold — a modern
             classic.”
           </p>
-        <ReviewSummary rating={1} totalReviews={10} />
+          <ReviewSummary rating={1} totalReviews={10} />
         </div>
-
 
         <div className="space-y-[12px]">
           <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
@@ -485,7 +484,9 @@ const Details = () => {
           <DiamondOptions
             diamodShapeTitle="Diamond Shape :"
             caretTitle={"title"}
-            variantList={productInfo.variants || []}
+            variantList={
+              productInfo.variants.filter((e) => e.shape !== null) || []
+            }
             dimondShapeWithNavigation
             diamondWeightArray={diamondWeightArray}
             dimonShapNavIconStyle="w-[28px] h-[28px]"

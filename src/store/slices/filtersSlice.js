@@ -8,12 +8,16 @@ export const fetchFilters = createAsyncThunk(
       const token = localStorage.getItem("authTokenElova");
       const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
 
-      const res = await axios.post("/api/product/filters", {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "x-tenant-id": tenantId || "",
-        },
-      });
+      const res = await axios.post(
+        "/api/product/filters",
+        {},
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+            "x-tenant-id": tenantId || "",
+          },
+        }
+      );
 
       return res.data;
     } catch (err) {
