@@ -653,7 +653,12 @@ const Details = () => {
           </div>
           <hr className="hr-teal-3" />
         </div>
-        <FeaturesList items={WHY_CHOOSE_ICON} />
+        <FeaturesList
+          items={WHY_CHOOSE_ICON}
+          containerClass="!grid !grid-cols-2 !gap-x-2 !gap-y-3"
+          itemClass="!m-0 !p-1"
+          iconClass="!w-[24px] !h-[24px]"
+        />
         {productInfo && (
           <FeaturesSpecs
             selectedWeight={selectedWeight}
