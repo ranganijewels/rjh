@@ -34,6 +34,7 @@ const RingSizeSelector = ({
 
       <div className="flex flex-col gap-2 items-start">
         <Dropdown
+          customWidth={"w-[60px]"}
           options={ringSizeOptions}
           placeholder={toTitleCase(`Select ${label} Size`)}
           value={selectedValue}
