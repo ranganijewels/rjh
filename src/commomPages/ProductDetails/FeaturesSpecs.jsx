@@ -74,33 +74,95 @@ const FeaturesSpecs = ({
 
   const features = [
     {
-      title: "Diamond Information",
+      title: "",
+      // Label ma j hover muki daiye
       labels: [
-        "Shape ",
-        "Setting ",
-        "Color - Clarity ",
-        "Quantity ",
-        ...(hasCenterDiamond ? ["Center Diamond Weight "] : []),
-        ...(hasSideStones ? ["Side Stone Weight "] : []),
+        <div
+          key="sku-label"
+          className="group relative inline-block cursor-default"
+        >
+          <span className="hover:text-gray-900 transition-colors">SKU</span>
+
+          {/* Tooltip - Jyare label 'SKU' par hover karsho tyare j dekhase */}
+          <div className="absolute bottom-full left-0 mb-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none z-50">
+            <div className="relative">
+              {/* Tooltip Box: Deep Dark with subtle border */}
+              <div className="bg-[#111] text-[#f8f9fa] text-[9px] font-bold tracking-[0.2em] px-3 py-2 rounded shadow-[0_10px_20px_rgba(0,0,0,0.3)] border border-white/10 whitespace-nowrap uppercase">
+                Stock Keeping Unit
+              </div>
+
+              {/* Tooltip Arrow: Perfectly Aligned */}
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#111] ml-3"></div>
+            </div>
+          </div>
+        </div>,
+        "Description",
       ],
       values: [
-        productDetail?.occasion?.custom_title || "-",
-        toTitleCase(productDetail?.diamonds?.[0].setting) || "-",
-        productDetail?.diamonds?.[0]?.color +
-          " - " +
-          productDetail?.diamonds?.[0]?.quality || "-",
-          productDetail?.diamonds?.[0]?.pcs || "-",
-        ...(hasCenterDiamond ? [formatCarat(selectedCarat) || "-"] : []),
-        ...(hasSideStones ? [sideStoneWeight] : []),
+        productDetail?.sku_no || productDetail?.design_no,
+        productDetail?.description || "-",
       ],
     },
+    // SECTION 1: CENTER DIAMOND (Main stone ne highlight karva mate)
+    ...(hasCenterDiamond
+      ? [
+          {
+            title: "Center Diamond Information",
+            labels: ["Weight", "Quantity", "Shape"],
+            values: [
+              formatCarat(selectedCarat) || "-",
+              productDetail?.diamonds?.find((d) => d.center === 1)?.pcs || "1",
+              toTitleCase(
+                productDetail?.diamonds?.find((d) => d.center === 1)?.occasion
+                  ?.custom_title
+              ) || "-",
+            ],
+          },
+        ]
+      : []),
+
+    ...(hasSideStones
+      ? [
+          {
+            title: hasCenterDiamond
+              ? "Side Diamond Information"
+              : "Diamond Information",
+            labels: [hasCenterDiamond ? "Weight" : "", "Quantity", "Shape"],
+            values: [
+              hasCenterDiamond ? sideStoneWeight || "" : "",
+
+              productDetail?.diamonds
+                ?.filter((e) => e.center === 0)
+                .reduce((acc, curr) => acc + (Number(curr.pcs) || 0), 0) || "-",
+              toTitleCase(
+                productDetail?.diamonds?.find((e) => e.center === 0)?.occasion
+                  ?.custom_title
+              ) || "-",
+            ],
+          },
+        ]
+      : []),
     {
-      title: "Metal Details",
-      labels: ["Color", "Purity", "Weight"],
+      title: "",
+      labels: ["Total Diamond Ct.", "Color - Clarity", "Setting Style"],
       values: [
-        `${toTitleCase(selectedColor) || "-"}`,
-        `${selectedMetal?.karat?.value || "-"}`,
-        `${productDetail?.pricing_details?.[0].nwt || "-"}`,
+        productDetail?.diamonds
+          ?.reduce((sum, d) => sum + parseFloat(d.wt || 0), 0)
+          .toFixed(3) + " CT",
+        `${productDetail?.diamonds[0]?.color || ""}`.trim() || "-",
+        toTitleCase(productDetail?.diamonds[0]?.setting || "-"),
+      ],
+    },
+
+    // SECTION 3: METAL & TOTALS
+    {
+      title: ["Metal Details"],
+      labels: ["Metal Type", "Metal Purity", "Metal Weight"],
+      values: [
+        `${toTitleCase(selectedColor)} ${toTitleCase(productDetail?.metal)}`,
+        selectedMetal?.karat?.value || "-",
+        `${productDetail?.pricing_details?.[0]?.nwt || "-"} GMS`, //
+        // CT unit sathe
       ],
     },
   ];
@@ -238,8 +300,8 @@ const FeaturesSpecs = ({
               ]}
             />
           </div>
-
-          
+ 
+         
           <div className="pb-3.5 border-b border-[var(--grey-1)] flex flex-col gap-3">
             <Typography variant="h6" className="font-[500]">
               Diamond Price :
@@ -265,7 +327,7 @@ const FeaturesSpecs = ({
               ]}
             />
           </div>
-
+ 
          
           <SpecsGrid
             labels={[

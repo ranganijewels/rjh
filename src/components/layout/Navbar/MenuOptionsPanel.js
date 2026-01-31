@@ -123,9 +123,10 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
                     const sizeSlug = category.slug;
                     const categoryId = category.id;
 
-                    router.push(
-                      `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
-                    );
+                    // router.push(
+                    //   `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
+                    // );
+                    router.push(`/customize/?category=${sizeSlug}`);
 
                     setActiveMenu(null);
                   }}

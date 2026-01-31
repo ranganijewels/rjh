@@ -11,8 +11,9 @@ const ReviewForm = () => {
   const { referenceForm, updateReferenceForm } = useCustomize();
   const [notes, setNotes] = useState(referenceForm?.notes || "");
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category_id");
-  
+  const sizeSlug = searchParams.get("size");
+  const sizeCategoryId = searchParams.get("size_category_id");
+
   useEffect(() => {
     setNotes(referenceForm?.notes || "");
   }, [referenceForm?.notes]);
@@ -167,7 +168,9 @@ const ReviewForm = () => {
           title="Previous"
           variant="outlineTeal"
           onClick={() =>
-            router.push(`/customize/form/reference?category_id=${categoryId}`)
+            router.push(
+              `/customize/form/reference?size=${sizeSlug}&size_category_id=${sizeCategoryId}`
+            )
           }
         />
         <Button
@@ -175,7 +178,7 @@ const ReviewForm = () => {
           onClick={() => {
             updateReferenceForm({ notes });
             router.push(
-              `/customize/form/contact-information?category_id=${categoryId}`
+              `/customize/form/contact-information?size=${sizeSlug}&size_category_id=${sizeCategoryId}`
             );
           }}
         />

@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Button from "../ui/Button/Button";
-import { useRouter } from "next/navigation";
 import { useFileType } from "@/hooks/useFileType";
 
 const TwoColGrid = ({
@@ -18,8 +17,8 @@ const TwoColGrid = ({
   btnUrl,
   file,
   buttons,
+  subTitle,
 }) => {
-  const router = useRouter();
   const { isVideo } = useFileType(file);
   return (
     <div
@@ -56,6 +55,9 @@ const TwoColGrid = ({
           }`}
         >
           <div className="flex flex-col xl:gap-[25px] gap-[13px]">
+            <p className="md:text-[18px] text-[14px] font-[500] text-[var(--grey-2)] uppercase">
+              {subTitle && subTitle}
+            </p>
             <div className="text-[var(--grey-2)] xl:text-[24px] text-[14px] font-[500] uppercase tracking-wide">
               {title}
               <p className="lg:text-[12px] text-[10px] font-[200] italic">

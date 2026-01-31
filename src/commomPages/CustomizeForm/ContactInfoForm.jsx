@@ -10,9 +10,11 @@ import toast from "react-hot-toast";
 
 const ContactInfoForm = () => {
   const { create } = useCrudApi("/api/customize");
-  const { referenceForm, clearReferenceForm } = useCustomize();
+  const { referenceForm } = useCustomize();
   const searchParams = useSearchParams();
+  const sizeSlug = searchParams.get("size");
   const categoryId = searchParams.get("category_id");
+  const sizeCategoryId = searchParams.get("size_category_id");
   const router = useRouter();
   const [form, setForm] = useState({
     fullName: "",
@@ -25,6 +27,7 @@ const ContactInfoForm = () => {
     agreed: false,
   });
   const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -33,8 +36,10 @@ const ContactInfoForm = () => {
   const handleCheckbox = (e) => {
     setForm((prev) => ({ ...prev, agreed: e.target.checked }));
   };
+
   const handleSubmit = async () => {
     try {
+      setErrors({});
       const validFiles = referenceForm.files.filter((f) => f instanceof File);
 
       const fileToBase64 = (file) =>
@@ -50,7 +55,7 @@ const ContactInfoForm = () => {
       );
 
       const payload = {
-        category_id: Number(categoryId),
+        category_id: Number(sizeCategoryId),
 
         file: filesBase64,
         description: referenceForm.description || "",
@@ -81,23 +86,17 @@ const ContactInfoForm = () => {
         notes: referenceForm.notes || "",
       };
 
-      const res = await create(payload);
-      if (res?.status === false) {
-        const err = new Error(res.message || "Validation failed");
-        err.data = res; // attach backend payload
-        throw err;
-      }
+      const res = await create(payload, { normalizeError: true });
 
-      router.push("/customize/thank-you");
+      router.push("/customize/form/thank-you");
     } catch (err) {
-      const apiErrors = err?.data?.error;
+      const apiErrors = err?.errors;
 
       if (apiErrors) {
         setErrors(apiErrors);
-        return;
+      } else {
+        toast.error(err.message || "Something went wrong");
       }
-
-      toast.error(err?.message || "Failed to submit customization request");
     }
   };
 
@@ -115,41 +114,54 @@ const ContactInfoForm = () => {
 
       <form className="space-y-[52px] w-full">
         <div className="grid grid-cols-2 gap-[42px]">
-          <Input
-            label="Full Name"
-            name="fullName"
-            placeholder="Enter Full Name"
-            borderBottom
-            className=" !border-[var(--teal-3)]"
-            value={form.fullName}
-            onChange={handleChange}
-            error={errors?.full_name?.[0]}
-          />
-          <Input
-            label="Phone Number"
-            name="phone"
-            placeholder="Enter Phone Number"
-            borderBottom
-            className=" !border-[var(--teal-3)]"
-            value={form.phone}
-            onChange={handleChange}
-            type="tel"
-            pattern="[0-9]{10}"
-            error={errors?.phone?.[0]}
-          />
+          <div>
+            {" "}
+            <Input
+              label="Full Name"
+              name="fullName"
+              placeholder="Enter Full Name"
+              borderBottom
+              className=" !border-[var(--teal-3)]"
+              value={form.fullName}
+              onChange={handleChange}
+              error={errors?.full_name?.[0]}
+            />
+            {errors?.full_name && (
+              <p className="text-red-500 text-sm mt-1">{errors.full_name[0]}</p>
+            )}
+          </div>
+
+          <div>
+            <Input
+              label="Phone Number"
+              name="phone"
+              placeholder="Enter Phone Number"
+              borderBottom
+              className=" !border-[var(--teal-3)]"
+              value={form.phone}
+              onChange={handleChange}
+              type="tel"
+              pattern="[0-9]{10}"
+            />
+            {errors?.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone[0]}</p>
+            )}
+          </div>
         </div>
-
-        <Input
-          label="Email Address"
-          name="email"
-          placeholder="Enter Email Address"
-          borderBottom
-          className=" !border-[var(--teal-3)]"
-          value={form.email}
-          onChange={handleChange}
-          error={errors?.email?.[0]}
-        />
-
+        <div>
+          <Input
+            label="Email Address"
+            name="email"
+            placeholder="Enter Email Address"
+            borderBottom
+            className=" !border-[var(--teal-3)]"
+            value={form.email}
+            onChange={handleChange}
+          />
+          {errors?.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>
+          )}
+        </div>
         <div className="grid grid-cols-2 gap-[42px]">
           <Input
             label="Country"
@@ -193,7 +205,6 @@ const ContactInfoForm = () => {
             containerClass="w-full"
           />
         </div>
-
         <div className="flex gap-[14px]">
           <input
             type="checkbox"
@@ -201,15 +212,17 @@ const ContactInfoForm = () => {
             checked={form.agreed}
             onChange={handleCheckbox}
           />
-          <label className="block md:text-[16px] text-[12px] font-[400] text-[var(--grey-2)] mb-1">
-            I agree to the Privacy Policy
-          </label>
+          <div>
+            <label className="block md:text-[16px] text-[12px] font-[400] text-[var(--grey-2)] mb-1">
+              I agree to the Privacy Policy
+            </label>
 
-          {errors?.agree_privacy && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.agree_privacy[0]}
-            </p>
-          )}
+            {errors?.agree_privacy && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.agree_privacy[0]}
+              </p>
+            )}
+          </div>
         </div>
       </form>
 
@@ -217,9 +230,7 @@ const ContactInfoForm = () => {
         <Button
           title="Previous"
           variant="outlineTeal"
-          onClick={() =>
-            router.push(`/customize/form/review??category_id=${categoryId}`)
-          }
+          onClick={() => router.push(`/customize/form/review?size=${sizeSlug}`)}
         />
         <Button title={"Submit"} onClick={handleSubmit} />
       </div>

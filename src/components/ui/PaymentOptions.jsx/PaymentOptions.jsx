@@ -4,7 +4,7 @@ const PaymentOptions = ({ className = "" }) => {
   const paymentIcons = [
     { src: "/icons/am-ex.svg" },
     { src: "/icons/apple-pay.svg" },
-    { src: "/icons/g-pay.svg" },
+    // { src: "/icons/g-pay.svg" },
     { src: "/icons/mastercard.svg" },
     // { src: "/icons/paypal.svg" },
     // { src: "/icons/shop.svg" },

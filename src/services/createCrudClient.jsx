@@ -48,6 +48,7 @@ export const createCrudClient = (baseUrl) => {
     },
 
     create: async (payload = null, extra = {}, dynamicId) => {
+      const normalizeError = extra.normalizeError === true;
       let url = baseUrl;
       if (dynamicId) url = `${baseUrl}/${dynamicId}`;
 
@@ -73,8 +74,15 @@ export const createCrudClient = (baseUrl) => {
       });
 
       if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to perform POST request");
+        const errorResponse = await res.json().catch(() => ({}));
+
+        if (!normalizeError) {
+          throw new Error(errorResponse.message || "Failed request");
+        }
+
+        const err = new Error(errorResponse.message);
+        err.errors = errorResponse.error || errorResponse.errors;
+        throw err;
       }
 
       return res.json();

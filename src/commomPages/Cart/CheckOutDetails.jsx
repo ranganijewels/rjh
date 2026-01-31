@@ -239,7 +239,29 @@ const CheckOutDetails = () => {
 
   const handleContactChange = (e) => {
     const { name, value } = e.target;
-    setContactInfo((prev) => ({ ...prev, [name]: value }));
+
+    // special handling for phone
+    if (name === "phone") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+
+      setContactInfo((prev) => ({
+        ...prev,
+        phone: digitsOnly,
+      }));
+    } else {
+      setContactInfo((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
+    // clear error for this field while typing
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+      const updated = { ...prev };
+      delete updated[name];
+      return updated;
+    });
   };
 
   const addressOptions = [
@@ -282,6 +304,15 @@ const CheckOutDetails = () => {
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddress((prev) => ({ ...prev, [name]: value }));
+
+    if (value.trim()) {
+      setErrors((prev) => {
+        if (!prev[name]) return prev;
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
+    }
   };
 
   const handlePaymentDetailsChange = (e) => {
@@ -302,6 +333,13 @@ const CheckOutDetails = () => {
         setPaymentDetails((prev) => ({ ...prev, [name]: value }));
       }
     }
+
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+      const updated = { ...prev };
+      delete updated[name];
+      return updated;
+    });
   };
 
   return (
@@ -316,7 +354,7 @@ const CheckOutDetails = () => {
             <div className="flex gap-[24px]">
               <div className="w-full">
                 <Input
-                  label="First Name"
+                  label="First Name *"
                   placeholder="First Name"
                   borderBottom
                   containerClass="w-full"
@@ -332,7 +370,7 @@ const CheckOutDetails = () => {
               </div>
               <div className="w-full">
                 <Input
-                  label="Last Name"
+                  label="Last Name *"
                   placeholder="Last Name"
                   borderBottom
                   containerClass="w-full"
@@ -346,7 +384,7 @@ const CheckOutDetails = () => {
               </div>
             </div>
             <Input
-              label="Phone Number"
+              label="Phone Number *"
               placeholder="Phone Number"
               borderBottom
               type="tel"
@@ -437,7 +475,7 @@ const CheckOutDetails = () => {
             <div className="flex gap-[24px]">
               <div className="w-full">
                 <Input
-                  label="State"
+                  label="State *"
                   placeholder="State"
                   borderBottom
                   containerClass="w-full"
@@ -452,7 +490,7 @@ const CheckOutDetails = () => {
 
               <div className="w-full">
                 <Input
-                  label="Zip Code"
+                  label="Zip Code *"
                   placeholder="Zip Code"
                   borderBottom
                   containerClass="w-full"
@@ -621,7 +659,7 @@ const CheckOutDetails = () => {
 
             {/* Add your payment input fields here... */}
             <Input
-              label="Card Number"
+              label="Card Number *"
               placeholder="1234 1234 1234 1234"
               borderBottom
               type="text"
@@ -643,7 +681,7 @@ const CheckOutDetails = () => {
             <div className="flex gap-[24px]">
               <div className="w-full">
                 <Input
-                  label="Expiration date"
+                  label="Expiration date *"
                   placeholder="MM/YY"
                   borderBottom
                   type="text"
@@ -661,7 +699,7 @@ const CheckOutDetails = () => {
 
               <div className="w-full">
                 <Input
-                  label="CVV"
+                  label="CVV *"
                   placeholder="CVV code"
                   borderBottom
                   containerClass="w-full"
@@ -818,11 +856,6 @@ const CheckOutDetails = () => {
               className=" w-full"
               onButtonClick={handleCoupon}
             />
-            {error && (
-              <Typography variant="h6" className="mt-2 text-red-500">
-                {error}
-              </Typography>
-            )}
 
             {summary?.coupon_code && (
               <div className="inline-flex items-center justify-between gap-2 bg-[var(--product-bg)] border border-[var(--teal-3)] rounded-[5px] px-3 py-1 mt-3">

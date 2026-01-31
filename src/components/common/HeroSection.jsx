@@ -15,6 +15,7 @@ const HeroSection = ({
   textClass,
   buttons,
   mobileFile,
+  buttonClick,
 }) => {
   const { isMobile } = useIsMobile(425);
   const displaySource = isMobile && mobileFile ? mobileFile : backgroundUrl;
@@ -73,6 +74,7 @@ const HeroSection = ({
                   url={btn.button_url || btn.link}
                   textColor={btn.button_text_color}
                   hoverColor={btn.button_hover_color}
+                  onClick={buttonClick}
                 />
               );
             })}

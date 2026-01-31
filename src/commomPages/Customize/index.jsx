@@ -1,24 +1,22 @@
 "use client";
-import FeaturedCollections from "@/components/common/FeaturedCollections";
-import FeaturesList from "@/components/common/FeaturesList/FeaturesList";
 import HeroSection from "@/components/common/HeroSection";
-import Heading from "@/components/ui/Heading/Heading";
 import React, { useEffect, useState } from "react";
 import Questions from "./Questions";
 import JewelryCTA from "@/components/common/JewelryCTA";
 import ImageWithContent from "@/components/common/ImageWithContent";
 import Newsletter from "../Home/Newsletter";
-import FindYourDiomond from "./FindYourDiomond";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { useHomepageData } from "../Home/useHomepageData";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCustomizeData } from "./useCustomizeData";
+import TwoColGrid from "@/components/common/TwoColGrid";
 
 const Customize = () => {
   const router = useRouter();
   // const { fetchAll } = useCrudApi(`/api/customize`);
   const { customizeData } = useCustomizeData();
   const { fetchAll: fetchCategories } = useCrudApi(`/api/product/categories`);
+  const searchParams = useSearchParams();
+  const categoryFromQuery = searchParams.get("category");
 
   const [categories, setCategories] = useState([]);
 
@@ -30,23 +28,27 @@ const Customize = () => {
       .catch((err) => console.error("Error fetching data:", err));
   }, [fetchCategories]);
 
-  // useEffect(() => {
-  //   const disableRightClick = (e) => {
-  //     e.preventDefault();
-  //   };
+  const currentCategory = categoryFromQuery;
+  const heroSections = customizeData?.cms_page?.hero_section || [];
+  const selectedHero = (() => {
+    if (!currentCategory) {
+      return heroSections.find((h) => h.category_name === null);
+    }
 
-  //   document.addEventListener("contextmenu", disableRightClick);
+    const categoryHero = heroSections.find(
+      (h) => h.category_name && h.category_name === currentCategory
+    );
 
-  //   return () => {
-  //     document.removeEventListener("contextmenu", disableRightClick);
-  //   };
-  // }, []);
+    if (categoryHero) return categoryHero;
+
+    return heroSections.find((h) => h.category_name === null);
+  })();
 
   const normalizeString = (str) => str.toLowerCase().replace(/[^a-z]/g, "");
 
   return (
     <div className="lg:space-y-[80px] space-y-[40px]">
-      <HeroSection
+      {/* <HeroSection
         title={customizeData?.cms_page?.hero_section?.[0]?.title}
         description={customizeData?.cms_page?.hero_section?.[0]?.subtitle}
         backgroundUrl={customizeData?.cms_page?.hero_section?.[0].file}
@@ -54,9 +56,37 @@ const Customize = () => {
         containerClass="xl:h-[601px]"
         imageClass="xl:h-[601px]"
         buttons={customizeData?.cms_page?.hero_section?.[0]?.buttons}
-      />
+      /> */}
+      {selectedHero && (
+        <HeroSection
+          title={selectedHero.title}
+          description={selectedHero.subtitle}
+          backgroundUrl={selectedHero.file}
+          backgroundIsVideo
+          containerClass="xl:h-[601px]"
+          imageClass="xl:h-[601px]"
+          buttons={selectedHero.buttons}
+          buttonClick={() =>
+            router.push(`/customize/form/reference?size=${currentCategory}`)
+          }
+        />
+      )}
 
-      <FeaturedCollections
+      {customizeData?.cms_page?.service_section?.[0]?.service_items.map(
+        (item, index) => {
+          return (
+            <TwoColGrid
+              key={item.id ?? index}
+              subTitle={`Step-${index + 1} :`}
+              file={item?.image}
+              title={item?.title}
+              description={item?.service_description}
+              isReverse={index % 2 === 1}
+            />
+          );
+        }
+      )}
+      {/* <FeaturedCollections
         title={customizeData?.cms_page?.collection_section?.[0]?.section_title}
         collections={customizeData?.cms_page?.collection_section?.[0]?.items?.map(
           (item) => ({
@@ -83,9 +113,9 @@ const Customize = () => {
             `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
           );
         }}
-      />
+      /> */}
 
-      <div>
+      {/* <div>
         <Heading
           isCenter
           title={customizeData?.cms_page?.service_section?.[0]?.headtitle}
@@ -107,7 +137,7 @@ const Customize = () => {
           mobileCols={2}
           containerClass="xl:mt-[40px] lg:mt-[30px] mt-[20px]"
         />
-      </div>
+      </div> */}
 
       <ImageWithContent
         heading={customizeData?.cms_page?.custom_creation_head?.[0]?.title}
