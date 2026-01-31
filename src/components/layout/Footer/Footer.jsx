@@ -50,7 +50,7 @@ const Footer = () => {
       <hr className="hr-teal-1" />
       <div className="flex md:flex-row flex-col md:justify-between gap-[20px] items-center xl:py-[25px] py-[11px] xl:px-[70px] px-[37px] ">
         <label className="xl:text-[14px] font-[400] text-[10px]">
-          @2025 Elova. All Rights Reserved
+          @2026 Elova. All Rights Reserved
         </label>
         <PaymentOptions />
       </div>

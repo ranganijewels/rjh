@@ -4,7 +4,7 @@ import Stepper from "@/components/ui/Stepper/Stepper";
 import { usePreferences } from "@/context/PreferencesContext";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const steps = [
@@ -47,6 +47,8 @@ const CartLayout = ({ children }) => {
       : null;
   if (!token) return null;
 
+  const currentIndex = steps.findIndex((s) => s.path === pathname);
+
   return (
     <section>
       <div className="mb-[40px]">
@@ -63,7 +65,7 @@ const CartLayout = ({ children }) => {
             children
           ) : cartItems && cartItems.length > 0 ? (
             <>
-              <Stepper currentPath={pathname} steps={steps} />
+              <Stepper currentPath={currentIndex} steps={steps} />
               {children}
             </>
           ) : (

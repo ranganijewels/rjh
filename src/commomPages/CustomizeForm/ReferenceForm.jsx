@@ -1,7 +1,7 @@
 "use client";
 import DeleteIcon from "@/components/Icons/DeleteIcon";
 import Input from "@/components/ui/Input/Input";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MetalSelector from "../ProductDetails/MetalSelector";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -31,21 +31,35 @@ const CARATS = [
   "5 ctw",
   "Custom",
 ];
-const DEFAULT_SIZE_SLUG = "ring-size";
 
 const ReferenceForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const sizeSlug = searchParams.get("size");
   const { referenceForm, updateReferenceForm } = useCustomize();
+  const { fetchAll: fetchCategories } = useCrudApi(`/api/product/categories`);
   const categoryId = searchParams.get("category_id");
 
-  // const rawCategoryId = searchParams.get("category_id");
-  // const categoryId =
-  //   rawCategoryId && rawCategoryId !== "null"
-  //     ? Number(rawCategoryId)
-  //     : referenceForm?.categoryId ?? null;
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    fetchCategories()
+      .then((categories) => {
+        setCategories(categories.data);
+      })
+      .catch((err) => console.error("Error fetching data:", err));
+  }, [fetchCategories]);
+
   const rawCategorySlug = searchParams.get("category_slug");
-  const resolvedCategorySlug = rawCategorySlug || DEFAULT_SIZE_SLUG;
+  // const resolvedCategorySlug = sizeSlug;
+  const resolvedCategorySlug = useMemo(() => {
+    if (!categoryId || !categories.length) return null;
+
+    const category = categories.find(
+      (cat) => String(cat.id) === String(categoryId)
+    );
+
+    return category?.slug || null;
+  }, [categoryId, categories]);
 
   const [urlInput, setUrlInput] = useState("");
   const [sizes, setSizes] = useState([]);
@@ -93,16 +107,37 @@ const ReferenceForm = () => {
 
     fetchFilters();
   }, []);
-
+  
   /* ---------------- Derived Data ---------------- */
-  const matchedSizeCategory = sizes.find(
-    (s) => s.slug === resolvedCategorySlug
-  );
-  const ringSizeOptions = matchedSizeCategory
-    ? matchedSizeCategory.sizes.map((s) => s.value)
-    : [];
+  // const matchedSizeCategory = sizes.find(
+  //   (s) => s.slug === resolvedCategorySlug
+  // );
+  // const ringSizeOptions = matchedSizeCategory
+  //   ? matchedSizeCategory.sizes.map((s) => s.value)
+  //   : [];
 
-  const activeSizeCategory = sizes.find((s) => s.slug === resolvedCategorySlug);
+  const activeSizeCategory = useMemo(() => {
+    if (!sizes.length) return null;
+
+    if (sizeSlug) {
+      return (
+        sizes.find((s) => s.slug.toLowerCase() === sizeSlug.toLowerCase()) ||
+        null
+      );
+    }
+
+    if (resolvedCategorySlug) {
+      return sizes.find((s) => s.slug === resolvedCategorySlug) || null;
+    }
+
+    return null;
+  }, [sizes, sizeSlug, resolvedCategorySlug]);
+
+  const ringSizeOptions = activeSizeCategory?.sizes?.map((s) => s.value) || [];
+  const sizeCategoryId = activeSizeCategory?.id || null;
+  const sizeCategoryName = activeSizeCategory?.name || "";
+  const sizeCategorySlug = activeSizeCategory?.slug || "";
+  // const activeSizeCategory = sizes.find((s) => s.slug === resolvedCategorySlug);
   const normalizedShapes =
     filtersData?.shape?.map((s) => {
       return {
@@ -160,14 +195,22 @@ const ReferenceForm = () => {
   const handleNext = () => {
     updateReferenceForm({
       ...form,
+      sizeCategoryId,
       selectedCarat:
         form.selectedCarat === "Custom" ? form.customCarat : form.selectedCarat,
     });
 
-    router.push(`/customize/form/review?category_id=${categoryId}`);
+    router.push(`/customize/form/review?size=${sizeSlug}&size_category_id=${sizeCategoryId}`);
   };
   const handleShapeClick = (designno, label, id) => {
     updateForm("shape", { id, designno, label });
+  };
+
+  const getCategoryIdBySlug = (slug) => {
+    return (
+      categories?.find((cat) => cat.slug.toLowerCase() === slug?.toLowerCase())
+        ?.id ?? null
+    );
   };
 
   return (
@@ -325,8 +368,8 @@ const ReferenceForm = () => {
           {ringSizeOptions.length > 0 && (
             <RingSizeSelector
               containerStyle="flex-row gap-[20px] !items-baseline w-full"
-              label={resolvedCategorySlug}
-              ringSizeOptions={ringSizeOptions || []}
+              label={activeSizeCategory?.name || ""}
+              ringSizeOptions={ringSizeOptions}
               dropdownPlaceholder={`Select ${activeSizeCategory?.name || ""}`}
               selectedValue={form.ringSize}
               onChange={(value) => updateForm("ringSize", value)}

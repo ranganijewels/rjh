@@ -362,8 +362,8 @@ const Details = () => {
 
     return (
       productInfo.sizes?.map((s) => ({
-        label: `${s.size}`,
-        value: String(s.size),
+        label: `${s.size.split(" ")[0]}`,
+        value: String(s.size).split(" ")[0],
         variantId: null,
       })) || []
     );

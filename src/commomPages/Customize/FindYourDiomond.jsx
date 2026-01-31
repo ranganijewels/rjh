@@ -28,7 +28,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                     src={shape?.icon_image}
                     alt={shape?.icon_title}
                     className={clsx(
-                      "xl:w-[106px] xl:h-[106px] w-[54px] h-[54px] cursor-pointer",
+                      "xl:w-[106px] xl:h-[106px] w-[54px] h-[54px] cursor-pointer p-[19px]",
                       "transition-transform duration-300 ease-in-out",
                       "hover:scale-120"
                     )}
