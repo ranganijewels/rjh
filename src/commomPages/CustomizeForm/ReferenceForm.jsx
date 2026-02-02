@@ -49,8 +49,6 @@ const ReferenceForm = () => {
       .catch((err) => console.error("Error fetching data:", err));
   }, [fetchCategories]);
 
-  const rawCategorySlug = searchParams.get("category_slug");
-  // const resolvedCategorySlug = sizeSlug;
   const resolvedCategorySlug = useMemo(() => {
     if (!categoryId || !categories.length) return null;
 
@@ -107,14 +105,6 @@ const ReferenceForm = () => {
 
     fetchFilters();
   }, []);
-  
-  /* ---------------- Derived Data ---------------- */
-  // const matchedSizeCategory = sizes.find(
-  //   (s) => s.slug === resolvedCategorySlug
-  // );
-  // const ringSizeOptions = matchedSizeCategory
-  //   ? matchedSizeCategory.sizes.map((s) => s.value)
-  //   : [];
 
   const activeSizeCategory = useMemo(() => {
     if (!sizes.length) return null;
@@ -135,9 +125,7 @@ const ReferenceForm = () => {
 
   const ringSizeOptions = activeSizeCategory?.sizes?.map((s) => s.value) || [];
   const sizeCategoryId = activeSizeCategory?.id || null;
-  const sizeCategoryName = activeSizeCategory?.name || "";
-  const sizeCategorySlug = activeSizeCategory?.slug || "";
-  // const activeSizeCategory = sizes.find((s) => s.slug === resolvedCategorySlug);
+
   const normalizedShapes =
     filtersData?.shape?.map((s) => {
       return {
@@ -200,17 +188,12 @@ const ReferenceForm = () => {
         form.selectedCarat === "Custom" ? form.customCarat : form.selectedCarat,
     });
 
-    router.push(`/customize/form/review?size=${sizeSlug}&size_category_id=${sizeCategoryId}`);
+    router.push(
+      `/customize/form/review?size=${sizeSlug}&size_category_id=${sizeCategoryId}`
+    );
   };
   const handleShapeClick = (designno, label, id) => {
     updateForm("shape", { id, designno, label });
-  };
-
-  const getCategoryIdBySlug = (slug) => {
-    return (
-      categories?.find((cat) => cat.slug.toLowerCase() === slug?.toLowerCase())
-        ?.id ?? null
-    );
   };
 
   return (

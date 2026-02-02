@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button/Button";
-import { MENUS_OPTIONS } from "./constant";
 import Link from "next/link";
 import clsx from "clsx";
 import { toTitleCase } from "@/utils/string";
@@ -60,7 +59,7 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
         "absolute z-50 w-full gap-[20px]",
         "bg-[var(--grey-00)] hidden lg:flex justify-between",
         "xl:py-[37px] lg:py-[25px] mx-auto",
-        "2xl:px-[256px] xl:px-[100px] lg:px-[30px]",
+        "2xl:px-[380px] xl:px-[170px] lg:px-[90px]",
         "transition-all duration-300 ease-in-out transform-gpu",
         {
           "opacity-100 translate-y-0 visible": activeMenu,
@@ -73,7 +72,7 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
         selectedMenu?.categories?.map((category, index) => {
           return (
             <div
-              className="flex xl:gap-[10px] lg:gap-[10px] flex-col"
+              className="flex xl:gap-[10px] lg:gap-[10px] flex-col w-full"
               key={index}
             >
               <h3 className="xl:text-[14px] lg:text-[12px] font-[500] xl:mb-[14px] lg:mb-[8px] uppercase">
@@ -176,7 +175,7 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
       {/* Image and CTA section */}
       {Array.isArray(selectedMenu.imageSection) &&
         selectedMenu?.imageSection?.map((section, idx) => (
-          <div key={idx} className="xl:w-[301px] lg:w-[259px]">
+          <div key={idx} className="xl:min-w-[301px] lg:min-w-[259px]">
             <img
               src={section.imageUrl}
               alt={section.additionalTitle}

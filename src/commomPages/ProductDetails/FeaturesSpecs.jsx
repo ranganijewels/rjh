@@ -45,6 +45,7 @@ const FeaturesSpecs = ({
   selectedShape,
   selectedCarat,
   selectedColor,
+  pricingDetails,
 }) => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.faq);
@@ -161,7 +162,7 @@ const FeaturesSpecs = ({
       values: [
         `${toTitleCase(selectedColor)} ${toTitleCase(productDetail?.metal)}`,
         selectedMetal?.karat?.value || "-",
-        `${productDetail?.pricing_details?.[0]?.nwt || "-"} GMS`, //
+        `${pricingDetails?.pricing?.data?.[0]?.nwt || "-"} GMS`, //
         // CT unit sathe
       ],
     },

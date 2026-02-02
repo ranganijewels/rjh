@@ -189,7 +189,9 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile Menu */}
-      {openMobileMenu && <MobileNav closeMobile={setOpenMobileMenu} />}
+      {openMobileMenu && (
+        <MobileNav closeMobile={setOpenMobileMenu} menus={menuOptions} />
+      )}
     </header>
   );
 };

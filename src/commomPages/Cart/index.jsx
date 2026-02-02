@@ -322,7 +322,7 @@ const Cart = () => {
             </Typography>
 
             {/* SHIPPING */}
-            <div className="space-y-[12px] mb-6">
+            {/* <div className="space-y-[12px] mb-6">
               {shippingOptions?.map((option) => (
                 <RadioButton
                   key={option?.id}
@@ -340,7 +340,7 @@ const Cart = () => {
                   </div>
                 </RadioButton>
               ))}
-            </div>
+            </div> */}
 
             {/* TOTALS */}
             <div className="space-y-[16px]">
@@ -374,6 +374,7 @@ const Cart = () => {
                 </Typography>
               </div>
 
+              {/* 
               <div className="flex justify-between">
                 <Typography variant="h6" className="font-[500]">
                   Shipping Chargess
@@ -382,7 +383,7 @@ const Cart = () => {
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
                   {Number(summary?.selectedShipping ?? 0)}
                 </Typography>
-              </div>
+              </div> */}
 
               {/* DISCOUNT ROW */}
               {summary?.coupon_code && (

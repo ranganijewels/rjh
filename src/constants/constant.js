@@ -371,6 +371,7 @@ export const FILTERS = [
     title: "Sort by",
     options: [
       // "Most Loved",
+      "New Arrival",
       "Price high to low",
       "Price low to high",
     ],

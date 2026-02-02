@@ -12,7 +12,7 @@ const HeartIcon = ({
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 97 96"
       fill="none"
-      className={`${className} lg:w-[24px] lg:h-[24px] w-full h-[22px] cursor-pointer`}
+      className={`${className} lg:w-[24px] lg:h-[24px] w-[22px] h-[22px] cursor-pointer`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, verifyOtp } from "@/store/authThunks";
 import { Eye, EyeOff } from "lucide-react";
+import { useCrudApi } from "@/hooks/useCrudApi";
 
 const CreateAccount = () => {
   const router = useRouter();
@@ -20,7 +21,28 @@ const CreateAccount = () => {
   const [password, setPassword] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const { create } = useCrudApi("/api/auth/resend-otp");
+
+  useEffect(() => {
+    const until = localStorage.getItem("otpResendUntil");
+    if (!until) return;
+
+    const remaining = Math.ceil((+until - Date.now()) / 1000);
+    if (remaining > 0) {
+      setResendCooldown(remaining);
+    } else {
+      localStorage.removeItem("otpResendUntil");
+    }
+  }, []);
+  useEffect(() => {
+    if (!resendCooldown) return;
+    const t = setInterval(() => {
+      setResendCooldown((p) => (p > 0 ? p - 1 : 0));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
 
   const handleCreateAccount = async () => {
     const payload = {
@@ -78,6 +100,42 @@ const CreateAccount = () => {
       toast.error("OTP verification failed");
     }
   };
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+
+    try {
+      const res = await create({ email: registeredEmail });
+
+      // ❌ Backend rejected (rate limit)
+      if (!res?.status) {
+        const retryAfter = res?.error?.retry_after_seconds;
+
+        if (retryAfter) {
+          setResendCooldown(retryAfter);
+
+          // persist for refresh safety
+          localStorage.setItem(
+            "otpResendUntil",
+            Date.now() + retryAfter * 1000
+          );
+        }
+
+        toast.error(res?.message || "Please wait before retrying");
+        return;
+      }
+
+      // ✅ Success case
+      toast.success("OTP resent successfully");
+
+      const cooldown = 120; // fallback
+      setResendCooldown(cooldown);
+      localStorage.setItem("otpResendUntil", Date.now() + cooldown * 1000);
+    } catch {
+      toast.error("Something went wrong while resending OTP");
+    }
+  };
+
   return (
     <div className="md:w-[50%] w-full space-y-[30px] 2xl:px-[240px] xl:px-[100px] lg:px-[67px] md:px-[47px] px-[18px] py-[41px] md:py-0 md:m-auto">
       <h2 className="xl:text-[18px] text-[16px] font-[500]">
@@ -131,13 +189,26 @@ const CreateAccount = () => {
       </div>
 
       {showOtp && (
-        <Input
-          placeholder="Enter OTP"
-          label="OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          borderBottom
-        />
+        <div>
+          <Input
+            placeholder="Enter OTP"
+            label="OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            borderBottom
+            containerClass={"mb-[10px]"}
+          />
+          <button
+            type="button"
+            disabled={resendCooldown > 0}
+            onClick={handleResendOtp}
+            className="text-[12px] underline font-[500] disabled:opacity-50"
+          >
+            {resendCooldown > 0
+              ? `Resend OTP in ${resendCooldown}s`
+              : "Resend OTP"}
+          </button>
+        </div>
       )}
       <div className="flex flex-col gap-[12px] items-center">
         {!showOtp ? (

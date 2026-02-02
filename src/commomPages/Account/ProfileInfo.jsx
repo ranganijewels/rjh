@@ -18,7 +18,11 @@ const ProfileInfo = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const { isMobile } = useIsMobile();
-  const [show, setShow] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
 
   const customer = useSelector((state) => state.auth.customer);
   const { fetchAll, update } = useCrudApi("/api/profile-info");
@@ -213,6 +217,14 @@ const ProfileInfo = () => {
       console.error("Failed to update profile:", err);
     }
   };
+
+  const togglePassword = (field) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   return (
     <>
       <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center">
@@ -340,7 +352,7 @@ const ProfileInfo = () => {
           placeholder="Current Password"
           label="Current Password"
           borderBottom
-          type="password"
+          type={showPassword.current ? "text" : "password"}
           value={passwordForm.currentPassword}
           onChange={(e) =>
             handlePasswordChange("currentPassword", e.target.value)
@@ -348,10 +360,10 @@ const ProfileInfo = () => {
           rightIcon={
             <button
               type="button"
-              onClick={() => setShow((p) => !p)}
+              onClick={() => togglePassword("current")}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
             >
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
         />
@@ -364,16 +376,16 @@ const ProfileInfo = () => {
           placeholder="New Password"
           label="New Password"
           borderBottom
-          type="password"
+          type={showPassword.new ? "text" : "password"}
           value={passwordForm.newPassword}
           onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
           rightIcon={
             <button
               type="button"
-              onClick={() => setShow((p) => !p)}
+              onClick={() => togglePassword("new")}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
             >
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
         />
@@ -387,10 +399,23 @@ const ProfileInfo = () => {
             placeholder="Confirm Password"
             label="Confirm Password"
             borderBottom
-            type="password"
+            type={showPassword.confirm ? "text" : "password"}
             value={passwordForm.confirmPassword}
             onChange={(e) =>
               handlePasswordChange("confirmPassword", e.target.value)
+            }
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => togglePassword("confirm")}
+                className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+              >
+                {showPassword.confirm ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
+              </button>
             }
           />
           {passwordErrors.confirmPassword && (

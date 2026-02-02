@@ -287,6 +287,7 @@ const Addresses = () => {
             name="addressType"
             value={formData.addressType}
             onChange={(val) => handleChange("addressType", val)}
+            fullWidth
           />
           {errors.addressType && (
             <p className="text-red-500 text-sm mt-1">{errors.addressType}</p>

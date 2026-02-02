@@ -901,7 +901,7 @@ const CheckOutDetails = () => {
               </Typography>
             </div>
 
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <Typography variant="h5" className="font-[500]">
                 Shipping Chargess
               </Typography>
@@ -909,7 +909,7 @@ const CheckOutDetails = () => {
                 {getCurrencySymbol(selectedCountry?.currency)}{" "}
                 {Number(summary?.selectedShipping ?? 0)}
               </Typography>
-            </div>
+            </div> */}
 
             {/* DISCOUNT ROW */}
             {summary?.coupon_code && (

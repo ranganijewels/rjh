@@ -9,12 +9,12 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
 
-const MobileNav = ({ closeMobile }) => {
+const MobileNav = ({ closeMobile, menus }) => {
   const globalData = useSelector((state) => state.globalData);
   // const dynamicMenus = buildMenus(globalData, MENUS_OPTIONS);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [selectedMainMenu, setSelectedMainMenu] = useState("");
-  const subMenu = MENUS_OPTIONS.find(
+  const subMenu = menus.find(
     (menu) =>
       selectedMainMenu?.label &&
       menu.title.toLowerCase() === selectedMainMenu.label.toLowerCase()
@@ -43,7 +43,7 @@ const MobileNav = ({ closeMobile }) => {
 
         {/* Main menu items */}
         <div className="mb-[91px]">
-          {MENUS_OPTIONS.map((menu, index) => (
+          {menus.map((menu, index) => (
             <a
               key={index}
               onClick={() => {
@@ -128,12 +128,15 @@ const MobileNav = ({ closeMobile }) => {
             >
               {category.items?.map((item, idx) => {
                 const href =
-                  item.href ||
-                  (subMenu.title === "About us"
+                  typeof item.link === "string"
+                    ? item.link
+                    : typeof item.href === "string"
+                    ? item.href
+                    : subMenu.title === "About us"
                     ? "/about-us"
                     : subMenu.title === "Customize"
                     ? "/customize"
-                    : "/product");
+                    : "/product";
 
                 return (
                   <Link
@@ -159,7 +162,7 @@ const MobileNav = ({ closeMobile }) => {
               <img
                 src={section.imageUrl}
                 alt={section.additionalTitle}
-                className="pb-[16px] object-cover"
+                className="pb-[16px] object-cover md:h-[270px] w-[301px] h-[216px]"
               />
               <h2 className="pb-[12px] text-[14px] font-[500]">
                 {section.additionalTitle}
