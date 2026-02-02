@@ -74,6 +74,7 @@ const Details = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const customerId = useSelector((state) => state.auth?.customer?.id);
   const wishlistCount = useSelector((state) => state.wishlist.count);
+  const [pricingDetails, setPricingDetails] = useState(null);
 
   const { checkIfWishlisted, toggleWishlist } = useWishlistLogic({
     createWishlistApi: createWishlist,
@@ -108,11 +109,11 @@ const Details = () => {
       .then((json) => {
         if (!isCurrent) return;
         setSelectDiamondWeightId(null);
+
         if (!selectDiamondWeightId) {
           const data = json?.data ?? {};
           setProductInfo(data);
           setGalleryMedia(data?.media || []);
-        } else {
         }
       })
       .catch(console.error)
@@ -149,7 +150,7 @@ const Details = () => {
           },
         }
       );
-
+      setPricingDetails(res?.data);
       if (res?.status && res?.data?.total_price) {
         setPricing(res.data.total_price);
       }
@@ -307,7 +308,7 @@ const Details = () => {
     if (!shapeParam) return;
 
     // find the variant for the shape
-    const variant = productInfo.variants?.find((v) => {
+    const variant = productInfo?.variants?.find((v) => {
       const label = (
         v.custom_shape_title ||
         v.label ||
@@ -485,7 +486,7 @@ const Details = () => {
             diamodShapeTitle="Diamond Shape :"
             caretTitle={"title"}
             variantList={
-              productInfo.variants.filter((e) => e.shape !== null) || []
+              productInfo?.variants.filter((e) => e.shape !== null) || []
             }
             dimondShapeWithNavigation
             diamondWeightArray={diamondWeightArray}
@@ -667,6 +668,7 @@ const Details = () => {
             selectedShape={selectedShape}
             selectedCarat={selectedCarat}
             selectedColor={activeColor}
+            pricingDetails={pricingDetails}
             id="priceBreakupId"
           />
         )}

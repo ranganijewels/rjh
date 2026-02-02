@@ -15,7 +15,7 @@ const Newsletter = () => {
   const handleSubmit = async () => {
     setError("");
     try {
-      const res = await create({ email });
+      const res = await create({ email }, { normalizeError: true });
 
       if (res.status) {
         toast.success("Subscription Created");
@@ -27,14 +27,14 @@ const Newsletter = () => {
         toast.error(errorMsg);
       }
     } catch (err) {
-      const errorMsg =
-        err?.response?.data?.message ||
-        err?.message ||
-        err ||
-        "Something went wrong";
-      setError(errorMsg);
-      toast.error(errorMsg);
-      console.error(err);
+      const apiErrors = err?.errors;
+
+      if (apiErrors) {
+        setError(apiErrors);
+        toast.error(apiErrors?.email?.[0]);
+      } else {
+        toast.error(err.message || "Something went wrong");
+      }
     }
   };
 
@@ -63,7 +63,7 @@ const Newsletter = () => {
             onClick={handleSubmit}
           />
         </div>
-        {error && <p className="text-[10px] text-red-600">{error}</p>}
+        {error && <p className="text-[10px] text-red-600">{error?.email[0]}</p>}
 
         <div className="xl:text-[14px] text-[10px] font-[400] text-[var(--placeholder)] ">
           Your privacy matters. For details, see our 

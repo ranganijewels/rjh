@@ -117,7 +117,7 @@ const ContactInfoForm = () => {
           <div>
             {" "}
             <Input
-              label="Full Name"
+              label="Full Name *"
               name="fullName"
               placeholder="Enter Full Name"
               borderBottom
@@ -133,7 +133,7 @@ const ContactInfoForm = () => {
 
           <div>
             <Input
-              label="Phone Number"
+              label="Phone Number *"
               name="phone"
               placeholder="Enter Phone Number"
               borderBottom
@@ -150,7 +150,7 @@ const ContactInfoForm = () => {
         </div>
         <div>
           <Input
-            label="Email Address"
+            label="Email Address *"
             name="email"
             placeholder="Enter Email Address"
             borderBottom
@@ -214,7 +214,7 @@ const ContactInfoForm = () => {
           />
           <div>
             <label className="block md:text-[16px] text-[12px] font-[400] text-[var(--grey-2)] mb-1">
-              I agree to the Privacy Policy
+              I agree to the Privacy Policy *
             </label>
 
             {errors?.agree_privacy && (
