@@ -1,7 +1,7 @@
 "use client";
 import ProductListing from "@/commomPages/ProductListing";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePreferences } from "@/context/PreferencesContext";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
@@ -81,7 +81,7 @@ const Page = () => {
       staleTime: 1000 * 60 * 5,
     });
 
-  const loaderRef = React.useRef(null);
+  const loaderRef = useRef(null);
 
   useEffect(() => {
     if (!loaderRef.current || !hasNextPage) return;
@@ -96,7 +96,9 @@ const Page = () => {
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [loaderRef, hasNextPage]);
+
   const products = data?.pages?.flatMap((page) => page?.data || []) ?? [];
+
   return (
     <>
       {" "}

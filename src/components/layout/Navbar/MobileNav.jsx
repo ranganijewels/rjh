@@ -1,17 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import { MENUS_OPTIONS } from "./constant";
 import clsx from "clsx";
 import Accordion from "@/components/ui/Accordion/Accordion";
 import Button from "@/components/ui/Button/Button";
 import SocialMediaIcons from "@/components/ui/SocialMediaIcons/SocialMediaIcons";
-import { useSelector } from "react-redux";
 import Link from "next/link";
 import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
+import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
+import { toTitleCase } from "@/utils/string";
 
 const MobileNav = ({ closeMobile, menus }) => {
-  const globalData = useSelector((state) => state.globalData);
-  // const dynamicMenus = buildMenus(globalData, MENUS_OPTIONS);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [selectedMainMenu, setSelectedMainMenu] = useState("");
   const subMenu = menus.find(
@@ -19,6 +17,8 @@ const MobileNav = ({ closeMobile, menus }) => {
       selectedMainMenu?.label &&
       menu.title.toLowerCase() === selectedMainMenu.label.toLowerCase()
   );
+  const { customizeData } = useCustomizeData();
+  const isCustomize = subMenu?.categoriesWithMedia === true;
 
   return (
     <>
@@ -66,8 +66,12 @@ const MobileNav = ({ closeMobile, menus }) => {
           </div>
         </a> */}
         <Link
-          href={"/book-an-appointment"}
+          href="/book-an-appointment"
           className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]"
+          onClick={() => {
+            setIsSubMenuOpen(false);
+            closeMobile(false);
+          }}
         >
           Book now
         </Link>
@@ -76,11 +80,11 @@ const MobileNav = ({ closeMobile, menus }) => {
             Canada (CAD $) <img src="/icons/right-caret.svg" />
           </div>
         </a>
-        <a>
+        {/* <a>
           <div className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]">
             English <img src="/icons/right-caret.svg" />
           </div>
-        </a>
+        </a> */}
 
         <div className="p-[16px_20px] border-t border-t-[var(--teal-3)]">
           <SocialMediaIcons
@@ -114,46 +118,76 @@ const MobileNav = ({ closeMobile, menus }) => {
           <img src="/icons/close.svg" onClick={() => closeMobile(false)} />
         </div>
 
-        {/* Categories with accordion */}
-        {subMenu?.categories?.map((category, index) => (
-          <Accordion
-            title={category.title}
-            key={index}
-            containerClass={"p-[16px_20px] !border-0"}
-          >
-            <div
-              className={clsx(
-                "grid grid-cols-2 gap-y-[12px] bg-[var(--grey-00)] sm:px-[30px] px-[10px] overflow-hidden transition-all duration-500 max-h-[500px] py-[10px]"
-              )}
-            >
-              {category.items?.map((item, idx) => {
-                const href =
-                  typeof item.link === "string"
-                    ? item.link
-                    : typeof item.href === "string"
-                    ? item.href
-                    : subMenu.title === "About us"
-                    ? "/about-us"
-                    : subMenu.title === "Customize"
-                    ? "/customize"
-                    : "/product";
+        {isCustomize && (
+          <div className="grid grid-cols-2 gap-[16px] p-[16px_20px]">
+            {customizeData?.cms_page?.collection_section?.[0]?.items.map(
+              (item, idx) => (
+                <div
+                  key={idx}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push(
+                      `/customize/?category=${item.title.toLowerCase()}`
+                    );
+                    setIsSubMenuOpen(false);
+                    closeMobile(false);
+                  }}
+                >
+                  <img
+                    src={item.file}
+                    alt={item.title}
+                    className="w-full h-[140px] object-cover"
+                  />
+                  <p className="mt-[8px] text-center text-[12px] font-[500] uppercase">
+                    {item.title}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        )}
 
-                return (
-                  <Link
-                    href={href}
-                    key={idx}
-                    onClick={() => closeMobile(false)}
-                  >
-                    <p className="py-[4px] text-[var(--grey-2)]">
-                      {" "}
-                      {item.label || item}
-                    </p>
-                  </Link>
-                );
-              })}
-            </div>
-          </Accordion>
-        ))}
+        {/* Categories with accordion */}
+        {!isCustomize &&
+          subMenu?.categories?.map((category, index) => (
+            <Accordion
+              title={category.title}
+              key={index}
+              containerClass={"p-[16px_20px] !border-0"}
+            >
+              <div
+                className={clsx(
+                  "grid grid-cols-2 gap-y-[12px] bg-[var(--grey-00)] sm:px-[30px] px-[10px] overflow-hidden transition-all duration-500 max-h-[500px] py-[10px]"
+                )}
+              >
+                {category.items?.map((item, idx) => {
+                  const href =
+                    typeof item.link === "string"
+                      ? item.link
+                      : typeof item.href === "string"
+                      ? item.href
+                      : subMenu.title === "About us"
+                      ? "/about-us"
+                      : subMenu.title === "Customize"
+                      ? "/customize"
+                      : "/product";
+
+                  return (
+                    <Link
+                      href={href}
+                      key={idx}
+                      onClick={() => closeMobile(false)}
+                    >
+                      <p className="py-[4px] text-[var(--grey-2)]">
+                        {" "}
+                        {toTitleCase(item.label) || toTitleCase(item)}
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Accordion>
+          ))}
 
         {/* Image section */}
         {subMenu?.imageSection?.length > 0 &&

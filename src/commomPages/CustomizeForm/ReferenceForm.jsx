@@ -39,6 +39,7 @@ const ReferenceForm = () => {
   const { referenceForm, updateReferenceForm } = useCustomize();
   const { fetchAll: fetchCategories } = useCrudApi(`/api/product/categories`);
   const categoryId = searchParams.get("category_id");
+  const [activeColor, setActiveColor] = useState(null);
 
   const [categories, setCategories] = useState([]);
   useEffect(() => {
@@ -61,7 +62,6 @@ const ReferenceForm = () => {
 
   const [urlInput, setUrlInput] = useState("");
   const [sizes, setSizes] = useState([]);
-  const [filtersData, setFiltersData] = useState([]);
   const [form, setForm] = useState(referenceForm);
 
   const updateForm = (key, value) => {
@@ -72,11 +72,16 @@ const ReferenceForm = () => {
   };
 
   /* ---------------- API ---------------- */
-  const { create } = useCrudApi("/api/product/filters");
   const { fetchAll: fetchSizesApi } = useCrudApi("/api/sizes");
   const { data: filters } = useSelector((state) => state.filters);
 
   /* ---------------- Effects ---------------- */
+
+  useEffect(() => {
+    if (form?.metal?.color) {
+      setActiveColor(form.metal.color);
+    }
+  }, [form?.metal?.color]);
 
   useEffect(() => {
     fetchSizesApi()
@@ -89,22 +94,6 @@ const ReferenceForm = () => {
 
     setForm(referenceForm);
   }, [referenceForm]);
-
-  /*  fetch filters */
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await create({
-          category_id: categoryId,
-        });
-        setFiltersData(res.data);
-      } catch (err) {
-        console.error("Error fetching filters:", err);
-      }
-    };
-
-    fetchFilters();
-  }, []);
 
   const activeSizeCategory = useMemo(() => {
     if (!sizes.length) return null;
@@ -127,7 +116,7 @@ const ReferenceForm = () => {
   const sizeCategoryId = activeSizeCategory?.id || null;
 
   const normalizedShapes =
-    filtersData?.shape?.map((s) => {
+    filters?.shape?.map((s) => {
       return {
         id: s.id,
         designno: s.slug,
@@ -136,7 +125,7 @@ const ReferenceForm = () => {
       };
     }) || [];
 
-  const normalizedColors = (filtersData?.metal_colors || []).map(
+  const normalizedColors = (filters?.metal_colors || []).map(
     (c) => c.value || c
   );
 
@@ -338,14 +327,19 @@ const ReferenceForm = () => {
         <div className="flex lg:flex-row flex-col lg:gap-0 gap-[20px] justify-between">
           <MetalSelector
             metal={filters?.quality}
-            carat={filtersData?.purity}
+            carat={filters?.purity}
             colorType={normalizedColors}
             className="w-full"
             value={form?.metal}
             onChange={(newMetal) => {
               updateForm("metal", newMetal);
+              if (newMetal?.color) {
+                setActiveColor(newMetal?.color);
+              }
             }}
             useActiveSource="color"
+            activeColor={activeColor}
+            setActiveColor={setActiveColor}
           />
 
           {ringSizeOptions.length > 0 && (

@@ -98,7 +98,7 @@ const Collection = ({ title, collectionName, apiPath, itemId = null }) => {
                   wishlistStatus={item?.wishlist}
                   className="slide-card"
                   cardClass="2xl:w-[390px] 2xl:h-[500px] xl:w-[344px] xl:h-[416px] w-[182px] h-[249px] flex items-center justify-center"
-                  imgClass="xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full "
+                  imgClass="2xl:w-[392px] 2xl:h-[310px] xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full "
                   gridLayout="lg:grid-cols-5 grid-cols-2"
                   customWidth
                   centerDiamondWeight={item?.center_diamond_weight}
