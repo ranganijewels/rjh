@@ -1,42 +1,57 @@
 import { handleDELETE, handlePUT } from "@/lib/apiHandler";
 
-export async function PUT(req, { params }) {
-  const token = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  const body = await req.json();
-
-  return handlePUT(
-    `/api/store-web/customer/address/update/${params.id}`,
-    body,
-    headers
-  );
-}
-export async function DELETE(req, { params }) {
+export async function PUT(req, context) {
   try {
-    const token = req.headers.get("authorization");
+    const { id } = await context.params;
+
+    const token = req.headers.get("authorization")?.replace("Bearer ", "");
     const tenantId = req.headers.get("x-tenant-id");
 
     const headers = {
-      "Content-Type": "application/json",
+      ...(tenantId && { "x-tenant-id": tenantId }),
+      Authorization: `Bearer ${token}`,
+    };
+
+    const body = await req.json();
+
+    return handlePUT(
+      `/api/store-web/customer/address/update/${id}`,
+      body,
+      headers
+    );
+  } catch (err) {
+    console.error("Update address API error:", err);
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error", details: err.message }),
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req, context) {
+  try {
+    const { id } = await context.params;
+
+    const token = req.headers.get("authorization")?.replace("Bearer ", "");
+    const tenantId = req.headers.get("x-tenant-id");
+
+    const headers = {
       ...(tenantId && { "x-tenant-id": tenantId }),
       Authorization: `Bearer ${token}`,
     };
 
     return handleDELETE(
-      `/api/store-web/customer/address/delete/${params.id}`,
+      `/api/store-web/customer/address/delete/${id}`,
       headers
     );
   } catch (err) {
-    console.error("Error deleting address:", err);
-    return new Response(JSON.stringify({ error: "Failed to delete record" }), {
-      status: 500,
-    });
+    console.error("DELETE address error:", err);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to delete record",
+        details: err.message,
+      }),
+      { status: 500 }
+    );
   }
 }

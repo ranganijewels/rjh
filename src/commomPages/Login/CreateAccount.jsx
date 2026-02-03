@@ -107,7 +107,6 @@ const CreateAccount = () => {
     try {
       const res = await create({ email: registeredEmail });
 
-      // ❌ Backend rejected (rate limit)
       if (!res?.status) {
         const retryAfter = res?.error?.retry_after_seconds;
 
@@ -125,7 +124,6 @@ const CreateAccount = () => {
         return;
       }
 
-      // ✅ Success case
       toast.success("OTP resent successfully");
 
       const cooldown = 120; // fallback

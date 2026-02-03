@@ -88,30 +88,30 @@ export const createCrudClient = (baseUrl) => {
       return res.json();
     },
 
-    update: async (id, payload) => {
-      let url = baseUrl;
-      let body;
+      update: async (id, payload) => {
+        let url = baseUrl;
+        let body;
 
-      if (payload === undefined && typeof id === "object") {
-        body = id;
-      } else {
-        url = `${baseUrl}/${id}`;
-        body = payload;
-      }
+        if (payload === undefined && typeof id === "object") {
+          body = id;
+        } else {
+          url = `${baseUrl}/${id}`;
+          body = payload;
+        }
 
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify(body),
-      });
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+          body: JSON.stringify(body),
+        });
 
-      if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.message || "Failed to update record");
-      }
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({}));
+          throw new Error(error.message || "Failed to update record");
+        }
 
-      return res.json();
-    },
+        return res.json();
+      },
 
     remove: async (id) => {
       const res = await fetch(`${baseUrl}/${id}`, {
