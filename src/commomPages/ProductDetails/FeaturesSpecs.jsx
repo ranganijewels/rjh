@@ -77,83 +77,89 @@ const FeaturesSpecs = ({
     {
       title: "",
       // Label ma j hover muki daiye
-      labels: [
-        <div
-          key="sku-label"
-          className="group relative inline-block cursor-default"
-        >
-          <span className="hover:text-gray-900 transition-colors">SKU</span>
-
-          {/* Tooltip - Jyare label 'SKU' par hover karsho tyare j dekhase */}
-          <div className="absolute bottom-full left-0 mb-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none z-50">
-            <div className="relative">
-              {/* Tooltip Box: Deep Dark with subtle border */}
-              <div className="bg-[#111] text-[#f8f9fa] text-[9px] font-bold tracking-[0.2em] px-3 py-2 rounded shadow-[0_10px_20px_rgba(0,0,0,0.3)] border border-white/10 whitespace-nowrap uppercase">
-                Stock Keeping Unit
-              </div>
-
-              {/* Tooltip Arrow: Perfectly Aligned */}
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#111] ml-3"></div>
-            </div>
-          </div>
-        </div>,
-        "Description",
-      ],
+      labels: ["SKU", "Product Name", "Product Type", "Gender"],
       values: [
         productDetail?.sku_no || productDetail?.design_no,
-        productDetail?.description || "-",
+        productDetail?.title || "-",
+        productDetail?.category?.name || "-",
+        productDetail?.gender || "-",
       ],
     },
-    // SECTION 1: CENTER DIAMOND (Main stone ne highlight karva mate)
-    ...(hasCenterDiamond
-      ? [
-          {
-            title: "Center Diamond Information",
-            labels: ["Weight", "Quantity", "Shape"],
-            values: [
-              formatCarat(selectedCarat) || "-",
-              productDetail?.diamonds?.find((d) => d.center === 1)?.pcs || "1",
-              toTitleCase(
-                productDetail?.diamonds?.find((d) => d.center === 1)?.occasion
-                  ?.custom_title
-              ) || "-",
-            ],
-          },
-        ]
-      : []),
+    // Dynamic Diamond Information
+    ...(() => {
+      if (!productDetail?.diamonds) return [];
 
-    ...(hasSideStones
-      ? [
-          {
-            title: hasCenterDiamond
-              ? "Side Diamond Information"
-              : "Diamond Information",
-            labels: [hasCenterDiamond ? "Weight" : "", "Quantity", "Shape"],
-            values: [
-              hasCenterDiamond ? sideStoneWeight || "" : "",
+      const centerStones = [];
+      const sideStonesMap = new Map();
 
-              productDetail?.diamonds
-                ?.filter((e) => e.center === 0)
-                .reduce((acc, curr) => acc + (Number(curr.pcs) || 0), 0) || "-",
-              toTitleCase(
-                productDetail?.diamonds?.find((e) => e.center === 0)?.occasion
-                  ?.custom_title
-              ) || "-",
-            ],
-          },
-        ]
-      : []),
+      productDetail.diamonds.forEach((d) => {
+        if (d.center === 1) {
+          centerStones.push(d);
+        } else {
+          // Normalize shape name for grouping key
+          const shapeKey = (
+            d.occasion?.custom_title ||
+            d.shape ||
+            "Diamond"
+          ).toLowerCase();
+
+          if (sideStonesMap.has(shapeKey)) {
+            const existing = sideStonesMap.get(shapeKey);
+            existing.pcs = (Number(existing.pcs) || 0) + (Number(d.pcs) || 0);
+            existing.wt = (
+              parseFloat(existing.wt || 0) + parseFloat(d.wt || 0)
+            ).toFixed(2);
+          } else {
+            // Store as new object to avoid mutating original reference issues in strict mode
+            sideStonesMap.set(shapeKey, {
+              ...d,
+              wt: parseFloat(d.wt || 0), // Base weight
+              pcs: Number(d.pcs) || 0,
+            });
+          }
+        }
+      });
+
+      const sideStones = Array.from(sideStonesMap.values());
+      // Center stones first, then side stones
+      const allStones = [...centerStones, ...sideStones];
+
+      return allStones.map((d, index) => {
+        const isCenter = d.center === 1;
+        const shapeName = toTitleCase(
+          d.occasion?.custom_title || d.shape || "Diamond"
+        );
+
+        // For center stone, use selectedCarat if available. 
+        // For side stones (or center if no selectedCarat), use accumulator wt.
+        const weight = isCenter && selectedCarat ? selectedCarat : d.wt;
+
+        return {
+          // Title only for the first item
+          title: index === 0 ? "Diamond Details" : "",
+          labels: [`${shapeName} Weight`, "Quantity", "Diamond Shape"],
+          values: [
+            formatCarat(weight) || "-",
+            d.pcs || "-",
+            shapeName,
+          ],
+        };
+      });
+    })(),
     {
       title: "",
       labels: ["Total Diamond Ct.", "Color - Clarity", "Setting Style"],
       values: [
-        productDetail?.diamonds
-          ?.reduce((sum, d) => sum + parseFloat(d.wt || 0), 0)
-          .toFixed(3) + " CT",
+        parseFloat(
+          pricingDetails?.diamonds_details
+            ?.reduce((sum, d) => sum + parseFloat(d.wt || 0), 0)
+            .toFixed(3)
+        ) + " CT",
         `${productDetail?.diamonds[0]?.color || ""}`.trim() || "-",
         toTitleCase(productDetail?.diamonds[0]?.setting || "-"),
       ],
     },
+
 
     // SECTION 3: METAL & TOTALS
     {
@@ -236,27 +242,21 @@ const FeaturesSpecs = ({
 
   return (
     <div>
-      <Accordion title={"Product Detail"} btnStyle="!capitalize">
+      <Accordion title={"Product Details"} btnStyle="!capitalize">
         {features.map((item, index) => (
           <div key={index} className="mt-[18px]">
             <Typography variant="h6" className="font-[500] mb-3">
               {item?.title}
             </Typography>
-            <div className="grid grid-cols-2">
-              <div className="inline-flex flex-col justify-start items-start gap-[3px]">
-                {item?.labels.map((label, idx) => (
-                  <Typography variant="h6" key={idx}>
-                    {label}
+            <div className="flex flex-col gap-[3px]">
+              {item?.labels.map((label, idx) => (
+                <div key={idx} className="grid grid-cols-2">
+                  <Typography variant="h6">{label}</Typography>
+                  <Typography variant="h6" textColor="teal">
+                    {item?.values[idx]}
                   </Typography>
-                ))}
-              </div>
-              <div className="inline-flex flex-col justify-start items-start gap-[3px]">
-                {item?.values.map((value, idx) => (
-                  <Typography variant="h6" key={idx} textColor="teal">
-                    {value}
-                  </Typography>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
@@ -432,7 +432,7 @@ const FeaturesSpecs = ({
                   idx ===
                   items.find((e) => e.faq_category_title === "Product Details")
                     ?.faqs.length -
-                    1
+                  1
                 }
               />
             ))}
