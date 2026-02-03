@@ -370,7 +370,7 @@ export const FILTERS = [
   {
     title: "Sort by",
     options: [
-      // "Most Loved",
+      "Recent Viewed",
       "New Arrival",
       "Price high to low",
       "Price low to high",

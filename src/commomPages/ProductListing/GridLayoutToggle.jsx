@@ -1,6 +1,7 @@
 import React from "react";
 import Dropdown from "@/components/ui/Dropdown/Dropdown";
 import { useRouter, useSearchParams } from "next/navigation";
+import { store } from "@/store/store";
 
 const GridLayoutToggle = ({
   setGridLayout,
@@ -11,8 +12,11 @@ const GridLayoutToggle = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const state = store.getState();
+  const isLoggedIn = !!state.auth?.token;
   const options = [
-    // { label: "Most Loved", value: "most_loved" },
+    ...(isLoggedIn ? [{ label: "Recent Viewed", value: "recent_viewed" }] : []),
     { label: "New Arrival", value: "new_arrival" },
     { label: "Price high to low", value: "price_high_to_low" },
     { label: "Price low to high", value: "price_low_to_high" },

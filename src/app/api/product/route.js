@@ -10,7 +10,7 @@ export async function POST(req) {
     "Content-Type": "application/json",
     "x-tenant-id": tenantId,
     Authorization: `Bearer ${token}`,
-    "x-customer-id": customerId,
+    // "x-customer-id": customerId,
     currency: currency,
   };
 
