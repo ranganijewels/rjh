@@ -19,7 +19,6 @@ const BlogDetail = ({ params }) => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching blog", err);
         setLoading(false);
       });
   }, [slug, fetchPosts]);

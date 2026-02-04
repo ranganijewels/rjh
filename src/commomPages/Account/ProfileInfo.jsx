@@ -183,7 +183,6 @@ const ProfileInfo = () => {
 
       toast.success("Password changed successfully!");
     } catch (err) {
-      console.error("Password change failed:", err);
       toast.error("Something went wrong while changing password");
     }
   };
@@ -213,9 +212,7 @@ const ProfileInfo = () => {
       localStorage.setItem("activeUser", JSON.stringify(res.data));
 
       setIsEditProfileModal(false);
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-    }
+    } catch (err) {}
   };
 
   const togglePassword = (field) => {

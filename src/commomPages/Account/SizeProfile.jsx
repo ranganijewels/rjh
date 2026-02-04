@@ -39,7 +39,6 @@ const SizeProfile = () => {
       const res = await fetchProfilesApi();
       setProfiles(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Error fetching profiles", err);
       setProfiles([]);
     } finally {
       setLoading(false);
@@ -77,7 +76,6 @@ const SizeProfile = () => {
       setOpenSizeProfile(false);
       resetForm();
     } catch (err) {
-      console.error("Save error:", err);
       toast.error("Something went wrong while saving the profile.");
     } finally {
       setLoading(false);
@@ -92,7 +90,6 @@ const SizeProfile = () => {
       const res = await fetchProfilesApi();
       setProfiles(res.data || []);
     } catch (err) {
-      console.error("Delete failed:", err);
       toast.error("Something went wrong while deleting.");
     } finally {
       setLoading(false);

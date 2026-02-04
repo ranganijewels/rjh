@@ -116,9 +116,7 @@ export function ReturnRepair() {
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 3000);
       }
-    } catch (err) {
-      console.error("Return Repair Error:", err);
-    }
+    } catch (err) {}
   };
 
   return (

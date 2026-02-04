@@ -88,7 +88,6 @@ const Addresses = () => {
       setIsModalOpen(false);
       resetForm();
     } catch (err) {
-      console.error("Address save failed:", err);
       toast.error("Something went wrong while saving.");
     } finally {
       setLoading(false);
@@ -122,7 +121,6 @@ const Addresses = () => {
       const res = await fetchAll();
       setAddresses(res.data || []);
     } catch (err) {
-      console.error("Address delete failed:", err);
       toast.error("Something went wrong while deleting.");
     }
   };

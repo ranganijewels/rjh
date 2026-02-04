@@ -14,7 +14,6 @@ export async function PUT(req) {
 
     return handlePUT("/api/store-web/customer/change-password", body, headers);
   } catch (err) {
-    console.error("Change password API error:", err);
     return new Response(
       JSON.stringify({ error: "Internal Server Error", details: err.message }),
       { status: 500 }

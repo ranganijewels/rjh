@@ -30,7 +30,6 @@ export async function POST(req) {
       headers
     );
   } catch (err) {
-    console.error("Error in size-profile POST route:", err);
     return new Response(
       JSON.stringify({ error: err?.message || "Internal server error" }),
       { status: 500 }

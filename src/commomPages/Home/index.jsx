@@ -126,6 +126,7 @@ const HomepageLayout = () => {
         collectionName="best seller"
         apiPath="/api/product/get-collection"
         title="Best Sellers"
+        id="best-seller"
       />
       {/* <CustomerReview reviewdata={homeData?.testimonial_section?.[0] ?? null} /> */}
 

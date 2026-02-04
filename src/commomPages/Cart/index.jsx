@@ -94,7 +94,6 @@ const Cart = () => {
         toast.error(response?.message || "Failed to remove item");
       }
     } catch (error) {
-      console.error("Remove cart item failed:", error);
       toast.error("An error occurred while removing the item");
     }
   };
@@ -110,7 +109,6 @@ const Cart = () => {
         toast.error(response?.message || "Failed to remove item");
       }
     } catch (error) {
-      console.error("Remove cart item failed:", error);
       toast.error("An error occurred while removing the item");
     }
   };

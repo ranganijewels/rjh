@@ -105,7 +105,6 @@ const FailedOrderPage = () => {
       return;
     }
 
-    // ✅ Option 1: Redirect back to checkout with same order
     router.push(`/cart/order-complete?order_id=${orderId}&status=failed`);
   };
 

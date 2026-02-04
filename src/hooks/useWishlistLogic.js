@@ -54,7 +54,6 @@ export const useWishlistLogic = ({
       !payload?.metal_color ||
       !payload?.diamond_shape
     ) {
-      console.warn("Wishlist blocked: incomplete data", payload);
       return false;
     }
     return true;
@@ -79,7 +78,6 @@ export const useWishlistLogic = ({
 
         return wishlisted;
       } catch (err) {
-        console.error("Wishlist toggle failed:", err);
         toast.error("Wishlist failed");
         return false;
       }
@@ -115,7 +113,6 @@ export const useWishlistLogic = ({
 
         return Boolean(res?.data?.wishlist);
       } catch (err) {
-        console.error("checkIfWishlisted failed:", err);
         return false;
       }
     },
@@ -131,7 +128,6 @@ export const useWishlistLogic = ({
         dispatch(fetchCart({ currency: selectedCountry?.currency }));
         return true;
       } catch (error) {
-        console.error("Move wishlist → cart failed:", error);
         toast.error("Failed to add item to cart");
         return false;
       }
@@ -154,7 +150,6 @@ export const useWishlistLogic = ({
         dispatch(removeWishlistItem(wishlistItemId));
         return true;
       } catch (error) {
-        console.error("Remove wishlist item failed:", error);
         toast.error("Failed to remove item");
         return false;
       }

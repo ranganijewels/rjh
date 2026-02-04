@@ -146,7 +146,6 @@ const CheckOutDetails = () => {
         router.push("/cart/order-complete");
       }
     } catch (error) {
-      console.error("Error placing order:", error);
       toast.error("Failed to place order");
     } finally {
       setPlacingOrder(false);

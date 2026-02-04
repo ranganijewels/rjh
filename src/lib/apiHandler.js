@@ -68,7 +68,6 @@ export async function handlePOST(
   try {
     data = text ? JSON.parse(text) : {};
   } catch (err) {
-    console.warn("Backend returned non-JSON response:", text);
     data = { error: text || "Unknown backend error" };
   }
 
@@ -165,7 +164,6 @@ export async function handlePATCH(req, apiPath, customHeaders = {}) {
     const result = await response.json();
     return NextResponse.json(result);
   } catch (error) {
-    console.error("PATCH error:", error);
     return NextResponse.json(
       { error: "Server error", details: error.message },
       { status: 500 }

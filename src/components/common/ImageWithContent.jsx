@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Heading from "../ui/Heading/Heading";
 import HeadingWithNavigation from "../ui/Heading/HeadingWithNavigation";
 import { useScrollControls } from "@/hooks/useScrollControls";
@@ -22,6 +22,13 @@ const ImageWithContent = ({
     scroll,
     updateScrollState,
   } = useScrollControls();
+
+  useEffect(() => {
+    if (data?.length > 0) {
+      const timer = setTimeout(() => updateScrollState(), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [data, updateScrollState]);
 
   return (
     <section className={`lg:px-[30px] px-[18px] ${sectionClass}`}>

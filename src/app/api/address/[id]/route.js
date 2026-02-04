@@ -20,7 +20,6 @@ export async function PUT(req, context) {
       headers
     );
   } catch (err) {
-    console.error("Update address API error:", err);
     return new Response(
       JSON.stringify({ error: "Internal Server Error", details: err.message }),
       { status: 500 }
@@ -45,7 +44,6 @@ export async function DELETE(req, context) {
       headers
     );
   } catch (err) {
-    console.error("DELETE address error:", err);
     return new Response(
       JSON.stringify({
         error: "Failed to delete record",

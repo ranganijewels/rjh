@@ -24,6 +24,7 @@ const CreateAccount = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const { create } = useCrudApi("/api/auth/resend-otp");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const until = localStorage.getItem("otpResendUntil");
@@ -53,6 +54,7 @@ const CreateAccount = () => {
     };
 
     try {
+      setSubmitting(true);
       const resultAction = await dispatch(registerUser(payload));
 
       if (registerUser.fulfilled.match(resultAction)) {
@@ -75,6 +77,8 @@ const CreateAccount = () => {
       }
     } catch (err) {
       toast.error("Something went wrong");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -85,6 +89,8 @@ const CreateAccount = () => {
     }
 
     try {
+      setSubmitting(true);
+
       const resultAction = await dispatch(
         verifyOtp({ email: registeredEmail, otp })
       );
@@ -98,6 +104,8 @@ const CreateAccount = () => {
       }
     } catch {
       toast.error("OTP verification failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -209,21 +217,21 @@ const CreateAccount = () => {
         </div>
       )}
       <div className="flex flex-col gap-[12px] items-center">
-        {!showOtp ? (
-          <Button
-            title="Create new account"
-            className="w-full"
-            loading={loading}
-            onClick={handleCreateAccount}
-          />
-        ) : (
-          <Button
-            title="Verify OTP"
-            className="w-full"
-            loading={loading}
-            onClick={handleVerifyOtp}
-          />
-        )}
+        <Button
+          title={
+            submitting
+              ? showOtp
+                ? "Verifying OTP..."
+                : "Sending OTP..."
+              : showOtp
+              ? "Verify OTP"
+              : "Create new account"
+          }
+          className="w-full"
+          loading={submitting}
+          disabled={submitting}
+          onClick={showOtp ? handleVerifyOtp : handleCreateAccount}
+        />
 
         <p className="uppercase text-[14px] font-[400]">
           Already have an account?{" "}

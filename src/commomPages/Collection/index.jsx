@@ -6,7 +6,7 @@ import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
 import ProductCard from "@/components/ui/Cards/ProductCard";
 import { useCrudApi } from "@/hooks/useCrudApi";
 
-const Collection = ({ title, collectionName, apiPath, itemId = null }) => {
+const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { fetchAll, fetchById } = useCrudApi(apiPath);
@@ -63,7 +63,7 @@ const Collection = ({ title, collectionName, apiPath, itemId = null }) => {
   }, [products, updateScrollState]);
 
   return (
-    <section className="md:px-[30px] px-[18px]">
+    <section className="md:px-[30px] px-[18px]" id={id}>
       <HeadingWithNavigation
         title={title}
         onPrev={() => scroll("prev")}

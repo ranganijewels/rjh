@@ -35,13 +35,17 @@ export default function StaticPage() {
         setPageData(page);
       })
       .catch((err) => {
-        console.error("Static page error:", err);
         setPageData(null);
       })
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+      </div>
+    );
   if (!pageData) return <p>Page not found</p>;
 
   return (

@@ -185,6 +185,15 @@ const ReferenceForm = () => {
     updateForm("shape", { id, designno, label });
   };
 
+  const isValidUrl = (value) => {
+    try {
+      new URL(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <section className="xl:space-y-[40px] space-y-[20px]">
       <div className="">
@@ -287,12 +296,38 @@ const ReferenceForm = () => {
         borderBottom
         value={urlInput}
         onChange={(e) => setUrlInput(e.target.value)}
+        onPaste={(e) => {
+          const pastedText = e.clipboardData.getData("text").trim();
+
+          // Always stop default paste
+          e.preventDefault();
+
+          // Validate URL
+          try {
+            new URL(pastedText);
+          } catch {
+            toast.error("Enter a valid URL");
+            setUrlInput("");
+            return;
+          }
+
+          // If duplicate → just clear input and exit
+          if (form.urls.includes(pastedText)) {
+            setUrlInput("");
+            return;
+          }
+
+          // Add URL
+          updateForm("urls", [...form.urls, pastedText].slice(-4));
+          setUrlInput("");
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             handleAddUrl();
           }
         }}
+        onFocus={() => handleAddUrl()}
       />
 
       <div className="flex gap-2 mt-2 flex-wrap">

@@ -62,7 +62,6 @@ export const useCoupon = () => {
         toast.success("Coupon removed");
       }
     } catch (err) {
-      console.error(err);
       toast.error("Failed to remove coupon");
     } finally {
       setLoading(false);

@@ -42,7 +42,7 @@ const StepperForm = () => {
   const stepOneRef = useRef();
   const stepTwoRef = useRef();
   const stepThreeRef = useRef();
-  const stepFourRef = useRef(); 
+  const stepFourRef = useRef();
   const [stepTwoData, setStepTwoData] = useState({
     colorRange: ["D", "E", "F", "G", "H", "I"],
     cutRange: ["Excellent", "Ideal", "Very Good", "Good"],
@@ -156,7 +156,6 @@ const StepperForm = () => {
       });
       setCurrentStep(0);
     } catch (err) {
-      console.error(err);
       toast.error("Something went wrong. Please try again.");
     }
   };

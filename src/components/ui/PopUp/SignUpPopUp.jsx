@@ -29,7 +29,6 @@ const SignUpPopUp = ({ onClose }) => {
         "The email field must be a valid email address." || err.message;
       setError(errorMsg);
       toast.error(errorMsg);
-      console.error(err);
     }
   };
 

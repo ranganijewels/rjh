@@ -22,7 +22,6 @@ export async function PUT(req, { params }) {
 
     return new Response(JSON.stringify(result), { status: 200 });
   } catch (err) {
-    console.error("Error updating size-profile:", err);
     return new Response(JSON.stringify({ error: "Failed to update record" }), {
       status: 500,
     });
@@ -45,7 +44,6 @@ export async function DELETE(req, { params }) {
       headers
     );
   } catch (err) {
-    console.error("Error deleting size-profile:", err);
     return new Response(JSON.stringify({ error: "Failed to delete record" }), {
       status: 500,
     });

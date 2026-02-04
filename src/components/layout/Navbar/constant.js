@@ -74,7 +74,7 @@ export const MENUS_OPTIONS = [
         items: [
           {
             label: "Design Your Own Ring",
-            link: "/customize-form?category_id=1",
+            link: "/customize?category=ring",
           },
           // {
           //   label: "Start with a Diamond",
@@ -271,8 +271,15 @@ export const MENUS_OPTIONS = [
       {
         title: "FEATURED",
         items: [
-          "New Arrivals",
-          "Bestsellers",
+          {
+            label: "New Arrivals",
+            link: "/product?sort_by=new_arrival",
+          },
+          {
+            label: "Bestsellers",
+            link: "#best-seller",
+          },
+
           "Limited Editions",
           "Curated by ELOVA",
           "Jewelry Under $1000",

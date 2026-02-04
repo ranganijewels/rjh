@@ -32,47 +32,55 @@ const ReviewForm = () => {
         </div>
 
         {/* upload images  */}
-        <div className="">
-          <p className="mb-[20px]">Uploaded Images</p>
-          <div className="flex lg:gap-[16px] gap-[11px]">
-            {referenceForm?.files?.map((file, i) => {
-              const preview = getPreviewUrl(file);
-              if (!preview) return null;
+        {referenceForm?.files.length > 0 && (
+          <div className="">
+            <p className="mb-[20px]">Uploaded Images</p>
+            <div className="flex lg:gap-[16px] gap-[11px]">
+              {referenceForm?.files?.map((file, i) => {
+                const preview = getPreviewUrl(file);
+                if (!preview) return null;
 
-              return (
-                <div
-                  key={i}
-                  className="xl:w-[223px] xl:h-[223px] lg:w-[170px] lg:h-[170px] w-[104px] h-[104px] relative"
-                >
-                  <img
-                    src={preview}
-                    alt={`Uploaded ${i}`}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={i}
+                    className="xl:w-[223px] xl:h-[223px] lg:w-[170px] lg:h-[170px] w-[104px] h-[104px] relative"
+                  >
+                    <img
+                      src={preview}
+                      alt={`Uploaded ${i}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-
-        <div className="space-y-[32px]">
-          <h3 className="text-[18px] font-[500]">
-            What you’re envisioning or why this inspiration is meaningful to you
-          </h3>
-          <p className="text-[16px] font-[400]">{referenceForm.description}</p>
-        </div>
-
-        <div className="flex gap-[10px]">
-          <h3 className="text-[18px] font-[500]">URL</h3>
-          <div className="flex flex-col gap-[20px]">
-            {" "}
-            {referenceForm.urls.map((e, index) => (
-              <Link key={index} href={e} className="text-[16px] font-[400]">
-                {e}
-              </Link>
-            ))}
+        )}
+        {referenceForm?.description && (
+          <div className="space-y-[32px]">
+            <h3 className="text-[18px] font-[500]">
+              What you’re envisioning or why this inspiration is meaningful to
+              you
+            </h3>
+            <p className="text-[16px] font-[400]">
+              {referenceForm?.description}
+            </p>
           </div>
-        </div>
+        )}
+
+        {referenceForm?.urls.length > 0 && (
+          <div className="flex gap-[10px]">
+            <h3 className="text-[18px] font-[500]">URL</h3>
+            <div className="flex flex-col gap-[20px]">
+              {" "}
+              {referenceForm?.urls.map((e, index) => (
+                <Link key={index} href={e} className="text-[16px] font-[400]">
+                  {e}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Diamond and Metal section */}
