@@ -11,7 +11,6 @@ import { store } from "@/store/store";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 
@@ -135,7 +134,7 @@ const ProductCard = ({
   };
 
   return (
-    <div className={`z-[999] ${className}`}>
+    <div className={`z-0 ${className}`}>
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

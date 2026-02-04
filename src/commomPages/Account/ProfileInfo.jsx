@@ -360,7 +360,7 @@ const ProfileInfo = () => {
               onClick={() => togglePassword("current")}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
             >
-              {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword.current ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           }
         />
@@ -382,7 +382,7 @@ const ProfileInfo = () => {
               onClick={() => togglePassword("new")}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
             >
-              {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword.new ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           }
         />
@@ -408,9 +408,9 @@ const ProfileInfo = () => {
                 className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
               >
                 {showPassword.confirm ? (
-                  <EyeOff size={18} />
-                ) : (
                   <Eye size={18} />
+                ) : (
+                  <EyeOff size={18} />
                 )}
               </button>
             }

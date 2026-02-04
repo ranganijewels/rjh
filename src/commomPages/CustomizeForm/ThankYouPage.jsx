@@ -39,8 +39,8 @@ const ThankYouPage = () => {
             </Typography>
           </div>
           <Button
-            title={"MY ORDERS"}
-            onClick={() => router.push("/account/orders")}
+            title={"back to home"}
+            onClick={() => router.push("/")}
           />
         </div>
       </div>

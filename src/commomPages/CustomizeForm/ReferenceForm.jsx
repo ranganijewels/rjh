@@ -185,15 +185,6 @@ const ReferenceForm = () => {
     updateForm("shape", { id, designno, label });
   };
 
-  const isValidUrl = (value) => {
-    try {
-      new URL(value);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   return (
     <section className="xl:space-y-[40px] space-y-[20px]">
       <div className="">

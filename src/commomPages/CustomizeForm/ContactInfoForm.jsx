@@ -16,6 +16,7 @@ const ContactInfoForm = () => {
   const categoryId = searchParams.get("category_id");
   const sizeCategoryId = searchParams.get("size_category_id");
   const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
@@ -38,7 +39,10 @@ const ContactInfoForm = () => {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
+
     try {
+      setSubmitting(true);
       setErrors({});
       const validFiles = referenceForm.files.filter((f) => f instanceof File);
 
@@ -54,6 +58,12 @@ const ContactInfoForm = () => {
         validFiles.map((file) => fileToBase64(file))
       );
 
+      const caratValue = referenceForm.customCarat?.trim()
+        ? Number(referenceForm.customCarat)
+        : referenceForm.selectedCarat
+        ? Number(formatCarat(referenceForm.selectedCarat))
+        : 0;
+
       const payload = {
         category_id: Number(sizeCategoryId),
 
@@ -63,9 +73,7 @@ const ContactInfoForm = () => {
 
         shape: referenceForm.shape?.label || "",
 
-        carat: referenceForm.selectedCarat
-          ? Number(formatCarat(referenceForm.selectedCarat))
-          : 0,
+        carat: caratValue,
         color: formatRange(referenceForm.colorRange).toString() || "",
         clarity: formatRange(referenceForm.clarityRange).toString() || "",
 
@@ -97,6 +105,8 @@ const ContactInfoForm = () => {
       } else {
         toast.error(err.message || "Something went wrong");
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -232,7 +242,10 @@ const ContactInfoForm = () => {
           variant="outlineTeal"
           onClick={() => router.push(`/customize/form/review?size=${sizeSlug}`)}
         />
-        <Button title={"Submit"} onClick={handleSubmit} />
+        <Button
+          title={submitting ? "Submitting..." : "Submit"}
+          onClick={handleSubmit}
+        />
       </div>
     </section>
   );

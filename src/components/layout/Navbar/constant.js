@@ -277,7 +277,7 @@ export const MENUS_OPTIONS = [
           },
           {
             label: "Bestsellers",
-            link: "#best-seller",
+            link: "/#best-seller",
           },
 
           "Limited Editions",

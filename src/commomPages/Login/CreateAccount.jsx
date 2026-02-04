@@ -178,7 +178,7 @@ const CreateAccount = () => {
           placeholder="Password"
           label="Password"
           className="mb-2"
-          type="password"
+          type={show ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           borderBottom
@@ -188,7 +188,7 @@ const CreateAccount = () => {
               onClick={() => setShow((p) => !p)}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
             >
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              {show ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           }
         />
