@@ -606,13 +606,13 @@ const Details = () => {
 
                 setSelectDiamondWeightId(variantId);
               }
-              updatePricing(
-                productInfo?.id,
-                productInfo?.design_no,
-                selectedMetal,
-                option.value,
-                selectedWeight
-              );
+              // updatePricing(
+              //   productInfo?.id,
+              //   productInfo?.design_no,
+              //   selectedMetal,
+              //   option.value,
+              //   selectedWeight
+              // );
             }}
             isInvalid={!!errorMessage}
           />

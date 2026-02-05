@@ -5,11 +5,13 @@ import { useScrollControls } from "@/hooks/useScrollControls";
 import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
 import ProductCard from "@/components/ui/Cards/ProductCard";
 import { useCrudApi } from "@/hooks/useCrudApi";
+import { usePreferences } from "@/context/PreferencesContext";
 
 const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { fetchAll, fetchById } = useCrudApi(apiPath);
+  const { selectedCountry } = usePreferences();
   const {
     containerRef,
     canScrollLeft,
@@ -26,9 +28,20 @@ const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
 
         // If the API path expects an ID, call fetchById
         if (apiPath.includes("complete-the-look") && itemId) {
-          res = await fetchById(itemId);
+          res = await fetchById(itemId, {
+            headers: {
+              currency: selectedCountry.currency,
+            },
+          });
         } else {
-          res = await fetchAll();
+          res = await fetchAll(
+            {},
+            {
+              headers: {
+                currency: selectedCountry.currency,
+              },
+            }
+          );
         }
 
         let productList = [];
