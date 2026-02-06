@@ -20,7 +20,11 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
   const { addToCart, removeFromWishlist } = useWishlistLogic();
   const wishlist = useSelector((s) => s.wishlist.items);
   useEffect(() => {
-    dispatch(fetchWishlist());
+    dispatch(
+      fetchWishlist({
+        currency: selectedCountry.currency,
+      })
+    );
   }, [dispatch]);
 
   if (!isOpen) return null;

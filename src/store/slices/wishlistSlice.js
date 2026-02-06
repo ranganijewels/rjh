@@ -3,12 +3,14 @@ import { apiGet, apiPost } from "../services/api";
 
 export const fetchWishlist = createAsyncThunk(
   "wishlist/fetchWishlist",
-  async (_, thunkAPI) => {
+  async ({ currency }, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
       const token = state.auth?.token;
 
-      const res = await apiGet("/api/wishlist/get-wishlist", token);
+      const res = await apiGet("/api/wishlist/get-wishlist", token, {
+        currency,
+      });
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

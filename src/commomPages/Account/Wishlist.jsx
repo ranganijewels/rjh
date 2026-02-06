@@ -8,6 +8,7 @@ import { fetchWishlist } from "@/store/slices/wishlistSlice";
 import { toTitleCase } from "@/utils/string";
 import Typography from "@/components/ui/Typography/Typography";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
+import { usePreferences } from "@/context/PreferencesContext";
 
 const CATEGORY_ORDER = ["RING", "EARRING", "NECKLACE", "BRACELET", "PENDANT"];
 
@@ -16,9 +17,17 @@ const Wishlist = () => {
   const { wishlistItems, addToCart } = useWishlistLogic();
   const { items, count, loading } = useSelector((state) => state.wishlist);
 
+  const { selectedCountry } = usePreferences();
+
   useEffect(() => {
-    dispatch(fetchWishlist());
-  }, []);
+    if (selectedCountry?.currency) {
+      dispatch(
+        fetchWishlist({
+          currency: selectedCountry.currency,
+        })
+      );
+    }
+  }, [dispatch, selectedCountry]);
 
   const groupedWishlist = useMemo(() => {
     if (!items?.length) return {};

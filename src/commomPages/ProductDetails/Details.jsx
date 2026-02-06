@@ -408,8 +408,8 @@ const Details = () => {
           </p>
           <p className="text-[14px] font-[300] mb-[18px]">
             {/* {productInfo?.description} */}
-            “A timeless Princess cut diamond set in 18k yellow gold — a modern
-            classic.”
+            Beautiful diamond jewelry made with timeless design and elegant
+            shine.
           </p>
           <ReviewSummary rating={1} totalReviews={10} />
         </div>

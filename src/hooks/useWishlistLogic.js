@@ -70,7 +70,11 @@ export const useWishlistLogic = ({
         const res = await createWishlistApi(payload);
         const wishlisted = Boolean(res?.data?.wishlist);
 
-        dispatch(fetchWishlist());
+        dispatch(
+          fetchWishlist({
+            currency: selectedCountry.currency,
+          })
+        );
 
         if (wishlisted && onWishlisted && !disablePopup) {
           onWishlisted();

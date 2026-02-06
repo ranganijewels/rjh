@@ -104,7 +104,11 @@ const Cart = () => {
 
       if (response?.status) {
         dispatch(fetchCart({ currency: selectedCountry.currency }));
-        dispatch(fetchWishlist());
+        dispatch(
+          fetchWishlist({
+            currency: selectedCountry.currency,
+          })
+        );
       } else {
         toast.error(response?.message || "Failed to remove item");
       }
