@@ -386,6 +386,21 @@ const Details = () => {
     return Math.floor(num);
   }, [pricing]);
 
+  const dynamicDescription = useMemo(() => {
+    if (!productInfo) return "";
+
+    const karat = selectedMetal?.karat?.value || "";
+    const color = activeColor ? toTitleCase(activeColor) : "";
+    const metalStr = (karat || color) ? `${karat} ${color} Gold` : "premium metal";
+
+    const shape = selectedShape ? toTitleCase(selectedShape) : "";
+    const cleanWeight = selectedWeight ? String(selectedWeight).replace(/[^\d.]/g, "") : "";
+    const weight = cleanWeight ? `${cleanWeight} ct` : "";
+    const diamondPart = (shape || weight) ? `a ${weight} ${shape} diamond` : "brilliant accents";
+
+    return `Crafted in ${metalStr} with ${diamondPart} for timeless elegance.`;
+  }, [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight]);
+
   return (
     <section className="xl:px-[172px] lg:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
       {/* Gallery */}
@@ -406,10 +421,8 @@ const Details = () => {
           <p className="xl:text-[20px] text-[20px] font-[500] mb-[10px]">
             {productInfo?.title && toTitleCase(productInfo.title)}
           </p>
-          <p className="text-[14px] font-[300] mb-[18px]">
-            {/* {productInfo?.description} */}
-            Beautiful diamond jewelry made with timeless design and elegant
-            shine.
+          <p className="text-[14px] font-[300] mb-[18px] text-[var(--grey-2)] leading-relaxed">
+            {dynamicDescription}
           </p>
           <ReviewSummary rating={1} totalReviews={10} />
         </div>
