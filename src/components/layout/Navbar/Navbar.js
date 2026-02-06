@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import WishlistPopUp from "@/components/ui/PopUp/WishlistPopUp";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import useIsMobile from "@/utils/useIsMobile";
+import { toTitleCase } from "@/utils/string";
 
 const Navbar = () => {
   const router = useRouter();
@@ -33,6 +34,9 @@ const Navbar = () => {
   const wishlistCount = useSelector((s) => s.wishlist.count);
   const { open, close } = useWishlistPopup();
   const { isMobile } = useIsMobile(1024);
+  const { isMobile: MobileSize } = useIsMobile(425);
+
+  const customer = useSelector((state) => state.auth.customer);
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -102,7 +106,7 @@ const Navbar = () => {
           </div>
 
           {/* Logo */}
-          <div className="flex justify-center flex-1 lg:flex-none lg:order-1">
+          <div className="flex justify-center flex-1 lg:flex-none lg:order-1 md:ml-0 ml-[30px]">
             <Link href="/">
               <img
                 src="/logo/elova-jewel.png"
@@ -145,10 +149,29 @@ const Navbar = () => {
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="hidden lg:block cursor-pointer"
             />
+
+            <div className={`flex gap-[12px] ${MobileSize && "relative"}`}>
+              {MobileSize ? (
+                <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
+                  {customer?.first_name?.slice(0, 1)}
+                </span>
+              ) : (
+                <span className="text-[var(--teal-1)]">
+                  Hi, {toTitleCase(customer?.first_name)}
+                </span>
+              )}
+              <img
+                src="/icons/user.svg"
+                onClick={() => router.push("/account")}
+                className="w-[20px] h-[20px] cursor-pointer"
+                alt="User Account"
+              />
+            </div>
+
             <div className="relative" onMouseEnter={open} onMouseLeave={close}>
               <img
                 src="/icons/heart.svg"
-                onClick={() => router.push("/account/wishlist")}
+                onClick={() => router.push("/wishlist")}
                 className="w-[20px] h-[20px] cursor-pointer"
               />
 
@@ -162,13 +185,6 @@ const Navbar = () => {
                 <WishlistPopUp onMouseEnter={open} onMouseLeave={close} />
               )}
             </div>
-
-            <img
-              src="/icons/user.svg"
-              onClick={() => router.push("/account")}
-              className="w-[20px] h-[20px] cursor-pointer"
-              alt="User Account"
-            />
             <Link href="/cart" className="cursor-pointer">
               <img
                 src="/icons/basket-shopping.svg"

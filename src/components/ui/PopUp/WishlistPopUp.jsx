@@ -37,7 +37,7 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
       <div className="flex flex-col h-full">
         <div className="p-[25px_30px] flex justify-between items-center shrink-0">
           <Typography variant="p" className="font-[500] capitalize">
-            Your Wishlist
+            My Wishlist
           </Typography>
         </div>
 

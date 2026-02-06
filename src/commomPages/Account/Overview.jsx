@@ -14,7 +14,7 @@ const Overview = () => {
     <>
       <div className="xl:mb-[50px] mb-[30px]">
         <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Welcome back,&nbsp;
+          Back Again,&nbsp;
           <span className="text-[var(--teal-1)]">
             {toTitleCase(customer?.first_name)}{" "}
             {toTitleCase(customer?.last_name)}

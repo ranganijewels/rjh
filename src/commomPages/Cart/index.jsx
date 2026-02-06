@@ -426,7 +426,7 @@ const Cart = () => {
 
             <Button
               onClick={handleCheckout}
-              title="Checkout"
+              title="Secure Checkout"
               className="w-full mt-[16px]"
             />
           </div>
