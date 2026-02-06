@@ -9,7 +9,7 @@ import DiamondOptions from "./DiamondOptions";
 import RingSizeSelector from "./RingSizeSelector";
 import FeaturesSpecs from "./FeaturesSpecs";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-
+ 
 import { cleanCarat, toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import HeartIcon from "@/components/Icons/HeartIcon";
@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import ShareModal from "@/components/ui/Modal/ShareModal";
 import ReviewSummary from "@/components/ui/ReviewSummary";
-
+ 
 const Details = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,7 +32,7 @@ const Details = () => {
   const [filtersData, setFiltersData] = useState([]);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
   const [openShareModal, setOpenShareModal] = useState(false);
-
+ 
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -44,10 +44,10 @@ const Details = () => {
         console.error("Error fetching filters:", err);
       }
     };
-
+ 
     fetchFilters();
   }, []);
-
+ 
   const [productInfo, setProductInfo] = useState(null);
   const [galleryMedia, setGalleryMedia] = useState([]);
   const [selectedShape, setSelectedShape] = useState(
@@ -59,7 +59,7 @@ const Details = () => {
   const [selectedMetal, setSelectedMetal] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [pricing, setPricing] = useState();
-
+ 
   const [loadingGallery, setLoadingGallery] = useState(false);
   const [selectedRingSize, setSelectedRingSize] = useState();
   const [selectedWidth, setSelectedWidth] = useState("");
@@ -75,25 +75,25 @@ const Details = () => {
   const customerId = useSelector((state) => state.auth?.customer?.id);
   const wishlistCount = useSelector((state) => state.wishlist.count);
   const [pricingDetails, setPricingDetails] = useState(null);
-
+ 
   const { checkIfWishlisted, toggleWishlist } = useWishlistLogic({
     createWishlistApi: createWishlist,
   });
-
+ 
   const pricingEnabledRef = useRef(false);
-
+ 
   useEffect(() => {
     const activeId = selectDiamondWeightId || selectedVariantId;
     if (!activeId) return;
-
+ 
     let isCurrent = true;
     setLoadingGallery(true);
-
+ 
     const currency =
       typeof selectedCountry?.currency === "string"
         ? selectedCountry.currency
         : selectedCountry?.currency?.code || "CAD";
-
+ 
     fetch(
       `https://api.jewellabel.in/api/store-web/customer/product-detail/${activeId}`,
       {
@@ -109,7 +109,7 @@ const Details = () => {
       .then((json) => {
         if (!isCurrent) return;
         setSelectDiamondWeightId(null);
-
+ 
         if (!selectDiamondWeightId) {
           const data = json?.data ?? {};
           setProductInfo(data);
@@ -118,10 +118,10 @@ const Details = () => {
       })
       .catch(console.error)
       .finally(() => isCurrent && setLoadingGallery(false));
-
+ 
     return () => (isCurrent = false);
   }, [selectedVariantId, selectedCountry, selectDiamondWeightId]);
-
+ 
   const updatePricing = async (
     id,
     designNo,
@@ -130,9 +130,9 @@ const Details = () => {
     weight = selectedWeight
   ) => {
     if (!pricingEnabledRef.current) return;
-
+ 
     if (!metal?.karat || !productInfo) return;
-
+ 
     try {
       const res = await getAmount(
         {
@@ -158,7 +158,7 @@ const Details = () => {
       console.error("Error fetching amount", err);
     }
   };
-
+ 
   const syncWishlistState = async () => {
     const isWishlisted = await checkIfWishlisted({
       product_id: productInfo.id,
@@ -169,10 +169,10 @@ const Details = () => {
       ring_size: selectedRingSize,
       size: selectedWidth,
     });
-
+ 
     setIsWishlisted(isWishlisted);
   };
-
+ 
   useEffect(() => {
     if (
       !customerId ||
@@ -184,7 +184,7 @@ const Details = () => {
       setIsWishlisted(false);
       return;
     }
-
+ 
     syncWishlistState();
   }, [
     customerId,
@@ -197,7 +197,7 @@ const Details = () => {
     selectedWidth,
     wishlistCount,
   ]);
-
+ 
   const handleWishlist = async () => {
     const wishlisted = await toggleWishlist({
       product_id: productInfo.id,
@@ -210,13 +210,13 @@ const Details = () => {
       ring_size: selectedRingSize ? String(selectedRingSize) : "",
       size: selectedWidth?.toString() || "",
     });
-
+ 
     setIsWishlisted(wishlisted);
   };
-
+ 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("authTokenElova");
-
+ 
     try {
       if (!token) return router.push("/login");
       if (!selectedRingSize && productInfo?.sizes.length > 0) {
@@ -225,9 +225,9 @@ const Details = () => {
         );
         return;
       }
-
+ 
       setErrorMessage("");
-
+ 
       const payload = {
         product_id: String(productInfo?.id),
         metal_type: selectedMetal?.karat?.value,
@@ -248,7 +248,7 @@ const Details = () => {
       console.error("Error adding to cart:", err);
     }
   };
-
+ 
   const handleScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -257,7 +257,7 @@ const Details = () => {
       if (button) button.click();
     }
   };
-
+ 
   const diamondWeightArray = productInfo?.variants
     ?.filter((v) => v?.carat && v?.carat.trim() !== "")
     .map((v) => ({
@@ -265,11 +265,11 @@ const Details = () => {
       carat: v?.carat,
       shape: v?.shape,
     }));
-
+ 
   useEffect(() => {
     if (!productInfo?.productsizevariant?.length) return;
     if (!selectedWidth) return;
-
+ 
     const ringOptions = productInfo.productsizevariant
       .filter((v) => v.size?.toLowerCase() === selectedWidth?.toLowerCase())
       .map((s) => ({
@@ -278,13 +278,13 @@ const Details = () => {
         variantId: s.variant_product_id,
       }));
   }, [selectedWidth, productInfo]);
-
+ 
   useEffect(() => {
     const colorParam = searchParams.get("selectedMetalColor");
-
+ 
     if (colorParam) {
       const upper = colorParam.toUpperCase();
-
+ 
       if (upper !== activeColor) {
         setActiveColor(upper);
       }
@@ -295,18 +295,18 @@ const Details = () => {
       }
     }
     const shapeParam = searchParams.get("shape");
-
+ 
     if (shapeParam) {
       setSelectedShape(shapeParam);
     }
   }, [searchParams]);
-
+ 
   useEffect(() => {
     if (!productInfo) return;
-
+ 
     const shapeParam = searchParams.get("shape");
     if (!shapeParam) return;
-
+ 
     // find the variant for the shape
     const variant = productInfo?.variants?.find((v) => {
       const label = (
@@ -317,41 +317,41 @@ const Details = () => {
       ).toLowerCase();
       return label === shapeParam.toLowerCase();
     });
-
+ 
     if (variant) {
       setSelectedShape(shapeParam);
-
+ 
       // Update gallery to show correct images
       if (variant.media?.length) {
         setGalleryMedia(variant.media);
       }
-
+ 
       // Use the correct variant ID
       if (variant.variant_product_id) {
         setSelectedVariantId(variant.variant_product_id);
       }
     }
-
+ 
     if (!productInfo?.size) return;
     if (selectedRingSize) return;
-
+ 
     const numericSize = String(productInfo.size).match(/[\d.]+/)?.[0];
-
+ 
     if (numericSize) {
       setSelectedRingSize(numericSize);
     }
   }, [productInfo]);
-
+ 
   const ringSizeOptions = useMemo(() => {
     if (!productInfo) return [];
-
+ 
     const hasCategorySizes = productInfo.productsizevariant?.some((v) =>
       ["small", "medium", "large"].includes(v?.size?.toLowerCase())
     );
-
+ 
     if (hasCategorySizes) {
       if (!selectedWidth) return [];
-
+ 
       return productInfo.productsizevariant
         .filter((v) => v.size?.toLowerCase() === selectedWidth.toLowerCase())
         .map((s) => ({
@@ -360,7 +360,7 @@ const Details = () => {
           variantId: s.variant_product_id,
         }));
     }
-
+ 
     return (
       productInfo.sizes?.map((s) => ({
         label: `${s.size.split(" ")[0]}`,
@@ -369,23 +369,38 @@ const Details = () => {
       })) || []
     );
   }, [productInfo, selectedWidth]);
-
+ 
   useEffect(() => {
     if (!productInfo?.size || selectedRingSize) return;
-
+ 
     const ring = productInfo.size.match(/[\d.]+/)?.[0];
     if (ring) setSelectedRingSize(ring);
   }, [productInfo]);
-
+ 
   const displayPrice = useMemo(() => {
     if (pricing === null || pricing === undefined) return null;
-
+ 
     const num = Number(pricing);
     if (!Number.isFinite(num) || num <= 0) return null;
-
+ 
     return Math.floor(num);
   }, [pricing]);
-
+ 
+  const dynamicDescription = useMemo(() => {
+    if (!productInfo) return "";
+ 
+    const karat = selectedMetal?.karat?.value || "";
+    const color = activeColor ? toTitleCase(activeColor) : "";
+    const metalStr = (karat || color) ? `${karat} ${color} Gold` : "premium metal";
+ 
+    const shape = selectedShape ? toTitleCase(selectedShape) : "";
+    const cleanWeight = selectedWeight ? String(selectedWeight).replace(/[^\d.]/g, "") : "";
+    const weight = cleanWeight ? `${cleanWeight} ct` : "";
+    const diamondPart = (shape || weight) ? `a ${weight} ${shape} diamond` : "brilliant accents";
+ 
+    return `Crafted in ${metalStr} with ${diamondPart} for timeless elegance.`;
+  }, [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight]);
+ 
   return (
     <section className="xl:px-[172px] lg:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
       {/* Gallery */}
@@ -399,21 +414,19 @@ const Details = () => {
           setActiveColor={setActiveColor}
         />
       </div>
-
+ 
       {/* Product details */}
       <div className="lg:w-[29%] w-full space-y-[18px] lg:sticky lg:top-[20px]">
         <div>
           <p className="xl:text-[20px] text-[20px] font-[500] mb-[10px]">
             {productInfo?.title && toTitleCase(productInfo.title)}
           </p>
-          <p className="text-[14px] font-[300] mb-[18px]">
-            {/* {productInfo?.description} */}
-            Beautiful diamond jewelry made with timeless design and elegant
-            shine.
+          <p className="text-[14px] font-[300] mb-[18px] text-[var(--grey-2)] leading-relaxed">
+            {dynamicDescription}
           </p>
           <ReviewSummary rating={1} totalReviews={10} />
         </div>
-
+ 
         <div className="space-y-[12px]">
           <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
             {getCurrencySymbol(selectedCountry?.currency) +
@@ -443,30 +456,30 @@ const Details = () => {
             value={selectedMetal}
             onChange={(metal) => {
               pricingEnabledRef.current = true;
-
+ 
               setSelectedMetal(metal);
-
+ 
               const raw = metal?.karat?.value || "";
               const cleanCarat = raw.replace(/k/i, "");
-
+ 
               const color =
                 metal?.color?.toUpperCase?.() ||
                 metal?.metal_color?.toUpperCase?.() ||
                 "";
-
+ 
               const params = new URLSearchParams(
                 Array.from(searchParams.entries())
               );
-
+ 
               // update both params
               params.set("carat", cleanCarat);
               params.set("selectedMetalColor", color);
-
+ 
               router.replace(`/product/${productId}?${params.toString()}`, {
                 scroll: false,
                 shallow: true,
               });
-
+ 
               updatePricing(
                 productInfo?.id,
                 designNo,
@@ -480,7 +493,7 @@ const Details = () => {
             useActiveSource="activeColor"
           />
         )}
-
+ 
         {productInfo && (
           <DiamondOptions
             diamodShapeTitle="Diamond Shape :"
