@@ -12,7 +12,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 
 const CATEGORY_ORDER = ["RING", "EARRING", "NECKLACE", "BRACELET", "PENDANT"];
 
-const Wishlist = () => {
+const Wishlist = ({ hideTitle, gridCol }) => {
   const dispatch = useDispatch();
   const { wishlistItems, addToCart } = useWishlistLogic();
   const { items, count, loading } = useSelector((state) => state.wishlist);
@@ -59,11 +59,13 @@ const Wishlist = () => {
 
   return (
     <>
-      <div className="xl:mb-[50px] mb-[30px]">
-        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Wishlist
-        </p>
-      </div>
+      {!hideTitle && (
+        <div className="xl:mb-[50px] mb-[30px]">
+          <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
+            Wish List
+          </p>
+        </div>
+      )}
       <div className="flex flex-col">
         {loading ? (
           Array.from({ length: 5 }).map((_, idx) => (
@@ -79,7 +81,9 @@ const Wishlist = () => {
                 <Typography variant="h3">{toTitleCase(categoryKey)}</Typography>
 
                 {/* CATEGORY GRID */}
-                <div className="grid md:grid-cols-3 grid-cols-2 md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] max-[320px]:grid-cols-1">
+                <div
+                  className={`md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] ${gridCol}`}
+                >
                   {categoryItems.map((item) => {
                     return (
                       <div
@@ -113,6 +117,12 @@ const Wishlist = () => {
                             className="w-full"
                             onClick={() => addToCart(item.id)}
                           />
+                          <Button
+                            title="Remove"
+                            variant="outlineBlack"
+                            className="w-full"
+                            onClick={() => addToCart(item.id)}
+                          />
                         </div>
                       </div>
                     );
@@ -122,9 +132,12 @@ const Wishlist = () => {
             );
           })
         ) : (
-          <p className="md:text-[24px] text-[20px] font-[400] text-[var(--grey-2)]">
-            Your wishlist is empty
-          </p>
+          <Typography
+            variant="h2"
+            className="!text-[40px] !font-[400] mb-[20px] text-[var(--grey-2)]"
+          >
+            Your wish list is empty.
+          </Typography>
         )}
       </div>
     </>

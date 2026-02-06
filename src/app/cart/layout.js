@@ -6,6 +6,10 @@ import { fetchCart } from "@/store/slices/cartSlice";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Link from "next/link";
+import Typography from "@/components/ui/Typography/Typography";
+import FeaturedCollections from "@/components/common/FeaturedCollections";
+import { useHomepageData } from "@/commomPages/Home/useHomepageData";
 
 const steps = [
   { title: "Shopping cart", path: "/cart" },
@@ -19,6 +23,8 @@ const CartLayout = ({ children }) => {
   const router = useRouter();
   const { selectedCountry } = usePreferences();
   const { cartItems, loading } = useSelector((state) => state.cart);
+  const { customer } = useSelector((state) => state.auth);
+  const { homeData } = useHomepageData();
 
   useEffect(() => {
     const disableRightClick = (e) => {
@@ -33,13 +39,16 @@ const CartLayout = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("authTokenElova");
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("authTokenElova")
+        : null;
     if (!token) {
       router.replace(`/login?redirect=${pathname}`);
       return;
     }
     dispatch(fetchCart({ currency: selectedCountry?.currency }));
-  }, [dispatch, router, pathname]);
+  }, [dispatch, selectedCountry?.currency]);
 
   const token =
     typeof window !== "undefined"
@@ -49,10 +58,18 @@ const CartLayout = ({ children }) => {
 
   const currentIndex = steps.findIndex((s) => s.path === pathname);
 
+  if (loading && (!cartItems || cartItems.length === 0)) {
+    return (
+      <div className="flex justify-center items-center h-[500px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--teal-1)]"></div>
+      </div>
+    );
+  }
+
   return (
     <section>
       <div className="mb-[40px]">
-        <PageHeading title="My Cart" />
+        <PageHeading title="My Bag" />
       </div>
 
       <div
@@ -69,8 +86,41 @@ const CartLayout = ({ children }) => {
               {children}
             </>
           ) : (
-            <div className="text-center py-10 text-gray-500">
-              No items found
+            <div className="flex flex-col xl:gap-[130px] gap-[80px]">
+              <div>
+                <Typography
+                  variant="h2"
+                  className="!text-[40px] !font-[400] mb-[20px] text-[var(--grey-2)]"
+                >
+                  Your Shopping Bag Is Empty
+                </Typography>
+                {!customer && (
+                  <Typography
+                    variant="p"
+                    className="text-[18px] text-[var(--grey-2)]"
+                  >
+                    <Link href="/login" className="underline hover:text-black">
+                      Sign in
+                    </Link>{" "}
+                    to save your shopping bag across devices.
+                  </Typography>
+                )}
+              </div>
+
+              <div>
+                <FeaturedCollections
+                  collections={
+                    homeData?.collection_section?.[0]?.items.slice(0, 4) ?? []
+                  }
+                  title="Continue Shopping"
+                  imageStyle="2xl:h-[350px] xl:h-[300px] lg:h-[250px] !w-full h-[200px]"
+                  onClick={(product) => {
+                    router.push(`/product?category_id=${product.category_id}`);
+                  }}
+                  isGrid
+                  className="!px-0"
+                />
+              </div>
             </div>
           )}
         </div>

@@ -23,7 +23,13 @@ const BlogDetail = ({ params }) => {
       });
   }, [slug, fetchPosts]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+      </div>
+    );
+
   if (!blog) return <div>Blog not found</div>;
   return (
     <section className="space-y-[40px] container mx-auto xl:px-[160px] lg:px-[50px] px-[18px] pt-[100px]">

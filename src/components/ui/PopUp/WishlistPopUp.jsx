@@ -37,7 +37,7 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
       <div className="flex flex-col h-full">
         <div className="p-[25px_30px] flex justify-between items-center shrink-0">
           <Typography variant="p" className="font-[500] capitalize">
-            Your Wishlist
+            My Wishlist
           </Typography>
         </div>
 
@@ -100,10 +100,10 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
           })}
           <Button
             variant="primary"
-            title="View Full Wishlist"
+            title="View Wishlist"
             className="w-full rounded-none !p-[15px_0] sticky bottom-0 cursor-pointer"
             onClick={() => {
-              window.location.href = "/account/wishlist";
+              window.location.href = "/wishlist";
             }}
           />
         </div>

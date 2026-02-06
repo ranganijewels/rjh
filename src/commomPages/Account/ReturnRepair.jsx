@@ -29,7 +29,7 @@ export function ReturnRepair() {
   });
 
   const [submitted, setSubmitted] = useState(false);
-
+  const [error, setError] = useState(false);
   // Correct backend endpoint
   const { create } = useCrudApi("/api/return-repair");
 
@@ -72,6 +72,7 @@ export function ReturnRepair() {
   };
 
   const handleSubmit = async (e) => {
+    debugger;
     e.preventDefault();
 
     const fd = new FormData();
@@ -106,23 +107,33 @@ export function ReturnRepair() {
     });
 
     try {
-      // ⭐ IMPORTANT ⭐
-      const res = await create(null, {
-        body: fd,
-        headers: {}, // allow browser to set multipart content-type
-      });
+      const res = await create(fd, { normalizeError: true });
 
       if (res?.status) {
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 3000);
+      } else {
+        debugger;
+        const errorMsg =
+          res.error?.email?.[0] || res.message || "Something went wrong";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
-    } catch (err) {}
+    } catch (err) {
+      const apiErrors = err?.errors;
+
+      if (apiErrors) {
+        setError(apiErrors);
+        toast.error(apiErrors?.email?.[0]);
+      } else {
+        toast.error(err.message || "Something went wrong");
+      }
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl">
       {submitted ? (
-        // 🎉 THANK YOU MESSAGE
         <div className="p-10 text-center bg-white rounded-2xl shadow-md">
           <Typography variant="h3" className="mb-4 text-amber-600">
             Thank You!
