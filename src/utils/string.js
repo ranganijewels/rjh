@@ -81,3 +81,27 @@ export const getPreviewUrl = (file) => {
 
   return null;
 };
+
+// Converts yyyy-mm-dd to dd-mm-yyyy
+export const displayFormat = (dateStr) => {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  if (parts[0].length === 4) {
+    const [year, month, day] = parts;
+    return `${day}-${month}-${year}`;
+  }
+  return dateStr;
+};
+
+// Converts dd-mm-yyyy to yyyy-mm-dd
+export const standardFormat = (dateStr) => {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return dateStr;
+  if (parts[2].length === 4) {
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  }
+  return dateStr;
+};
