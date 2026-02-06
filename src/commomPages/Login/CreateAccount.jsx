@@ -7,8 +7,9 @@ import Input from "@/components/ui/Input/Input";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, verifyOtp } from "@/store/authThunks";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Calendar } from "lucide-react";
 import { useCrudApi } from "@/hooks/useCrudApi";
+import { displayFormat } from "@/utils/string";
 
 const CreateAccount = () => {
   const router = useRouter();
@@ -19,12 +20,14 @@ const CreateAccount = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const { create } = useCrudApi("/api/auth/resend-otp");
   const [submitting, setSubmitting] = useState(false);
+  const birthDateRef = React.useRef(null);
 
   useEffect(() => {
     const until = localStorage.getItem("otpResendUntil");
@@ -51,6 +54,7 @@ const CreateAccount = () => {
       last_name: lastName,
       email,
       password,
+      birth_date: displayFormat(birthDate),
     };
 
     try {
@@ -173,6 +177,27 @@ const CreateAccount = () => {
         borderBottom
       />
 
+      <Input
+        placeholder="Date of Birth"
+        label="Date of Birth"
+        type="date"
+        ref={birthDateRef}
+        value={birthDate}
+        max={new Date().toISOString().split("T")[0]}
+        onChange={(e) => setBirthDate(e.target.value)}
+        borderBottom
+        className="cursor-pointer"
+        rightIcon={
+          <button
+            type="button"
+            onClick={() => birthDateRef.current?.showPicker()}
+            className="text-[var(--teal-2)] hover:text-[var(--teal-1)] border-none bg-transparent p-0 outline-none"
+          >
+            <Calendar size={18} />
+          </button>
+        }
+      />
+
       <div>
         <Input
           placeholder="Password"
@@ -224,8 +249,8 @@ const CreateAccount = () => {
                 ? "Verifying OTP..."
                 : "Sending OTP..."
               : showOtp
-              ? "Verify OTP"
-              : "Create new account"
+                ? "Verify OTP"
+                : "Create new account"
           }
           className="w-full"
           loading={submitting}

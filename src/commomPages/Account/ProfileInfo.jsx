@@ -7,12 +7,12 @@ import Typography from "@/components/ui/Typography/Typography";
 import useIsMobile from "@/utils/useIsMobile";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toTitleCase } from "@/utils/string";
+import { toTitleCase, displayFormat, standardFormat } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { updateCustomer } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Calendar } from "lucide-react";
 
 const ProfileInfo = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
@@ -23,6 +23,7 @@ const ProfileInfo = () => {
     new: false,
     confirm: false,
   });
+  const birthDateRef = React.useRef(null);
 
   const customer = useSelector((state) => state.auth.customer);
   const { fetchAll, update } = useCrudApi("/api/profile-info");
@@ -36,6 +37,7 @@ const ProfileInfo = () => {
     lastName: "",
     phone: "",
     email: "",
+    birthDate: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -101,6 +103,7 @@ const ProfileInfo = () => {
             lastName: res.data.last_name || "",
             phone: res.data.phone_number || "",
             email: res.data.email || "",
+            birthDate: standardFormat(res.data.birth_date) || "",
           });
         }
       } catch (err) {
@@ -203,6 +206,7 @@ const ProfileInfo = () => {
         last_name: editFormData.lastName,
         phone_number: editFormData.phone,
         email: editFormData.email,
+        birth_date: displayFormat(editFormData.birthDate),
       });
 
       // Update Redux store
@@ -212,7 +216,7 @@ const ProfileInfo = () => {
       localStorage.setItem("activeUser", JSON.stringify(res.data));
 
       setIsEditProfileModal(false);
-    } catch (err) {}
+    } catch (err) { }
   };
 
   const togglePassword = (field) => {
@@ -255,7 +259,6 @@ const ProfileInfo = () => {
         <div>
           {customer?.phone_number && (
             <>
-              {" "}
               <Typography variant="h5" className="mb-[11px]">
                 Mobile Number
               </Typography>
@@ -264,6 +267,17 @@ const ProfileInfo = () => {
               </p>
             </>
           )}
+        </div>
+
+        <div>
+          <Typography variant="h5" className="mb-[11px]">
+            Date of Birth
+          </Typography>
+          <p className="md:text-[24px] text-[18px] font-[500]">
+            {customer?.birth_date
+              ? displayFormat(customer.birth_date)
+              : "Not provided"}
+          </p>
         </div>
 
         {isMobile && <ActionButton />}
@@ -327,6 +341,27 @@ const ProfileInfo = () => {
           borderBottom
           value={editFormData.email}
           disabled
+        />
+
+        <Input
+          placeholder="Date of Birth"
+          label="Date of Birth"
+          borderBottom
+          type="date"
+          ref={birthDateRef}
+          value={editFormData.birthDate}
+          max={new Date().toISOString().split("T")[0]}
+          className="cursor-pointer"
+          onChange={(e) => handleEditChange("birthDate", e.target.value)}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => birthDateRef.current?.showPicker()}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)] border-none bg-transparent p-0 outline-none"
+            >
+              <Calendar size={18} />
+            </button>
+          }
         />
 
         <div className="flex gap-[20px] pt-[30px]">

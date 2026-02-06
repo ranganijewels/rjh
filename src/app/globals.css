@@ -143,3 +143,34 @@ button {
 .cms-content h6 {
   font-family: inherit;
 }
+
+/* Global fix to hide native calendar icons in all browsers */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: none !important;
+  display: block !important;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 10px;
+  opacity: 0 !important;
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* Hide control buttons */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+input[type="date"] {
+  position: relative;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Ensure our custom right icon is visible but below the invisible native picker */
+.relative .text-\[var\(--teal-2\)\] {
+  z-index: 10;
+}
