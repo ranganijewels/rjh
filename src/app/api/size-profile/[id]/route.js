@@ -28,24 +28,51 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+// export async function DELETE(req, { params }) {
+//   try {
+//     const token = req.headers.get("authorization");
+//     const tenantId = req.headers.get("x-tenant-id");
+
+//     const headers = {
+//       "Content-Type": "application/json",
+//       ...(tenantId && { "x-tenant-id": tenantId }),
+//       Authorization: `Bearer ${token}`,
+//     };
+
+//     return handleDELETE(
+//       `/api/store-web/customer/size-profile/delete/${params.id}`,
+//       headers
+//     );
+//   } catch (err) {
+//     return new Response(JSON.stringify({ error: "Failed to delete record" }), {
+//       status: 500,
+//     });
+//   }
+// }
+
+export async function DELETE(req, context) {
   try {
-    const token = req.headers.get("authorization");
+    const { id } = await context.params;
+
+    const token = req.headers.get("authorization")?.replace("Bearer ", "");
     const tenantId = req.headers.get("x-tenant-id");
 
     const headers = {
-      "Content-Type": "application/json",
       ...(tenantId && { "x-tenant-id": tenantId }),
       Authorization: `Bearer ${token}`,
     };
 
     return handleDELETE(
-      `/api/store-web/customer/size-profile/delete/${params.id}`,
+      `/api/store-web/customer/size-profile/delete/${id}`,
       headers
     );
   } catch (err) {
-    return new Response(JSON.stringify({ error: "Failed to delete record" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Failed to delete record",
+        details: err.message,
+      }),
+      { status: 500 }
+    );
   }
 }

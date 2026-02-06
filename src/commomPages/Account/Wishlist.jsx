@@ -12,7 +12,7 @@ import { usePreferences } from "@/context/PreferencesContext";
 
 const CATEGORY_ORDER = ["RING", "EARRING", "NECKLACE", "BRACELET", "PENDANT"];
 
-const Wishlist = ({ hideTitle }) => {
+const Wishlist = ({ hideTitle, gridCol }) => {
   const dispatch = useDispatch();
   const { wishlistItems, addToCart } = useWishlistLogic();
   const { items, count, loading } = useSelector((state) => state.wishlist);
@@ -59,10 +59,10 @@ const Wishlist = ({ hideTitle }) => {
 
   return (
     <>
-      {hideTitle && (
+      {!hideTitle && (
         <div className="xl:mb-[50px] mb-[30px]">
           <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Wish List
+            Wish List
           </p>
         </div>
       )}
@@ -81,7 +81,9 @@ const Wishlist = ({ hideTitle }) => {
                 <Typography variant="h3">{toTitleCase(categoryKey)}</Typography>
 
                 {/* CATEGORY GRID */}
-                <div className="grid md:grid-cols-4 grid-cols-2 md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] max-[320px]:grid-cols-1">
+                <div
+                  className={`md:gap-x-[30px] gap-x-[5px] md:gap-y-[49px] gap-y-[20px] ${gridCol}`}
+                >
                   {categoryItems.map((item) => {
                     return (
                       <div

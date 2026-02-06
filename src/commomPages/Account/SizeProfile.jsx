@@ -138,7 +138,9 @@ const SizeProfile = () => {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+        </div>
       ) : profiles.length === 0 ? (
         <p className="text-gray-500 text-lg">No size profiles found</p>
       ) : (

@@ -100,10 +100,10 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
           })}
           <Button
             variant="primary"
-            title="View Full Wishlist"
+            title="View Wishlist"
             className="w-full rounded-none !p-[15px_0] sticky bottom-0 cursor-pointer"
             onClick={() => {
-              window.location.href = "/account/wishlist";
+              window.location.href = "/wishlist";
             }}
           />
         </div>
