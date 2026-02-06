@@ -385,22 +385,22 @@ const Details = () => {
  
     return Math.floor(num);
   }, [pricing]);
-
+ 
   const dynamicDescription = useMemo(() => {
     if (!productInfo) return "";
-
+ 
     const karat = selectedMetal?.karat?.value || "";
     const color = activeColor ? toTitleCase(activeColor) : "";
     const metalStr = (karat || color) ? `${karat} ${color} Gold` : "premium metal";
-
+ 
     const shape = selectedShape ? toTitleCase(selectedShape) : "";
     const cleanWeight = selectedWeight ? String(selectedWeight).replace(/[^\d.]/g, "") : "";
     const weight = cleanWeight ? `${cleanWeight} ct` : "";
     const diamondPart = (shape || weight) ? `a ${weight} ${shape} diamond` : "brilliant accents";
-
+ 
     return `Crafted in ${metalStr} with ${diamondPart} for timeless elegance.`;
   }, [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight]);
-
+ 
   return (
     <section className="xl:px-[172px] lg:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
       {/* Gallery */}
