@@ -196,7 +196,7 @@ const Addresses = () => {
             }) => (
               <div
                 key={id}
-                className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-around gap-[27px] w-full h-[344px] bg-[var(--product-bg)]"
+                className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-between gap-[27px] w-full min-h-[344px] bg-[var(--product-bg)]"
               >
                 <div className="space-y-[13px]">
                   {is_default === 1 && (
@@ -214,7 +214,12 @@ const Addresses = () => {
                   <Typography variant="p" className="font-[500]">
                     {address_type}
                   </Typography>
-                  <Typography variant="p">{street_address}</Typography>
+                  <Typography
+                    variant="p"
+                    className="break-words whitespace-normal"
+                  >
+                    {street_address}
+                  </Typography>
                   <Typography variant="p">
                     {city}, {state}, {zip_code}
                   </Typography>

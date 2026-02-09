@@ -15,13 +15,6 @@ export function toTitleCase(str) {
     .join(" ");
 }
 
-// Adds "CT" suffix if not already present.
-// export const formatCarat = (value) => {
-//   if (!value) return "";
-//   const hasCT = String(value).toUpperCase().includes("CT");
-//   return hasCT ? value : `${value} CT`;
-// };
-
 export const formatCarat = (value) => {
   if (!value) return "";
 
@@ -104,4 +97,17 @@ export const standardFormat = (dateStr) => {
     return `${year}-${month}-${day}`;
   }
   return dateStr;
+};
+
+export const stringToDate = (value) => {
+  if (!value) return undefined;
+  const [dd, mm, yyyy] = value.split("-");
+  return new Date(yyyy, mm - 1, dd);
+};
+
+export const dateToString = (date) => {
+  if (!date) return "";
+  return `${String(date.getDate()).padStart(2, "0")}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${date.getFullYear()}`;
 };

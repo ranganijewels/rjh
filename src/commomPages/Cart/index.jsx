@@ -19,6 +19,9 @@ import HeartIcon from "@/components/Icons/HeartIcon";
 import { CloseIcon } from "@/components/Icons/common/CloseIcon";
 import Link from "next/link";
 import { fetchWishlist } from "@/store/slices/wishlistSlice";
+import { Shipping } from "@/components/Icons/common/Shipping";
+import ExchangeIcon from "@/components/Icons/common/ExchangeIcon";
+import PaymentOptions from "@/components/ui/PaymentOptions.jsx/PaymentOptions";
 
 const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
@@ -276,7 +279,10 @@ const Cart = () => {
                     {/* All Content */}
                     <div className="space-y-1">
                       {item?.product_description && (
-                        <Typography variant="h6" className="opacity-70 italic text-[11px]">
+                        <Typography
+                          variant="h6"
+                          className="opacity-70 italic text-[11px]"
+                        >
                           {item?.product_description}
                         </Typography>
                       )}
@@ -341,8 +347,13 @@ const Cart = () => {
                     handleQuantities={handleUpdateQuantity}
                   />
                   <div className="flex flex-col items-end">
-                    <span className="text-[10px] text-[var(--grey-2)] uppercase tracking-wider mb-0.5 font-medium">Subtotal</span>
-                    <Typography variant="h6" className="font-[600] text-[var(--teal-1)]">
+                    <span className="text-[10px] text-[var(--grey-2)] uppercase tracking-wider mb-0.5 font-medium">
+                      Subtotal
+                    </span>
+                    <Typography
+                      variant="h6"
+                      className="font-[600] text-[var(--teal-1)]"
+                    >
                       {getCurrencySymbol(selectedCountry?.currency) + " "}
                       {typeof item.subtotal === "number"
                         ? item?.subtotal.toLocaleString()
@@ -562,15 +573,29 @@ const Cart = () => {
               </div>
             </div>
 
+            <div className="pt-[16px] text-[14px]">
+              <label className="flex gap-[10px] items-center justify-center mb-[10px]">
+                <Shipping /> Free Insured Shipping
+              </label>
+
+              <label className="flex gap-[10px] items-center justify-center">
+                <ExchangeIcon /> 30 days Free Returns & Exchange
+              </label>
+            </div>
+
             <Button
               onClick={handleCheckout}
               title="Secure Checkout"
               className="w-full mt-[16px]"
             />
           </div>
+          <div className="text-center mt-[16px]">
+            <label className="text-[12px]">Safe Checkout Guaranteed</label>
+            <PaymentOptions className="flex gap-[10px] items-center justify-center mt-[10px]" />
+          </div>
         </div>
-      </div >
-    </section >
+      </div>
+    </section>
   );
 };
 

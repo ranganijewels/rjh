@@ -144,19 +144,19 @@ const SizeProfile = () => {
       ) : profiles.length === 0 ? (
         <p className="text-gray-500 text-lg">No size profiles found</p>
       ) : (
-        <div className="grid md:grid-cols-3 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
+        <div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
           {profiles.map((p) => (
             <div
               key={p.id}
-              className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-around gap-[27px] w-full h-[344px] bg-[var(--product-bg)]"
+              className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-between gap-[27px] w-full min-h-[344px] bg-[var(--product-bg)]"
             >
               <div className="space-y-[10px]">
-                <h2 className="lg:text-[24px] text-[16px] font-[500] pb-[5px] capitalize">
+                <h2 className="lg:text-[24px] text-[16px] font-[500] pb-[5px] capitalize truncate">
                   {p.name}
                 </h2>
                 {p.ring_size && (
-                  <div className="grid grid-cols-2">
-                    <Typography variant="h6" className="font-[500]">
+                  <div className="grid grid-cols-3">
+                    <Typography variant="h6" className="font-[500] col-span-2">
                       Ring Size :
                     </Typography>
                     <Typography variant="h6" textColor="teal">
@@ -165,8 +165,8 @@ const SizeProfile = () => {
                   </div>
                 )}
                 {p.bracelet_size && (
-                  <div className="grid grid-cols-2">
-                    <Typography variant="h6" className="font-[500]">
+                  <div className="grid grid-cols-3">
+                    <Typography variant="h6" className="font-[500]  col-span-2">
                       Bracelet Size :
                     </Typography>
                     <Typography variant="h6" textColor="teal">
@@ -175,8 +175,8 @@ const SizeProfile = () => {
                   </div>
                 )}
                 {p.necklace_length && (
-                  <div className="grid grid-cols-2">
-                    <Typography variant="h6" className="font-[500]">
+                  <div className="grid grid-cols-3">
+                    <Typography variant="h6" className="font-[500]  col-span-2">
                       Necklace Length :
                     </Typography>
                     <Typography variant="h6" textColor="teal">
@@ -185,8 +185,8 @@ const SizeProfile = () => {
                   </div>
                 )}
                 {p.wedding_band_size && (
-                  <div className="grid grid-cols-2">
-                    <Typography variant="h6" className="font-[500]">
+                  <div className="grid grid-cols-3">
+                    <Typography variant="h6" className="font-[500]  col-span-2">
                       Wedding Band :
                     </Typography>
                     <Typography variant="h6" textColor="teal">

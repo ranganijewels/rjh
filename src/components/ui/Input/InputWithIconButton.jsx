@@ -24,7 +24,7 @@ const InputWithIconButton = ({
 
         <input
           {...inputProps}
-          className={`flex-1 bg-transparent border-none outline-none focus:ring-0 w-full lg:text-[16px] text-[12px] font-[400] placeholder:text-gray-400 ${
+          className={`flex-1 bg-transparent border-none outline-none focus:ring-0 w-full lg:text-[16px] text-[12px] font-[400] placeholder:text-[12px] placeholder:text-gray-400 ${
             inputProps.className || ""
           }`}
         />
