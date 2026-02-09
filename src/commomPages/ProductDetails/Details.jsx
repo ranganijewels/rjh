@@ -669,7 +669,7 @@ const Details = () => {
           <div className="xl:text-[14px] font-[400] text-[12px] pb-[16px]">
             Need Help?{" "}
             <span
-              className=" cursor-pointer"
+              className="underline cursor-pointer"
               onClick={() => router.push("/book-consultancy")}
             >
               {" "}
