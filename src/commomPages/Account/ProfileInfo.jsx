@@ -7,12 +7,19 @@ import Typography from "@/components/ui/Typography/Typography";
 import useIsMobile from "@/utils/useIsMobile";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toTitleCase, displayFormat, standardFormat } from "@/utils/string";
+import {
+  toTitleCase,
+  displayFormat,
+  standardFormat,
+  dateToString,
+  stringToDate,
+} from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { updateCustomer } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { Eye, EyeOff, Calendar } from "lucide-react";
+import DatePicker from "@/components/ui/DatePicker/DatePicker";
 
 const ProfileInfo = () => {
   const [isEditProfileModal, setIsEditProfileModal] = useState(false);
@@ -24,6 +31,7 @@ const ProfileInfo = () => {
     confirm: false,
   });
   const birthDateRef = React.useRef(null);
+  const [dob, setDob] = useState();
 
   const customer = useSelector((state) => state.auth.customer);
   const { fetchAll, update } = useCrudApi("/api/profile-info");
@@ -153,7 +161,6 @@ const ProfileInfo = () => {
   };
 
   // Save password changes
-  // Save password changes
   const handleSavePassword = async () => {
     if (!validatePasswordChange()) return;
 
@@ -216,7 +223,7 @@ const ProfileInfo = () => {
       localStorage.setItem("activeUser", JSON.stringify(res.data));
 
       setIsEditProfileModal(false);
-    } catch (err) { }
+    } catch (err) {}
   };
 
   const togglePassword = (field) => {
@@ -343,7 +350,7 @@ const ProfileInfo = () => {
           disabled
         />
 
-        <Input
+        {/* <Input
           placeholder="Date of Birth"
           label="Date of Birth"
           borderBottom
@@ -359,9 +366,20 @@ const ProfileInfo = () => {
               onClick={() => birthDateRef.current?.showPicker()}
               className="text-[var(--teal-2)] hover:text-[var(--teal-1)] border-none bg-transparent p-0 outline-none"
             >
-              <Calendar size={18} />
+              <Calendar
+                size={18}
+                onClick={() => birthDateRef.current?.showPicker()}
+              />
             </button>
           }
+        /> */}
+
+        <DatePicker
+          value={stringToDate(editFormData.birthDate)}
+          onChange={(date) => {
+            handleEditChange("birthDate", dateToString(date));
+          }}
+          label="Date Of Birth"
         />
 
         <div className="flex gap-[20px] pt-[30px]">

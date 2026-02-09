@@ -43,7 +43,7 @@ export const FOOTER_MENUS = [
       //   url: "https://tawk.to/chat/682421b836f29c190d212c4e/1ir6i7eiu",
       // },
       { label: "Email Us", url: "mailto:support@elovajewel.com" },
-      { label: "Book An Appointment", url: "/book-an-appointment" },
+      { label: "Book Consultations", url: "/book-consultancy" },
       { label: "Contact Us", url: "/contact-us" },
     ],
   },
