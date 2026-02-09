@@ -94,24 +94,24 @@ const Navbar = () => {
         )}
       >
         <div className="flex items-center justify-between p-[24px_30px] nav-padding relative z-50">
-          {/* Mobile Left */}
-          <div className="flex items-center gap-[18px] lg:hidden w-[96px] icon-width icon-gap">
+          {/* Mobile Left Icons */}
+          <div className="flex items-center gap-[15px] lg:hidden w-[90px]">
             <img
               src="/icons/hamburger.svg"
               alt="menu"
-              className="w-[20px] h-[20px] cursor-pointer"
+              className="w-[20px] h-[20px] cursor-pointer shrink-0"
               onClick={() => setOpenMobileMenu(!openMobileMenu)}
             />
-            <SearchIcon onClick={() => setShowSearchBar(!showSearchBar)} />
+            <SearchIcon onClick={() => setShowSearchBar(!showSearchBar)} className="shrink-0" />
           </div>
 
-          {/* Logo */}
-          <div className="flex justify-center flex-1 lg:flex-none lg:order-1 md:ml-0 ">
+          {/* Centered Logo */}
+          <div className="flex justify-center flex-1 lg:flex-none lg:order-1">
             <Link href="/">
               <img
                 src="/logo/elova-jewel.png"
                 alt="Elova Logo"
-                className="md:w-[125px] w-[100px]"
+                className="md:w-[130px] w-[105px]"
               />
             </Link>
           </div>
@@ -144,57 +144,63 @@ const Navbar = () => {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center lg:gap-[20px] gap-[18px] lg:order-3 icon-gap">
+          <div className="flex items-center lg:gap-[20px] gap-[15px] lg:order-3 lg:w-auto w-[90px] justify-end">
             <SearchIcon
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="hidden lg:block cursor-pointer"
             />
 
-            <div className={`flex gap-[12px] ${MobileSize && "relative"}`}>
-              {customer ? (
-                MobileSize ? (
-                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
-                    {customer.first_name?.charAt(0).toUpperCase()}
-                  </span>
-                ) : (
-                  <span className="text-[var(--teal-1)]">
-                    Hi, {toTitleCase(customer.first_name)}
-                  </span>
-                )
-              ) : null}
-              <img
-                src="/icons/user.svg"
-                onClick={() => router.push("/account")}
-                className="w-[20px] h-[20px] cursor-pointer"
-                alt="User Account"
-              />
-            </div>
-
-            <div className="relative" onMouseEnter={open} onMouseLeave={close}>
-              <img
-                src="/icons/heart.svg"
-                onClick={() => router.push("/wishlist")}
-                className="w-[20px] h-[20px] cursor-pointer"
-              />
-
-              {wishlistCount > 0 && (
-                <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
-                  {wishlistCount}
+            {/* User Profile */}
+            <div className="flex items-center">
+              {customer && !MobileSize && (
+                <span className="text-[var(--teal-1)] text-[14px] font-[500] mr-2 whitespace-nowrap hidden sm:block">
+                  Hi, {toTitleCase(customer.first_name)}
                 </span>
               )}
+              <div className="relative h-[20px] w-[20px]">
+                <img
+                  src="/icons/user.svg"
+                  onClick={() => router.push("/account")}
+                  className="w-full h-full cursor-pointer"
+                  alt="User Account"
+                />
+                {customer && MobileSize && (
+                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
+                    {customer.first_name?.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </div>
 
+            {/* Wishlist */}
+            <div className="relative" onMouseEnter={open} onMouseLeave={close}>
+              <div className="relative h-[20px] w-[20px]">
+                <img
+                  src="/icons/heart.svg"
+                  onClick={() => router.push("/wishlist")}
+                  className="w-full h-full cursor-pointer"
+                  alt="Wishlist"
+                />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
               {!isMobile && (
                 <WishlistPopUp onMouseEnter={open} onMouseLeave={close} />
               )}
             </div>
-            <Link href="/cart" className="cursor-pointer">
+
+            {/* Cart */}
+            <Link href="/cart" className="relative block h-[20px] w-[20px]">
               <img
                 src="/icons/basket-shopping.svg"
                 alt="cart"
-                className="w-[20px] h-[20px] cursor-pointer"
+                className="w-full h-full cursor-pointer"
               />
               {cartCount > 0 && (
-                <span className=" absolute top-[27px] right-[20px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
+                <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
                   {cartCount}
                 </span>
               )}

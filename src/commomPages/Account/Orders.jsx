@@ -119,27 +119,53 @@ const Orders = () => {
   };
 
   const ProductActions = ({ productId, order }) => (
-    <div className="flex justify-between">
-      <div className="flex flex-row gap-[14px]">
-        <CheckIcon />
-        <Typography variant="h6">
-          Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
-        </Typography>
-      </div>
-      <div className="flex gap-[32px] justify-end">
-        <Link href={`/product/${productId}`}>
-          <Typography variant="p" className="font-[500]">
-            View Product
-          </Typography>
-        </Link>
-        <div className="w-0 h-5 origin-top-left outline outline-offset-[-0.50px] outline-[var(--teal-2)]" />
-        <Link href={`/product/${productId}`}>
-          <Typography variant="p" className="font-[500]">
-            Buy Again
-          </Typography>
-        </Link>
-      </div>
-    </div>
+    <>
+      {isMobile ? (
+        <div className="flex flex-col gap-4 border-t border-gray-50 pt-4 mt-4">
+          <div className="flex items-center gap-[8px]">
+            <CheckIcon className="w-[14px] h-[14px] text-[var(--teal-1)] opacity-80" />
+            <Typography variant="h6" className="text-[12px] text-gray-500 font-normal">
+              Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
+            </Typography>
+          </div>
+          <div className="flex items-center gap-[12px] justify-start">
+            <Link href={`/product/${productId}`}>
+              <Typography variant="p" className="font-[500] text-[12px] text-[var(--grey-2)] hover:text-[var(--teal-1)] transition-colors uppercase tracking-wider">
+                View Product
+              </Typography>
+            </Link>
+            <div className="w-[1px] h-3 bg-gray-200" />
+            <Link href={`/product/${productId}`}>
+              <Typography variant="p" className="font-[500] text-[12px] text-[var(--grey-2)] hover:text-[var(--teal-1)] transition-colors uppercase tracking-wider">
+                Buy Again
+              </Typography>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-between">
+          <div className="flex flex-row gap-[14px]">
+            <CheckIcon />
+            <Typography variant="h6">
+              Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
+            </Typography>
+          </div>
+          <div className="flex gap-[32px] justify-end">
+            <Link href={`/product/${productId}`}>
+              <Typography variant="p" className="font-[500]">
+                View Product
+              </Typography>
+            </Link>
+            <div className="w-0 h-5 origin-top-left outline outline-offset-[-0.50px] outline-[var(--teal-2)]" />
+            <Link href={`/product/${productId}`}>
+              <Typography variant="p" className="font-[500]">
+                Buy Again
+              </Typography>
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
   );
 
   return (
@@ -152,126 +178,144 @@ const Orders = () => {
           {orders?.data?.map((order, orderIdx) => {
             return (
               <div key={orderIdx} className="bg-[var(--grey-0)]">
-                <div className="flex justify-between py-[30px] xl:px-[40px] px-[20px]">
-                  <div className="flex md:flex-nowrap flex-wrap gap-[22px]">
+                {/* --- ORDER HEADER --- */}
+                {isMobile ? (
+                  <div className="grid grid-cols-3 gap-4 py-[20px] px-[20px] items-start">
                     {[
                       { label: "Order Number", value: order.id },
                       {
                         label: "Date Placed",
-                        value: format(
-                          new Date(order.created_at),
-                          "MMMM dd, yyyy"
-                        ),
+                        value: format(new Date(order.created_at), "MMM dd, yyyy"),
                       },
                       {
                         label: "Total Amount",
                         value: `$${parseFloat(order.total).toFixed(2)}`,
                       },
                     ].map((item, i) => (
-                      <div key={i}>
-                        <Typography variant="h5" className="font-[500]">
+                      <div key={i} className="flex flex-col">
+                        <Typography variant="h6" className="font-[500] text-gray-400 uppercase text-[9px] tracking-[0.1em] mb-1.5 leading-none">
                           {item.label}
                         </Typography>
-                        <Typography variant="h6">{item.value}</Typography>
+                        <Typography variant="h5" className="font-semibold text-[13px] text-[var(--grey-2)]">
+                          {item.value}
+                        </Typography>
                       </div>
                     ))}
                   </div>
-                  {!isMobile && <OrderActions order={order} />}
-                </div>
+                ) : (
+                  <div className="flex justify-between py-[30px] xl:px-[40px] px-[20px]">
+                    <div className="flex md:flex-nowrap flex-wrap gap-[22px]">
+                      {[
+                        { label: "Order Number", value: order.id },
+                        {
+                          label: "Date Placed",
+                          value: format(new Date(order.created_at), "MMMM dd, yyyy"),
+                        },
+                        {
+                          label: "Total Amount",
+                          value: `$${parseFloat(order.total).toFixed(2)}`,
+                        },
+                      ].map((item, i) => (
+                        <div key={i}>
+                          <Typography variant="h5" className="font-[500]">
+                            {item.label}
+                          </Typography>
+                          <Typography variant="h6">{item.value}</Typography>
+                        </div>
+                      ))}
+                    </div>
+                    {!isMobile && <OrderActions order={order} />}
+                  </div>
+                )}
 
-                <hr className="hr-teal-3" />
+                <hr className={isMobile ? "border-gray-50 opacity-50 mx-[20px]" : "hr-teal-3"} />
 
+                {/* --- ORDER ITEMS --- */}
                 {Array.isArray(order.items) &&
                   order?.items?.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col xl:py-[30px] py-[20px] xl:px-[40px] px-[20px]"
-                    >
-                      <div className="flex md:flex-row flex-col justify-between">
-                        <div className="flex md:gap-[30px] gap-[13px]">
-                          <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px]">
-                            <img
-                              className="w-[122px] h-[122px] object-cover"
-                              src={item?.product?.image}
-                              alt="product"
-                            />
-                          </div>
-
-                          <div className="space-y-[10px] md:max-w-[357px] max-w-[180px]">
-                            <Typography variant="h5" className="font-[500]">
-                              {item?.product?.title}
-                            </Typography>
-                            <Typography variant="h6">
-                              {item?.product?.description}
-                            </Typography>
-                            {isMobile && (
-                              <Typography
-                                variant="h5"
-                                className="text-[14px] font-[600] text-[var(--teal-1)]"
-                              >
-                                $
-                                {getPriceTotal(
-                                  item.productPrice,
-                                  item.quantity
-                                )}
+                    <div key={idx} className={isMobile ? "border-b border-gray-50 last:border-b-0" : ""}>
+                      {isMobile ? (
+                        <div className="flex flex-col p-[20px]">
+                          <div className="flex gap-[16px] items-start mb-5">
+                            <div className="bg-[var(--product-bg)] w-[115px] h-[140px] shrink-0 flex items-center justify-center p-3 rounded-lg border border-gray-50/50">
+                              <img className="w-full h-full object-contain" src={item?.product?.image} alt="product" />
+                            </div>
+                            <div className="flex-1 flex flex-col pt-1">
+                              <Typography variant="h5" className="font-semibold text-[15px] leading-tight text-[var(--grey-2)] mb-1">
+                                {item?.product?.title}
                               </Typography>
-                            )}
-                            <Typography variant="h6" className="font-[500]">
-                              Shape:{" "}
-                              <span className="font-[400] text-[var(--teal-1)]">
-                                {item?.product?.occasion?.custom_title}
-                              </span>
+                              <Typography className="text-[18px] font-bold text-[var(--teal-1)] mb-3">
+                                ${getPriceTotal(item.price, item.quantity)}
+                              </Typography>
+                              <div className="grid grid-cols-1 gap-y-1.5">
+                                {[
+                                  { label: "Shape", value: item?.product?.occasion?.custom_title || "Round" },
+                                  { label: "Carat", value: `${parseFloat(item?.center_diamond_weight) || "0"} ctw` },
+                                  { label: "Metal", value: item?.product?.quality?.value || "14K" },
+                                  { label: "Size", value: item?.ring_size || "-" },
+                                  { label: "Qty", value: item?.quantity },
+                                ].map((attr, ai) => (
+                                  <Typography key={ai} variant="h6" className="text-[12px] font-medium text-gray-600 flex items-center gap-2">
+                                    <span className="text-gray-400 font-normal min-w-[45px]">{attr.label}:</span>
+                                    <span className="text-[var(--teal-1)]">{attr.value}</span>
+                                  </Typography>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <ProductActions productId={item?.product_id} order={order} />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col xl:py-[30px] py-[20px] xl:px-[40px] px-[20px]">
+                          <div className="flex md:flex-row flex-col justify-between">
+                            <div className="flex md:gap-[30px] gap-[13px]">
+                              <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px]">
+                                <img className="w-[122px] h-[122px] object-cover" src={item?.product?.image} alt="product" />
+                              </div>
+                              <div className="space-y-[10px] md:max-w-[357px] max-w-[180px]">
+                                <Typography variant="h5" className="font-[500]">{item?.product?.title}</Typography>
+                                <Typography variant="h6">{item?.product?.description}</Typography>
+                                <Typography variant="h6" className="font-[500]">Shape: <span className="font-[400] text-[var(--teal-1)]">{item?.product?.occasion?.custom_title}</span></Typography>
+                                <Typography variant="h6" className="font-[500]">Carat : <span className="font-[400] text-[var(--teal-1)]">{parseFloat(item?.center_diamond_weight) + " ctw"}</span></Typography>
+                                <Typography variant="h6" className="font-[500]">Metal : <span className="font-[400] text-[var(--teal-1)]">{item?.product?.quality?.value}</span></Typography>
+                                <Typography variant="h6" className="font-[500]">Size : <span className="font-[400] text-[var(--teal-1)]">{item?.ring_size}</span></Typography>
+                                <Typography variant="h6" className="font-[500]">Qty: <span className="font-[400] text-[var(--teal-1)]">{item?.quantity}</span></Typography>
+                              </div>
+                            </div>
+                            <Typography variant="h5" className="text-[14px] font-[600] text-[var(--teal-1)]">
+                              ${getPriceTotal(item?.price, item?.quantity)}
                             </Typography>
-                            <Typography variant="h6" className="font-[500]">
-                              Carat :{" "}
-                              <span className="font-[400] text-[var(--teal-1)]">
-                                {parseFloat(item?.center_diamond_weight) +
-                                  " ctw"}
-                              </span>
-                            </Typography>
-                            <Typography variant="h6" className="font-[500]">
-                              Metal :{" "}
-                              <span className="font-[400] text-[var(--teal-1)]">
-                                {item?.product?.quality?.value}
-                              </span>
-                            </Typography>
-                            <Typography variant="h6" className="font-[500]">
-                              Size :{" "}
-                              <span className="font-[400] text-[var(--teal-1)]">
-                                {item?.ring_size}
-                              </span>
-                            </Typography>
-                            <Typography variant="h6" className="font-[500]">
-                              Qty:{" "}
-                              <span className="font-[400] text-[var(--teal-1)]">
-                                {item?.quantity}
-                              </span>
-                            </Typography>
+                          </div>
+                          <div className="mt-[20px]">
+                            <ProductActions productId={item?.product_id} order={order} />
                           </div>
                         </div>
-                        {!isMobile && (
-                          <Typography
-                            variant="h5"
-                            className="text-[14px] font-[600] text-[var(--teal-1)]"
-                          >
-                            ${getPriceTotal(item?.price, item?.quantity)}
-                          </Typography>
-                        )}
-                      </div>
-                      <div className="mt-[20px]">
-                        <ProductActions
-                          productId={item?.product_id}
-                          // designno={item.designno}
-                          order={order}
-                          // color={item.color}
-                        />
-                      </div>
+                      )}
                     </div>
                   ))}
 
                 {isMobile && (
-                  <div className="px-[10px] py-[20px] flex flex-col gap-[20px] items-center">
-                    <OrderActions order={order} />
+                  <div className="px-[20px] pb-[30px] flex gap-[12px] mt-2">
+                    <Button
+                      title="View Order"
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setSummary({
+                          cart_total: parseFloat(order.total) || 0,
+                          coupon_code: order?.coupon?.code || null,
+                          discount: order?.coupon?.discount || 0,
+                        });
+                        setShipping(parseFloat(order?.shipping_cost) || 0);
+                        setIsSidebarOpen(true);
+                      }}
+                      className="flex-1 !h-[48px] !text-[13px] font-semibold"
+                    />
+                    <Button
+                      title="View Invoice"
+                      variant="outlineTeal"
+                      onClick={() => handleViewInvoice(order.id)}
+                      className="flex-1 !h-[48px] !text-[13px] font-semibold"
+                    />
                   </div>
                 )}
               </div>
