@@ -72,7 +72,6 @@ export function ReturnRepair() {
   };
 
   const handleSubmit = async (e) => {
-    debugger;
     e.preventDefault();
 
     const fd = new FormData();
@@ -113,7 +112,6 @@ export function ReturnRepair() {
         setSubmitted(true);
         setTimeout(() => setSubmitted(false), 3000);
       } else {
-        debugger;
         const errorMsg =
           res.error?.email?.[0] || res.message || "Something went wrong";
         setError(errorMsg);

@@ -7,12 +7,12 @@ const page = () => {
   return (
     <section className="">
       <PageHeading title={"My WishList"} />
-      <div className="2xl:py-[100px] lg:py-[54px] py-[40px] ">
-        <div className="gap-[40px] flex flex-col mb-[40px] md:px-[30px] px-[18px]">
+      <div className="2xl:py-[100px] lg:py-[54px] py-[40px]">
+        <div className="gap-[40px] flex flex-col mb-[40px] xl:px-[218px] lg:px-[60px] md:px-[30px] px-[18px]">
           <Wishlist
             hideTitle={true}
             gridCol={
-              "grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 max-[320px]:grid-cols-1"
+              "grid 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 max-[320px]:grid-cols-1"
             }
           />
         </div>
