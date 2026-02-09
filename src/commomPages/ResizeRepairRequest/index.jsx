@@ -145,28 +145,28 @@ const ResizeRepairRequest = () => {
   }, [formData.address_type, defaultAddress]);
 
   return (
-    <section>
+    <section className="pb-10">
       <PageHeading title={"Resize/Repair Request"} />
 
-      <div className="max-w-4xl mx-auto space-y-[100px] mt-[100px]">
-        <div className="space-y-[52px]">
-          <div className="space-y-5">
-            <Typography variant="h5">
-              {" "}
+      <div className="max-w-4xl mx-auto xl:space-y-[80px] space-y-[40px] xl:mt-[80px] lg:mt-[60px] mt-[40px] px-4 md:px-0">
+        <div className="xl:space-y-[60px] space-y-[40px]">
+          {/* Introductory Text */}
+          <div className="space-y-4">
+            <Typography variant="h5" className="text-justify md:text-left">
               At Elova, we believe every detail matters—including the fit. When
               you find the perfect ring, it should feel as flawless on your
               finger as it looks in the box. That's why we offer complimentary
-              resizing within 60 days of your purchase.{" "}
+              resizing within 60 days of your purchase.
             </Typography>
-            <Typography variant="h5">
+            <Typography variant="h5" className="text-justify md:text-left">
               Whether your ring feels a touch too snug or slightly loose, our
               expert jewelers are here to make it just right. Our resizing
               service maintains the integrity of your original design, ensuring
               the final result is seamless and secure. All resizing is done in
               our in-house atelier by artisans who know every Elova piece
-              intimately.{" "}
-            </Typography>{" "}
-            <Typography variant="h5">
+              intimately.
+            </Typography>
+            <Typography variant="h5" className="text-justify md:text-left">
               We also provide a printable Ring Size Guide and a complimentary
               sizer upon request to help you get the most accurate measurement.
               Still unsure? Our jewelry consultants are available for virtual
@@ -174,10 +174,13 @@ const ResizeRepairRequest = () => {
             </Typography>
           </div>
 
-          <div className="space-y-[30px]">
-            <p className="text-[24px] font-[500]">Resize/Repair Request Form</p>
+          {/* Contact Information */}
+          <div className="space-y-[24px]">
+            <Typography variant="h3" className="font-[500]">
+              Resize/Repair Request Form
+            </Typography>
 
-            <div className="flex gap-[30px]">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-[30px]">
               <Input
                 borderBottom
                 label={"Full Name"}
@@ -195,12 +198,12 @@ const ResizeRepairRequest = () => {
                 value={formData.mobile_number}
                 onChange={(e) => handleChange("mobile_number", e.target.value)}
               />
-              {formErrors.mobile_number && (
-                <p className="text-red-500 text-sm mt-1">
-                  {formErrors.mobile_number[0]}
-                </p>
-              )}
             </div>
+            {formErrors.mobile_number && (
+              <p className="text-red-500 text-sm mt-1">
+                {formErrors.mobile_number[0]}
+              </p>
+            )}
             <Input
               borderBottom
               containerClass="w-full"
@@ -211,25 +214,34 @@ const ResizeRepairRequest = () => {
             />
           </div>
 
-          <div className="space-y-[30px]">
-            <p className="text-[24px] font-[500]">Order Information</p>
-            <div className="flex gap-[22px] mt-[22px]">
+          {/* Order Information */}
+          <div className="space-y-[24px]">
+            <Typography variant="h3" className="font-[500]">
+              Order Information
+            </Typography>
+            <div className="flex gap-[22px] mt-2">
               {[
                 { label: "Resize", value: "resize" },
                 { label: "Repair", value: "repair" },
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-2">
+                <label
+                  key={option.value}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="radio"
+                    className="accent-[var(--teal-1)]"
                     checked={formData.request_type === option.value}
                     onChange={() => handleChange("request_type", option.value)}
                   />
-                  <span>{option.label}</span>
+                  <Typography variant="h6" className="!font-[500]">
+                    {option.label}
+                  </Typography>
                 </label>
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-y-[30px] gap-x-[60px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 md:gap-x-[60px] md:gap-y-[30px]">
               <Dropdown
                 label={"Select Product Category"}
                 placeholder="Select Product Category"
@@ -278,7 +290,7 @@ const ResizeRepairRequest = () => {
                     containerClass={"flex !items-start !flex-col"}
                     borderBottom
                     fullWidth
-                  />{" "}
+                  />
                 </>
               ) : (
                 <>
@@ -309,17 +321,19 @@ const ResizeRepairRequest = () => {
                 </>
               )}
 
-              <div className="w-full">
+              <div className="w-full md:col-span-2 lg:col-span-1">
                 {/* Label */}
-                <p className="text-[14px] text-[#111] mb-2">
+                <Typography variant="h6" className="text-[#111] mb-2">
                   Upload Image/Videos (max 10MB)
-                </p>
+                </Typography>
 
                 {/* Clickable file input */}
                 <label className="flex items-center gap-2 cursor-pointer border-b border-[#CFCFCF] pb-2 text-[#9A9A9A] hover:text-black transition">
                   <span className="text-[18px] leading-none">+</span>
                   <span className="text-[14px]">
-                    Attach images/videos of product worn
+                    {formData.files.length > 0
+                      ? `${formData.files.length} file(s) selected`
+                      : "Attach images/videos of product worn"}
                   </span>
 
                   {/* Hidden input */}
@@ -335,16 +349,23 @@ const ResizeRepairRequest = () => {
             </div>
           </div>
 
-          <div className="space-y-[30px]">
-            <p className="text-[24px] font-[500]">Pickup/Drop Preferences</p>
-            <div className="flex gap-[22px] mt-[22px]">
+          {/* Pickup Preferences */}
+          <div className="space-y-[24px]">
+            <Typography variant="h3" className="font-[500]">
+              Pickup/Drop Preferences
+            </Typography>
+            <div className="flex gap-[22px] mt-2">
               {[
                 { label: "Default Address", value: "default" },
                 { label: "New Address", value: "new" },
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-2">
+                <label
+                  key={option.value}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="radio"
+                    className="accent-[var(--teal-1)]"
                     checked={formData.address_type === option.value}
                     onChange={() => {
                       handleChange("address_type", option.value);
@@ -353,35 +374,30 @@ const ResizeRepairRequest = () => {
                         handleChange("default_address", "");
                       }
                     }}
-                    className="cursor-pointer"
                   />
-                  <span>{option.label}</span>
+                  <Typography variant="h6" className="!font-[500]">
+                    {option.label}
+                  </Typography>
                 </label>
               ))}
             </div>
-            <div className="flex gap-[30px]">
-              <>
-                <Input
-                  label="Pickup Address"
-                  value={
-                    formData.address_type === "default"
-                      ? defaultAddress?.street_address +
-                        " , " +
-                        defaultAddress?.city +
-                        " , " +
-                        defaultAddress?.state +
-                        " , " +
-                        defaultAddress?.zip_code
-                      : formData.default_address
-                  }
-                  placeholder="Set your pickup address"
-                  containerClass="w-full"
-                  onChange={(e) =>
-                    handleChange("default_address", e.target.value)
-                  }
-                  borderBottom
-                />
-              </>
+            <div className="flex flex-col md:flex-row gap-6 md:gap-[30px]">
+              <Input
+                label="Pickup Address"
+                value={
+                  formData.address_type === "default"
+                    ? (defaultAddress
+                      ? `${defaultAddress.street_address}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.zip_code}`
+                      : "")
+                    : formData.default_address
+                }
+                placeholder="Set your pickup address"
+                containerClass="w-full"
+                onChange={(e) =>
+                  handleChange("default_address", e.target.value)
+                }
+                borderBottom
+              />
 
               <Input
                 borderBottom
@@ -398,12 +414,13 @@ const ResizeRepairRequest = () => {
 
           <Button
             title={"Send request to store"}
-            className="w-full"
+            className="w-full py-4 text-lg"
             onClick={handleSubmit}
           />
         </div>
       </div>
     </section>
+
   );
 };
 
