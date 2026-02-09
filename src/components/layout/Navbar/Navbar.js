@@ -151,15 +151,17 @@ const Navbar = () => {
             />
 
             <div className={`flex gap-[12px] ${MobileSize && "relative"}`}>
-              {MobileSize ? (
-                <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
-                  {customer?.first_name?.slice(0, 1)}
-                </span>
-              ) : (
-                <span className="text-[var(--teal-1)]">
-                  Hi, {toTitleCase(customer?.first_name)}
-                </span>
-              )}
+              {customer ? (
+                MobileSize ? (
+                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[11px] font-[600] rounded-full flex items-center justify-center leading-none">
+                    {customer.first_name?.charAt(0).toUpperCase()}
+                  </span>
+                ) : (
+                  <span className="text-[var(--teal-1)]">
+                    Hi, {toTitleCase(customer.first_name)}
+                  </span>
+                )
+              ) : null}
               <img
                 src="/icons/user.svg"
                 onClick={() => router.push("/account")}
