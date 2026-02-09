@@ -142,7 +142,8 @@ const Cart = () => {
               className=" border-b border-b-[var(--teal-3)]"
               key={item?.cart_item_id}
             >
-              <div className="grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center">
+              {/* Desktop View */}
+              <div className="hidden md:grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center">
                 <div className="flex justify-center px-0 py-[12px] bg-[var(--product-bg)] !cursor-pointer">
                   <img
                     src={item?.media_image}
@@ -236,10 +237,147 @@ const Cart = () => {
 
                 <Typography variant="p" className="font-[600]">
                   {getCurrencySymbol(selectedCountry?.currency) + " "}
-                  {typeof item.subtotal === "number" ? item?.subtotal : "0.00"}
+                  {typeof item.subtotal === "number"
+                    ? item?.subtotal.toLocaleString()
+                    : "0.00"}
                 </Typography>
               </div>
-              <div className="flex gap-4 items-centerpb-4 pb-[24px]">
+
+              {/* Mobile View */}
+              <div className="md:hidden flex flex-col py-6 gap-5">
+                <div className="flex gap-5">
+                  {/* Image Left */}
+                  <div className="w-[110px] h-[110px] bg-[var(--product-bg)] flex items-center justify-center p-2 rounded-lg flex-shrink-0">
+                    <img
+                      src={item?.media_image}
+                      alt={item?.product_name || "Product"}
+                      className="w-full h-full object-contain cursor-pointer"
+                      onClick={() =>
+                        handleClick(
+                          item?.product_id,
+                          item?.category_id,
+                          item?.metal_color,
+                          item?.diamond_shape
+                        )
+                      }
+                    />
+                  </div>
+
+                  {/* Content Right */}
+                  <div className="flex-1 flex flex-col gap-2 min-h-[110px]">
+                    {/* Title */}
+                    <Typography
+                      variant="h5"
+                      className="font-[500] leading-tight"
+                    >
+                      {toTitleCase(item?.title || item?.product_name || "")}
+                    </Typography>
+
+                    {/* All Content */}
+                    <div className="space-y-1">
+                      {item?.product_description && (
+                        <Typography variant="h6" className="opacity-70 italic text-[11px]">
+                          {item?.product_description}
+                        </Typography>
+                      )}
+                      {item?.design_no && (
+                        <Typography variant="h6">
+                          Design No. :{" "}
+                          <span className="font-[500] text-[#222223]">
+                            {item?.design_no}
+                          </span>
+                        </Typography>
+                      )}
+                      {item?.diamond_shape && (
+                        <Typography variant="h6">
+                          Diamond Shape :{" "}
+                          <span className="font-[500] text-[#222223]">
+                            {item?.diamond_shape}
+                          </span>
+                        </Typography>
+                      )}
+                      {item?.metal_type && item?.metal_color && (
+                        <Typography variant="h6">
+                          Metal :{" "}
+                          <span className="font-[500] text-[#222223]">
+                            {item?.metal_type +
+                              " " +
+                              toTitleCase(item?.metal_color) +
+                              " Gold"}
+                          </span>
+                        </Typography>
+                      )}
+                      {item?.center_diamond_weight ? (
+                        <Typography variant="h6">
+                          Center Diamond Weight :
+                          <span className="font-[500] text-[#222223]">
+                            {item?.center_diamond_weight}
+                          </span>
+                        </Typography>
+                      ) : null}
+                      {item?.ring_size && (
+                        <div className="inline-flex gap-2 items-center">
+                          <Typography variant="h6">
+                            {toTitleCase(item?.category)} Size :{" "}
+                            {item?.ring_size}
+                          </Typography>
+                          <Link href="/ring-size-guide">
+                            <img
+                              src="/icons/info.svg"
+                              className="cursor-pointer w-[14px] h-[14px]"
+                              alt="info"
+                            />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Quantity & Price Row */}
+                <div className="flex justify-between items-center bg-[#fbfbfb] p-3 rounded-lg border border-[#f0f0f0]">
+                  <QuantitySelector
+                    item={item}
+                    handleQuantities={handleUpdateQuantity}
+                  />
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] text-[var(--grey-2)] uppercase tracking-wider mb-0.5 font-medium">Subtotal</span>
+                    <Typography variant="h6" className="font-[600] text-[var(--teal-1)]">
+                      {getCurrencySymbol(selectedCountry?.currency) + " "}
+                      {typeof item.subtotal === "number"
+                        ? item?.subtotal.toLocaleString()
+                        : "0.00"}
+                    </Typography>
+                  </div>
+                </div>
+
+                {/* Mobile Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    title={"Move To Wishlist"}
+                    background={"var(--grey-00)"}
+                    textColor={"var(--grey-2)"}
+                    className="flex-1 border border-[var(--teal-3)] h-[44px] !text-[12px]"
+                    icon={<HeartIcon className="w-4 h-4" iconColor="#222223" />}
+                    onClick={() => handleMoveToWishlist(item.cart_item_id)}
+                  >
+                    Move To Wishlist
+                  </Button>
+                  <Button
+                    background={"none"}
+                    textColor={"var(--grey-2)"}
+                    title={"remove"}
+                    className="flex-1 border border-[var(--teal-3)] h-[44px] !text-[12px]"
+                    icon={<CloseIcon className="w-4 h-4" />}
+                    onClick={() => handleRemoveCartItem(item.cart_item_id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+
+              {/* Shared Desktop Buttons (only visible on md+) */}
+              <div className="hidden md:flex gap-4 items-center pb-[24px]">
                 <Button
                   title={"Move To Wishlist"}
                   background={"var(--grey-00)"}
@@ -431,8 +569,8 @@ const Cart = () => {
             />
           </div>
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   );
 };
 

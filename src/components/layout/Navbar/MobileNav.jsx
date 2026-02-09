@@ -8,8 +8,10 @@ import Link from "next/link";
 import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
 import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
 import { toTitleCase } from "@/utils/string";
+import { useRouter } from "next/navigation";
 
 const MobileNav = ({ closeMobile, menus }) => {
+  const router = useRouter();
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [selectedMainMenu, setSelectedMainMenu] = useState("");
   const subMenu = menus.find(

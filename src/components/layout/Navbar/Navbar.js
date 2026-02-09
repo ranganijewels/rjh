@@ -106,7 +106,7 @@ const Navbar = () => {
           </div>
 
           {/* Logo */}
-          <div className="flex justify-center flex-1 lg:flex-none lg:order-1 md:ml-0 ml-[30px]">
+          <div className="flex justify-center flex-1 lg:flex-none lg:order-1 md:ml-0 ">
             <Link href="/">
               <img
                 src="/logo/elova-jewel.png"
