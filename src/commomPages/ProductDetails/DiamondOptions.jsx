@@ -99,33 +99,6 @@ const DiamondOptions = ({
     }
   }, [productInfo]);
 
-  // useEffect(() => {
-  //   const sizes = productInfo?.productsizevariant
-  //     ?.map((v) => v.size)
-  //     .filter(Boolean); // remove null sizes
-
-  //   if (!sizes || sizes.length === 0) return;
-
-  //   const uniqueSizes = [...new Set(sizes)];
-
-  //   // Only set default if not already selected
-  //   if (!selectedSize) {
-  //     const first = uniqueSizes[0];
-
-  //     const variant = productInfo.productsizevariant.find(
-  //       (v) => v.size === first
-  //     );
-
-  //     setSelectedSize(first);
-
-  //     onSizeChange?.({
-  //       size: first,
-  //       carat: variant?.carat,
-  //       variantId: variant?.variant_product_id,
-  //     });
-  //   }
-  // }, [productInfo?.productsizevariant]);
-
   useEffect(() => {
     const sizes = productInfo?.productsizevariant
       ?.map((v) => v.size)
@@ -244,18 +217,6 @@ const DiamondOptions = ({
         .sort((a, b) => parseFloat(a.value) - parseFloat(b.value)),
     [productInfo]
   );
-
-  // useEffect(() => {
-  //   if (!caratList.length) return;
-  //   const first = caratList[0];
-
-  //   setSelectedCarat(first.value);
-  //   onWeightChange?.({
-  //     size: selectedSize,
-  //     carat: first.value,
-  //     variantId: first.variantId,
-  //   });
-  // }, [caratList, selectedSize]);
 
   return (
     <div className="space-y-6">

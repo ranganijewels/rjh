@@ -654,11 +654,13 @@ const Details = () => {
                 />
               }
               iconOnly
+              ariaLabel="Add to wishlist"
               className="w-[42px] h-[42px] !p-[9px]"
             />
             <Button
               variant="ghost"
-              icon={<img src="/icons/share.svg" />}
+              ariaLabel="Share"
+              icon={<img src="/icons/share.svg" alt="share-icon" />}
               iconOnly
               className="w-[42px] h-[42px] !p-[9px]"
               onClick={() => {

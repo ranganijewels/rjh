@@ -37,6 +37,7 @@ const HeadingWithNavigation = ({
       {showButtons && (
         <div className="2xl:space-x-[30px] xl:space-x-[20px] space-x-[15px] flex">
           <button
+            aria-label="previous"
             onClick={onPrev}
             disabled={!canScrollLeft}
             className={`transition-opacity ${
@@ -63,6 +64,7 @@ const HeadingWithNavigation = ({
           </button>
 
           <button
+            aria-label="Next"
             onClick={onNext}
             disabled={!canScrollRight}
             className={`transition-opacity ${

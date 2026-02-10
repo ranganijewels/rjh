@@ -92,6 +92,7 @@ const MetalSelector = ({
           .map((c, idx) => (
             <Button
               key={`${c}-${idx}`}
+              ariaLabel={`${toTitleCase(c)} Gold`}
               background={getBackground(c)}
               variant="colorPalette"
               onClick={() => {

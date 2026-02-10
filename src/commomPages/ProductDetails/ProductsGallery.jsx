@@ -147,6 +147,7 @@ const ProductsGallery = ({
               />
             ) : (
               <img
+                alt={`Product ${index}`}
                 src={media.image}
                 className="w-full h-full object-cover"
                 loading="lazy"

@@ -157,6 +157,8 @@ const ReferenceForm = () => {
     );
   };
 
+  const MAX_FILES = 4;
+
   const handleFileChange = (selectedFiles) => {
     const valid = selectedFiles.every((file) =>
       ["image/jpeg", "image/png", "application/pdf"].includes(file.type)
@@ -166,7 +168,18 @@ const ReferenceForm = () => {
       toast.error("Please upload valid images (JPG, PNG) or PDFs.");
       return;
     }
-    updateForm("files", [...form.files, ...selectedFiles].slice(-2));
+
+    // Combine old + new
+    const combinedFiles = [...form.files, ...selectedFiles];
+
+    // Keep ONLY last 4 (FIFO: remove oldest)
+    const updatedFiles = combinedFiles.slice(-MAX_FILES);
+
+    if (combinedFiles.length > MAX_FILES) {
+      toast.success("Oldest image replaced with new one");
+    }
+
+    updateForm("files", updatedFiles);
   };
 
   const handleNext = () => {
@@ -228,7 +241,7 @@ const ReferenceForm = () => {
 
         {/* Preview */}
         <div className="flex flex-row gap-[18px]">
-          {form?.files.slice(0, 2).map((file, index) => {
+          {form?.files.slice(0, 4).map((file, index) => {
             const preview = getPreviewUrl(file);
             if (!preview) return null;
 

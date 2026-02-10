@@ -238,6 +238,7 @@ const ProductCard = ({
             {colorsPalettes?.map((palette, i) => {
               return (
                 <Button
+                  ariaLabel={palette}
                   background={getBackground(palette)}
                   variant="colorPalette"
                   key={palette}

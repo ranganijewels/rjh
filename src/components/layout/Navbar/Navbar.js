@@ -102,7 +102,10 @@ const Navbar = () => {
               className="w-[20px] h-[20px] cursor-pointer shrink-0"
               onClick={() => setOpenMobileMenu(!openMobileMenu)}
             />
-            <SearchIcon onClick={() => setShowSearchBar(!showSearchBar)} className="shrink-0" />
+            <SearchIcon
+              onClick={() => setShowSearchBar(!showSearchBar)}
+              className="shrink-0"
+            />
           </div>
 
           {/* Centered Logo */}
@@ -148,6 +151,7 @@ const Navbar = () => {
             <SearchIcon
               onClick={() => setShowSearchBar(!showSearchBar)}
               className="hidden lg:block cursor-pointer"
+              ariaLabel="Search products"
             />
 
             {/* User Profile */}

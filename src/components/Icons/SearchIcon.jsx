@@ -1,12 +1,13 @@
 // components/common/SearchIcon.jsx
 import React from "react";
 
-const SearchIcon = ({ className = "", onClick }) => {
+const SearchIcon = ({ className = "", onClick, ariaLabel = "Open search" }) => {
   return (
     <div
       onClick={onClick}
       className={`${className} cursor-pointer`}
       role="button"
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

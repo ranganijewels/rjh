@@ -50,6 +50,8 @@ const Newsletter = () => {
         </p>
         <div className="flex flex-wrap">
           <input
+            type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
@@ -70,6 +72,7 @@ const Newsletter = () => {
           <a
             href="/static-page/privacy-policy"
             className="underline cursor-pointer"
+            aria-label="Read our Privacy Policy"
           >
             Privacy Policy.
           </a>

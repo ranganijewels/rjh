@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 const Button = ({
   title,
+  ariaLabel,
   onClick,
   type = "button",
   variant = "primary",
@@ -23,6 +24,7 @@ const Button = ({
   children,
 }) => {
   const router = useRouter();
+  const accessibleLabel = ariaLabel || title;
 
   const baseStyle =
     "xl:p-[12px_30px] p-[6px_16px] cursor-pointer uppercase xl:text-[14px] text-[12px] font-[400] leading-normal tracking-[0.28px] transition-colors duration-200";
@@ -73,6 +75,7 @@ const Button = ({
     <button
       type={type}
       onClick={handleClick}
+      aria-label={accessibleLabel}
       className={clsx(
         baseStyle,
         !noBackground && variantStyles[variant],
