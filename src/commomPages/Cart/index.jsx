@@ -578,7 +578,7 @@ const Cart = () => {
                 <Shipping /> Free Insured Shipping
               </label>
 
-              <label className="flex gap-[10px] items-center justify-center">
+              <label className="flex gap-[10px] items-center justify-center break-all">
                 <ExchangeIcon /> 30 days Free Returns & Exchange
               </label>
             </div>

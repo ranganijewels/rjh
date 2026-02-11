@@ -133,8 +133,8 @@ const Wishlist = ({ hideTitle, gridCol }) => {
           })
         ) : (
           <Typography
-            variant="h2"
-            className="!text-[40px] !font-[400] mb-[20px] text-[var(--grey-2)]"
+            variant="h3"
+            className="mb-[20px] text-[var(--grey-2)] text-center"
           >
             Your wish list is empty.
           </Typography>
