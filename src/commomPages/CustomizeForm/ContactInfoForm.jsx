@@ -5,7 +5,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { useCustomize } from "@/context/CustomizeContext";
-import { formatCarat, formatRange } from "@/utils/string";
+import { cleanCarat, formatCarat, formatRange } from "@/utils/string";
 import toast from "react-hot-toast";
 
 const ContactInfoForm = () => {
@@ -61,8 +61,8 @@ const ContactInfoForm = () => {
       const caratValue = referenceForm.customCarat?.trim()
         ? Number(referenceForm.customCarat)
         : referenceForm.selectedCarat
-        ? Number(formatCarat(referenceForm.selectedCarat))
-        : 0;
+          ? Number(cleanCarat(referenceForm.selectedCarat))
+          : 0;
 
       const payload = {
         category_id: Number(sizeCategoryId),
