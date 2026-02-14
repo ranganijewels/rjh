@@ -77,11 +77,14 @@ const FeaturesSpecs = ({
     {
       title: "",
       // Label ma j hover muki daiye
-      labels: ["SKU", "Product Name", "Product Type", "Gender"],
+      labels: ["SKU", "Product Name", "Product Type", "Length", "Width", "finding type", "Gender"],
       values: [
         productDetail?.sku_no || productDetail?.design_no,
         productDetail?.title || "-",
         productDetail?.category?.name || "-",
+        productDetail?.pricing_details[0]?.length || "-",
+        productDetail?.pricing_details[0]?.width || "-",
+        productDetail?.category?.finding_types[0]?.finding_type || "-",
         productDetail?.gender || "-",
       ],
     },

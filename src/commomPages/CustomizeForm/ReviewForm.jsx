@@ -85,67 +85,65 @@ const ReviewForm = () => {
 
       {/* Diamond and Metal section */}
       <div>
-        <div className="pb-[32px]">
+        <div className="pb-[16px]">
           <p className="xl:text-[24px] font-[500] text-[18px]">
             Diamond and Metal Selection
           </p>
         </div>
 
-        <div className="space-y-[12px]">
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+        <div className="space-y-[6px]">
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Shape :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
               {referenceForm.shape?.label || "Not selected"}
             </p>
-          </div>{" "}
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+          </div>
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Carat :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
               {referenceForm.selectedCarat || "Not selected"}
             </p>
-          </div>{" "}
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+          </div>
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Color :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
               {referenceForm.colorRange?.[0]} -{" "}
               {referenceForm.colorRange?.at(-1)}
             </p>
-          </div>{" "}
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+          </div>
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Clarity :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
               {referenceForm.clarityRange?.[0]} -{" "}
               {referenceForm.clarityRange?.at(-1)}
             </p>
-          </div>{" "}
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+          </div>
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Metal :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
               {referenceForm?.metal
-                ? `${
-                    referenceForm?.metal.karat?.value ||
-                    referenceForm?.metal.karat ||
-                    ""
-                  } ${
-                    (referenceForm?.metal.color?.name ||
-                      referenceForm?.metal.color ||
-                      "") + " Gold"
+                ? `${referenceForm?.metal.karat?.value ||
+                  referenceForm?.metal.karat ||
+                  ""
+                  } ${(referenceForm?.metal.color?.name ||
+                    referenceForm?.metal.color ||
+                    "") + " Gold"
                   }`.trim() || "Not selected"
                 : "Not selected"}
             </p>
           </div>
-          <div className="grid grid-cols-2">
-            <h3 className="text-[18px] font-[500] text-[var(--grey-2)]">
+          <div className="flex gap-[12px]">
+            <h3 className="text-[18px] font-[500] text-[var(--grey-2)] w-[120px]">
               Ring Size :
             </h3>
             <p className="text-[18px] font-[400] text-[var(--teal-1)]">
