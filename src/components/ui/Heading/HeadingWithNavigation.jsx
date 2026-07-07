@@ -40,7 +40,7 @@ const HeadingWithNavigation = ({
             aria-label="previous"
             onClick={onPrev}
             disabled={!canScrollLeft}
-            className={`transition-opacity ${
+            className={`flex items-center justify-center min-w-[44px] min-h-[44px] lg:min-w-[44px] lg:min-h-[44px] transition-opacity ${
               !canScrollLeft ? "opacity-40 cursor-not-allowed" : ""
             }`}
           >
@@ -67,7 +67,7 @@ const HeadingWithNavigation = ({
             aria-label="Next"
             onClick={onNext}
             disabled={!canScrollRight}
-            className={`transition-opacity ${
+            className={`flex items-center justify-center min-w-[44px] min-h-[44px] lg:min-w-[44px] lg:min-h-[44px] transition-opacity ${
               !canScrollRight ? "opacity-40 cursor-not-allowed" : ""
             }`}
           >

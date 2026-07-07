@@ -15,7 +15,7 @@ export const apiGet = async (url, token, extraHeaders = {}) => {
 };
 
 // export const apiPost = async (url, body, extraHeaders = {}) => {
-//   const token = localStorage.getItem("authTokenElova");
+//   const token = localStorage.getItem("authTokenRJHouse");
 //   const response = await fetch(url, {
 //     method: "POST",
 //     headers: {
@@ -51,7 +51,7 @@ export const apiGet = async (url, token, extraHeaders = {}) => {
 // };
 
 export const apiPost = async (url, body) => {
-  const token = localStorage.getItem("authTokenElova");
+  const token = localStorage.getItem("authTokenRJHouse");
 
   const headers = {
     Accept: "application/json",

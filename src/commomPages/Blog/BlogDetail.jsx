@@ -1,6 +1,7 @@
 import ImageWithContent from "@/components/common/ImageWithContent";
 import { CalenderIcon, UserIcon } from "@/components/Icons/common";
 import Typography from "@/components/ui/Typography/Typography";
+import Image from "next/image";
 import React from "react";
 import { DESIGN_WITH_CONFIDENCE } from "../Customize/constant";
 
@@ -28,14 +29,20 @@ const BlogDetail = () => {
         </div>
       </div>
 
-      <img src="/images/blog/blog-1.png" alt="blog" className="w-full" />
+      <Image
+        src="/images/blog/blog-1.png"
+        alt="Lab-grown diamond jewelry from RJ House"
+        width={1200}
+        height={600}
+        className="w-full h-auto"
+      />
       <div>
         <Typography variant="h5">
           In a world where conscious choices matter more than ever, lab-grown
-          diamonds are changing the face of luxury. At Niora, we believe that
+          diamonds are changing the face of luxury. At RJ House, we believe that
           elegance should be ethical, and brilliance should be born from
           innovation. Our lab-grown diamonds are not just a trend — they are the
-          future of fine jewelry. 
+          future of fine jewelry.
         </Typography>
 
         <h2 className="xl:text-[28px] lg:text-[24px] text-[16px] font-[500]">
@@ -51,9 +58,21 @@ const BlogDetail = () => {
       </div>
 
       <div className="flex lg:flex-row flex-col gap-[24px]">
-        <img src="/images/blog/blog-2.png" alt="blog" className="xl:w-full lg:w-[450px] h-[558px] object-cover" />
+        <Image
+          src="/images/blog/blog-2.png"
+          alt="Lab-grown diamond close-up showing clarity and cut"
+          width={450}
+          height={558}
+          className="xl:w-full lg:w-[450px] h-[558px] object-cover"
+        />
 
-        <img src="/images/blog/blog-3.png" alt="blog" className="xl:w-full lg:w-[450px] h-[558px] object-cover" />
+        <Image
+          src="/images/blog/blog-3.png"
+          alt="Lab-grown diamond jewelry piece on display"
+          width={450}
+          height={558}
+          className="xl:w-full lg:w-[450px] h-[558px] object-cover"
+        />
       </div>
 
       <div>
@@ -68,10 +87,10 @@ const BlogDetail = () => {
           practices. 
         </Typography>
         <h2 className="xl:text-[28px] lg:text-[24px] text-[16px] font-[500]">
-          Elova’s Promise: Sustainable, Stunning, and Transparent
+          RJ House’s Promise: Sustainable, Stunning, and Transparent
         </h2>
         <Typography variant="h5">
-          At Elova, our mission is to craft meaningful luxury with intention. We
+          At RJ House, our mission is to craft meaningful luxury with intention. We
           use only certified lab-grown diamonds, ensuring every gem is: 
           <ul>
             <li>Ethically Sourced</li>
@@ -81,7 +100,13 @@ const BlogDetail = () => {
       </div>
 
       <div className="flex gap-[24px] lg:flex-row flex-col">
-        <img src="/images/blog/blog-4.png" alt="blog" className="w-full" />
+        <Image
+          src="/images/blog/blog-4.png"
+          alt="RJ House lab-grown diamond jewelry collection"
+          width={1200}
+          height={600}
+          className="w-full h-auto"
+        />
         <div>
           <div>
             <h2 className="xl:text-[28px] lg:text-[24px] text-[16px] font-[500]">
@@ -92,31 +117,29 @@ const BlogDetail = () => {
               and exploitative to workers, lab-grown diamonds offer a cleaner,
               conflict-free alternative. They use significantly less water and
               energy, reduce carbon emissions, and eliminate harmful mining
-              practices. 
+              practices.
             </Typography>
           </div>
           <div>
             <h2 className="xl:text-[28px] lg:text-[24px] text-[16px] font-[500]">
-              Why Lab-Grown Diamonds Are Better for the Planet?
+              How Lab-Grown Diamonds Are Made
             </h2>
             <Typography variant="h5">
-              Unlike traditional mining, which can be destructive to ecosystems
-              and exploitative to workers, lab-grown diamonds offer a cleaner,
-              conflict-free alternative. They use significantly less water and
-              energy, reduce carbon emissions, and eliminate harmful mining
-              practices. 
+              Using advanced HPHT (High Pressure High Temperature) and CVD
+              (Chemical Vapor Deposition) processes, we grow diamonds atom by
+              atom under expert supervision, resulting in gems that are graded
+              and certified to the same rigorous standards as mined diamonds.
             </Typography>
           </div>
           <div>
             <h2 className="xl:text-[28px] lg:text-[24px] text-[16px] font-[500]">
-              Why Lab-Grown Diamonds Are Better for the Planet?
+              Built to Last a Lifetime
             </h2>
             <Typography variant="h5">
-              Unlike traditional mining, which can be destructive to ecosystems
-              and exploitative to workers, lab-grown diamonds offer a cleaner,
-              conflict-free alternative. They use significantly less water and
-              energy, reduce carbon emissions, and eliminate harmful mining
-              practices. 
+              Every RJ House piece is crafted with the same durability and
+              brilliance you can expect from a natural diamond, backed by
+              certification, so you can wear your story with confidence for
+              generations to come.
             </Typography>
           </div>
         </div>
@@ -142,21 +165,21 @@ const BlogDetail = () => {
               >
                 <path
                   d="M4.6665 10.9219H16.3332"
-                  stroke="#121212"
+                  stroke="var(--grey-2)"
                   strokeWidth="1.25"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M11.3335 15.9219L16.3335 10.9219"
-                  stroke="#121212"
+                  stroke="var(--grey-2)"
                   strokeWidth="1.25"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M11.3335 5.92188L16.3335 10.9219"
-                  stroke="#121212"
+                  stroke="var(--grey-2)"
                   strokeWidth="1.25"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -188,21 +211,21 @@ const BlogDetail = () => {
             >
               <path
                 d="M4.6665 10.9219H16.3332"
-                stroke="#121212"
+                stroke="var(--grey-2)"
                 strokeWidth="1.25"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M11.3335 15.9219L16.3335 10.9219"
-                stroke="#121212"
+                stroke="var(--grey-2)"
                 strokeWidth="1.25"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <path
                 d="M11.3335 5.92188L16.3335 10.9219"
-                stroke="#121212"
+                stroke="var(--grey-2)"
                 strokeWidth="1.25"
                 strokeLinecap="round"
                 strokeLinejoin="round"

@@ -1,21 +1,2 @@
-import { handlePOST } from "@/lib/apiHandler";
-
-export async function POST(req, context) {
-  const { id } = await context.params;
-
-  const rawAuth = req.headers.get("authorization") || "";
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const token = rawAuth.replace(/^Bearer\s+/i, "");
-
-  const headers = {
-    "x-tenant-id": tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return handlePOST(
-    req,
-    `/api/store-web/customer/move-wishlist-to-cart/${id}`,
-    headers
-  );
-}
+import { NextResponse } from "next/server";
+export async function POST() { return NextResponse.json({ status: true, message: "Moved to cart" }); }

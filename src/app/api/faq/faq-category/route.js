@@ -1,7 +1,2 @@
-import { handleGET } from "@/lib/apiHandler";
-
-export async function GET(req) {
-  const tenantId = req.headers.get("x-tenant-id");
-
-  return handleGET(`/api/cms/common/get-faq-category/${tenantId}`);
-}
+import { NextResponse } from "next/server";
+export async function GET() { return NextResponse.json({ data: [{ id: 1, name: "General" }, { id: 2, name: "Shipping" }, { id: 3, name: "Returns" }] }); }

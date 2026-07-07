@@ -26,18 +26,20 @@ const LogoutConfirmationModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-center items-start z-[9999]">
       <div className="xl:w-[25%] lg:w-[40%] md:w-[50%] w-full bg-white shadow-lg flex flex-col gap-[25px] p-[40px_48px] mt-[100px] relative">
-        {/* Elova Logo */}
+        {/* RJ House Logo */}
         <img
-          src="/icons/elova-logo.svg"
-          alt="Elova Logo"
+          src="/icons/rj-house-logo.svg"
+          alt="RJ House Logo"
           className="md:w-auto w-[100px] h-[28px]"
         />
 
         {/* Close Icon */}
         <img
           src="/icons/close.svg"
-          className="w-[15px] h-[15px] absolute right-5 top-5 cursor-pointer"
-          onClick={onClose}
+          className={`w-[15px] h-[15px] absolute right-5 top-5 ${
+            isLoggingOut ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={isLoggingOut ? undefined : onClose}
           alt="Close Icon"
         />
 
@@ -51,8 +53,14 @@ const LogoutConfirmationModal = ({ onClose }) => {
           <Button
             title={isLoggingOut ? "Logging out..." : "Logout"}
             onClick={handleLogout}
+            disabled={isLoggingOut}
           />
-          <Button onClick={onClose} title="Cancel" variant="secondary" />
+          <Button
+            onClick={onClose}
+            title="Cancel"
+            variant="secondary"
+            disabled={isLoggingOut}
+          />
         </div>
       </div>
     </div>

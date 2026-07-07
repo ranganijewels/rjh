@@ -10,7 +10,7 @@ export const EasyReturn = () => {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h4"><b>30-Day Return Policy</b></Typography>
                 <Typography variant="h5">
-                    At Elova Diamonds, we pride ourselves on delivering jewelry of exceptional quality. However,
+                    At RJ House Diamonds, we pride ourselves on delivering jewelry of exceptional quality. However,
                     we understand that sometimes purchases don’t go as planned, and you may need to return or
                     exchange an item. That’s why we offer a 30-day return policy for your peace of mind.
                 </Typography>
@@ -21,11 +21,15 @@ export const EasyReturn = () => {
                     original documentation included.
                 </Typography>
 
+                <hr className="border-t border-gray-200" />
+
                 <Typography variant="h4">Return Policy Details</Typography>
                 <Typography variant="h5">The 30-day return/exchange period begins on the delivery date of your order.</Typography>
                 <Typography variant="h5">Express order fees are non-refundable.</Typography>
-                <Typography variant="h5">Refund requests must be submitted in writing via email to help@elovajewel.com.</Typography>
+                <Typography variant="h5">Refund requests must be submitted in writing via email to support@therjhouse.com.</Typography>
                 <Typography variant="h5">Exceptions to the 30-Day Return Policy.</Typography>
+
+                <hr className="border-t border-gray-200" />
 
                 <Typography variant="h4">1. Personalised Items</Typography>
                 <Typography variant="h5">The following are non-returnable due to their customised nature:</Typography>
@@ -59,6 +63,8 @@ export const EasyReturn = () => {
                     untampered with.
                 </Typography>
 
+                <hr className="border-t border-gray-200" />
+
                 <Typography variant="h4">How to Return an Order</Typography>
                 <Typography variant="h5">1. Obtain a return shipping authorization code by contacting us. This code must be
                     included on your return label.
@@ -71,6 +77,8 @@ export const EasyReturn = () => {
                 </Typography>
                 <Typography variant="h5">4. Returns must be shipped within 14 days of receiving the authorization code.
                 </Typography>
+
+                <hr className="border-t border-gray-200" />
 
                 <Typography variant="h4">Refund Process</Typography>
                 <Typography variant="h5">Once the returned item is received, it will be inspected by our gemologists or
@@ -85,6 +93,8 @@ export const EasyReturn = () => {
                 <Typography variant="h5">If additional paperwork is required, our team will notify you.
                 </Typography>
 
+                <hr className="border-t border-gray-200" />
+
                 <Typography variant="h4">Important Notes</Typography>
                 <Typography variant="h5">Shipping costs, appraisals, and grading cards are non-refundable. The customer is
                     responsible for the shipping cost to return the product. However, we will refund you the
@@ -93,7 +103,7 @@ export const EasyReturn = () => {
                 <Typography variant="h5">Customers are responsible for any loss or damage during return shipping. We
                     recommend insuring the item for its value.
                 </Typography>
-                <Typography variant="h5">For questions or to request a return, email help@elovajewel.com.
+                <Typography variant="h5">For questions or to request a return, email support@therjhouse.com.
                 </Typography>
             </div>
         </section>

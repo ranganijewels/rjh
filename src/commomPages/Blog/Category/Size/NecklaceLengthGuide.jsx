@@ -63,7 +63,7 @@ export const NecklaceLengthGuide = () => {
                                 how to measure chains properly, and how to select the ideal <br />
                                 length for your preferences.
                             </p>
-                            <button className="bg-[#2F6F7A] text-white px-6 py-2 rounded hover:bg-[#072c2b] transition">
+                            <button className="bg-[var(--teal-1)] text-white px-6 py-2 rounded hover:bg-[var(--brand-deep)] transition">
                                 Shop Necklaces
                             </button>
                         </div>
@@ -317,7 +317,7 @@ export const NecklaceLengthGuide = () => {
                             ))}
                         </ul>
 
-                        <button className="bg-[#2F6F7A] text-white px-6 py-2 rounded hover:bg-[#072c2b] transition">
+                        <button className="bg-[var(--teal-1)] text-white px-6 py-2 rounded hover:bg-[var(--brand-deep)] transition">
                             Shop Necklaces
                         </button>
                     </div>

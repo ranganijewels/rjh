@@ -9,7 +9,7 @@ export const MetalSettingOptions = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    The setting is more than a frame—it’s the stage on which your diamond shines. At Elova, we offer a curated selection of timeless and contemporary settings to complement your personal style.
+                    The setting is more than a frame—it’s the stage on which your diamond shines. At RJ House, we offer a curated selection of timeless and contemporary settings to complement your personal style.
                 </Typography>
                 <Typography variant="h4"><b>Popular Setting Styles:</b></Typography>
                 <Typography variant="h5">

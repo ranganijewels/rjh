@@ -2,12 +2,11 @@
 import Typography from "@/components/ui/Typography/Typography";
 import React, { useEffect } from "react";
 import { OVERVIEW_DETAILS } from "./constant";
-import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { toTitleCase } from "@/utils/string";
+import Link from "next/link";
 
 const Overview = () => {
-  const router = useRouter();
   const customer = useSelector((state) => state.auth.customer);
 
   return (
@@ -26,13 +25,14 @@ const Overview = () => {
       </div>
       <div className="grid lg:grid-cols-3 grid-cols-2 gap-6">
         {OVERVIEW_DETAILS.map((item, index) => (
-          <div
+          <Link
             key={index}
+            href={item?.path || "#"}
             className="py-[20px] xl:px-[45px] px-[18px] p-[20px_45px] flex flex-col gap-[24px] items-center border border-[var(--teal-3)] cursor-pointer"
-            onClick={() => item?.path && router.push(item?.path)}
           >
             <img
               src={item?.icon}
+              alt={item?.title}
               className="xl:w-[76px] xl:h-[76px] 2xl:w-[96px] 2xl:h-[96px] w-[51px] h-[51px]"
             />
             <div className="text-center">
@@ -43,7 +43,7 @@ const Overview = () => {
                 {item?.subTitle}
               </Typography>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </>

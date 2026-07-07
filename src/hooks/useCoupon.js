@@ -29,7 +29,7 @@ export const useCoupon = () => {
 
       const res = await dispatch(applyCoupon(code)).unwrap();
 
-      await dispatch(fetchCart());
+      await dispatch(fetchCart({ currency: selectedCountry?.currency }));
       toast.success("Coupon applied");
 
       return res;

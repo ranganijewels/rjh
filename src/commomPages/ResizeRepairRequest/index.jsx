@@ -153,7 +153,7 @@ const ResizeRepairRequest = () => {
           {/* Introductory Text */}
           <div className="space-y-4">
             <Typography variant="h5" className="text-justify md:text-left">
-              At Elova, we believe every detail matters—including the fit. When
+              At RJ House, we believe every detail matters—including the fit. When
               you find the perfect ring, it should feel as flawless on your
               finger as it looks in the box. That's why we offer complimentary
               resizing within 60 days of your purchase.
@@ -163,14 +163,14 @@ const ResizeRepairRequest = () => {
               expert jewelers are here to make it just right. Our resizing
               service maintains the integrity of your original design, ensuring
               the final result is seamless and secure. All resizing is done in
-              our in-house atelier by artisans who know every Elova piece
+              our in-house atelier by artisans who know every RJ House piece
               intimately.
             </Typography>
             <Typography variant="h5" className="text-justify md:text-left">
               We also provide a printable Ring Size Guide and a complimentary
               sizer upon request to help you get the most accurate measurement.
               Still unsure? Our jewelry consultants are available for virtual
-              sizing support. With Elova, comfort and beauty go hand in hand.
+              sizing support. With RJ House, comfort and beauty go hand in hand.
             </Typography>
           </div>
 
@@ -190,20 +190,30 @@ const ResizeRepairRequest = () => {
                 onChange={(e) => handleChange("full_name", e.target.value)}
               />
 
-              <Input
-                borderBottom
-                containerClass="w-full"
-                label={"Mobile Number"}
-                placeholder="Mobile Number"
-                value={formData.mobile_number}
-                onChange={(e) => handleChange("mobile_number", e.target.value)}
-              />
+              <div className="w-full">
+                <Input
+                  borderBottom
+                  name="mobile_number"
+                  containerClass="w-full"
+                  label={"Mobile Number"}
+                  placeholder="Mobile Number"
+                  value={formData.mobile_number}
+                  onChange={(e) =>
+                    handleChange("mobile_number", e.target.value)
+                  }
+                  hasError={!!formErrors.mobile_number}
+                  aria-invalid={formErrors.mobile_number ? "true" : undefined}
+                />
+                {formErrors.mobile_number && (
+                  <p
+                    id="mobile_number-error"
+                    className="text-red-500 text-sm mt-1"
+                  >
+                    {formErrors.mobile_number[0]}
+                  </p>
+                )}
+              </div>
             </div>
-            {formErrors.mobile_number && (
-              <p className="text-red-500 text-sm mt-1">
-                {formErrors.mobile_number[0]}
-              </p>
-            )}
             <Input
               borderBottom
               containerClass="w-full"
@@ -230,7 +240,7 @@ const ResizeRepairRequest = () => {
                 >
                   <input
                     type="radio"
-                    className="accent-[var(--teal-1)]"
+                    className="accent-[var(--teal-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal-2)] focus-visible:ring-offset-1"
                     checked={formData.request_type === option.value}
                     onChange={() => handleChange("request_type", option.value)}
                   />
@@ -296,7 +306,7 @@ const ResizeRepairRequest = () => {
                 <>
                   <Dropdown
                     label={"Select Issue Type"}
-                    placeholder="Select Issue Type"
+                    placeholder="e.g., Loose Diamond, Stone Chipped"
                     options={[
                       "Loose Diamond / Stone",
                       "Missing Diamond / Stone",
@@ -323,7 +333,7 @@ const ResizeRepairRequest = () => {
 
               <div className="w-full md:col-span-2 lg:col-span-1">
                 {/* Label */}
-                <Typography variant="h6" className="text-[#111] mb-2">
+                <Typography variant="h6" className="text-[var(--grey-2)] mb-2">
                   Upload Image/Videos (max 10MB)
                 </Typography>
 
@@ -365,7 +375,7 @@ const ResizeRepairRequest = () => {
                 >
                   <input
                     type="radio"
-                    className="accent-[var(--teal-1)]"
+                    className="accent-[var(--teal-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal-2)] focus-visible:ring-offset-1"
                     checked={formData.address_type === option.value}
                     onChange={() => {
                       handleChange("address_type", option.value);
@@ -383,6 +393,7 @@ const ResizeRepairRequest = () => {
             </div>
             <div className="flex flex-col md:flex-row gap-6 md:gap-[30px]">
               <Input
+                name="pickup-address"
                 label="Pickup Address"
                 value={
                   formData.address_type === "default"

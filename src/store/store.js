@@ -10,22 +10,22 @@ import orderReducer from "@/store/slices/orderSlice";
 import wishlistReducer from "@/store/slices/wishlistSlice";
 
 const authPersistConfig = {
-  key: "auth_Elova",
+  key: "auth_RJHouse",
   storage,
 };
 
 const cartPersistConfig = {
-  key: "cart_Elova",
+  key: "cart_RJHouse",
   storage,
 };
 
 const productPersistConfig = {
-  key: "product_Elova",
+  key: "product_RJHouse",
   storage,
 };
 
 const wishlistPersistConfig = {
-  key: "wishlist_Elova",
+  key: "wishlist_RJHouse",
   storage,
 };
 

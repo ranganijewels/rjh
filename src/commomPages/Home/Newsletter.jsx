@@ -20,6 +20,7 @@ const Newsletter = () => {
       if (res.status) {
         toast.success("Subscription Created");
         setEmail("");
+        import("@/lib/analytics").then((m) => m.trackLead("newsletter")).catch(() => {});
       } else {
         const errorMsg =
           res.error?.email?.[0] || res.message || "Something went wrong";
@@ -48,20 +49,25 @@ const Newsletter = () => {
         <p className="justify-start text-[var(--grey-2)] xl:text-[16px] text-[10px] font-normal tracking-tight">
           Subscribe to our newsletter
         </p>
-        <div className="flex flex-wrap">
+        <div className="flex flex-col md:flex-row flex-wrap gap-3">
+          <label htmlFor="newsletter-email" className="sr-only">
+            Email address (required)
+          </label>
           <input
+            id="newsletter-email"
             type="email"
             autoComplete="email"
+            aria-required="true"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            className="justify-start xl:w-[510px] w-[198px] xl:h-[52px] h-[28px] text-[var(--placeholder)] xl:text-[16px] text-[14px] font-[400] tracking-tight bg-[#FFFFFF] p-[11px_20px] focus-visible:border-transparent focus-visible:outline-none focus:ring-0"
-            placeholder="Enter email address*"
+            className="justify-start xl:w-[510px] w-full md:w-[510px] xl:h-[52px] h-[44px] text-[var(--placeholder)] xl:text-[16px] text-[14px] font-[400] tracking-tight bg-[#FFFFFF] p-[11px_20px] focus-visible:ring-2 focus-visible:ring-[var(--teal-1)] focus-visible:ring-offset-0"
+            placeholder="Enter email address"
           />
 
           <Button
             title="SIGN UP"
-            className="xl:h-[52px] h-[28px]"
+            className="xl:h-[52px] h-[44px]"
             onClick={handleSubmit}
           />
         </div>
@@ -79,7 +85,7 @@ const Newsletter = () => {
         </div>
       </div>
 
-      <div className="xl:text-[14px] text-[10px] font-[400] text-[var(--grey-2) flex xl:gap-[26px] gap-[13px]">
+      <div className="xl:text-[14px] text-[10px] font-[400] text-[var(--grey-2)] flex xl:gap-[26px] gap-[13px]">
         Follow Us:
         <SocialMediaIcons iconColor="black" icons={SOCIAL_MEDIA_ICONS} />
       </div>

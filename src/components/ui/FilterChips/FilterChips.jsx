@@ -74,7 +74,7 @@ const FilterChips = ({ filters, clearFilters, allFilters }) => {
       {filterEntries.map(([key, value]) => (
         <button
           key={key}
-          className="flex items-center gap-2 bg-gray-100 p-1 rounded"
+          className="flex items-center gap-2 bg-[var(--grey-3)] hover:bg-[var(--grey-0)] p-1 rounded"
           onClick={() => handleRemove(key)}
         >
           <Typography variant="h6">
@@ -93,7 +93,7 @@ const FilterChips = ({ filters, clearFilters, allFilters }) => {
           onClick={handleClearAll}
           className="flex p-[4px_10px] gap-[10px] items-center bg-[var(--grey-0)] rounded-[4px]"
         >
-          Reset All
+          <Typography variant="h6">Reset All</Typography>
         </button>
       )}
     </div>

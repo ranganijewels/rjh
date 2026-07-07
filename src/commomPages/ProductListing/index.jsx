@@ -25,6 +25,7 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
   const [heroData, setHeroData] = useState(null);
   const [activeFilterIndex, setActiveFilterIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
+  const [filtersError, setFiltersError] = useState(null);
   const router = useRouter();
   const {
     isMobile,
@@ -61,18 +62,20 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
   }, [categoryId, collection, fetchById, menuHeroBanner]);
 
   /** Fetch filters */
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await create({
-          category_id: categoryId,
-        });
-        setFiltersData(res.data);
-      } catch (err) {
-        console.error("Error fetching filters:", err);
-      }
-    };
+  const fetchFilters = async () => {
+    try {
+      setFiltersError(null);
+      const res = await create({
+        category_id: categoryId,
+      });
+      setFiltersData(res.data);
+    } catch (err) {
+      console.error("Error fetching filters:", err);
+      setFiltersError("Couldn't load filters");
+    }
+  };
 
+  useEffect(() => {
     fetchFilters();
   }, [categoryId]);
 
@@ -99,6 +102,22 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
       params.set(key, value);
     }
     router.replace(`?${params.toString()}`);
+  };
+
+  const clearAllFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    // Clear EVERY actual filter (category_id, subcat, metal, shape, sort_by,
+    // carat, price, …) — the old hardcoded list missed category_id + sort_by,
+    // which is why "Clear filter" appeared to do nothing. Keep only the params
+    // that define the collection/hero context so the shopper stays on the same
+    // collection landing, just unfiltered.
+    const KEEP = ["collection", "banner", "title", "search", "quality"];
+    [...params.keys()]
+      .filter((k) => !KEEP.includes(k))
+      .forEach((k) => params.delete(k));
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : window.location.pathname);
+    setShowFilterModal(false);
   };
 
   const mappedFiltersData = [
@@ -144,7 +163,10 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
         description={heroData?.hero_description || heroData?.description}
         buttons={heroData?.buttons}
         backgroundUrl={shapeBanner || heroData?.file}
+        mobileFile={heroData?.mobileFile}
         btnContainerclass="md:flex-row flex-col"
+        containerClass="!h-[475px]"
+        imageClass="!h-[475px]"
       />
 
       <div className="p-[16px] lg:p-[10px_20px] xl:p-[14px_30px]">
@@ -152,13 +174,14 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
           {isMobile ? (
             <div className="flex gap-[10px] items-center">
               <button
+                aria-label="Open filters"
                 onClick={() => {
                   return setShowFilterModal(!showFilterModal);
                 }}
               >
                 <img
                   src="/icons/filters.svg"
-                  alt="filters"
+                  alt=""
                   className="cursor-pointer w-[24px] h-[24px]"
                 />
               </button>
@@ -176,6 +199,19 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
             products={initialProducts?.data}
           />
         </div>
+
+        {filtersError && (
+          <div className="flex items-center gap-[10px] text-[12px] text-red-600 p-[8px_0]">
+            <span>{filtersError}</span>
+            <button
+              type="button"
+              onClick={fetchFilters}
+              className="underline font-[500]"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         <FilterChips
           filters={{
@@ -205,14 +241,7 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
           selectedShape={searchParams.get("shape")}
           selectedCarat={searchParams.get("carat")}
           selectedPrice={searchParams.get("price")}
-          clearFilters={() => {
-            const params = new URLSearchParams(searchParams.toString());
-            ["subcat", "metal", "shape", "carat", "price"].forEach((k) =>
-              params.delete(k)
-            );
-            router.replace(`?${params.toString()}`);
-            setShowFilterModal(false);
-          }}
+          clearFilters={clearAllFilters}
         />
       )}
 
@@ -220,6 +249,7 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
         collections={initialProducts}
         gridLayout={effectiveLayout()}
         loading={loading}
+        clearFilters={clearAllFilters}
       />
 
       {isFetchingNextPage && (

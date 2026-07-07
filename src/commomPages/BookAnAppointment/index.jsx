@@ -3,6 +3,7 @@ import Typography from "@/components/ui/Typography/Typography";
 import React from "react";
 import Support from "../Account/Support";
 import Input from "@/components/ui/Input/Input";
+import Textarea from "@/components/ui/Textarea/Textarea";
 import Dropdown from "@/components/ui/Dropdown/Dropdown";
 import AppointmentCalendar from "@/components/ui/Calendar/AppointmentCalendar";
 import { CalenderIcon } from "@/components/Icons/common";
@@ -96,14 +97,12 @@ const BookAnAppointment = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-[16px] font-[400] text-[var(--grey-2)] mb-1">
-                  Special Notes / Requirements
-                </label>
-                <textarea
+                <Textarea
+                  name="special_notes"
                   borderBottom
                   label="Special Notes / Requirements"
                   placeholder="Mention any specific requirements"
-                  className="border-b xl:text-[16px] text-[12px] font-[400] border-[var(--placeholder)] focus:border-b-2 focus:border-[var(--teal-2)] focus:outline-0 p-[20px_11px] w-full"
+                  className="p-[20px_11px]"
                   //   value={formData.message}
                   //   onChange={(e) => handleChange("message", e.target.value)}
                 />

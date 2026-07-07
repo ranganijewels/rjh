@@ -9,7 +9,7 @@ export const CareLongevity = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    Elova pieces are made to endure—but care makes the difference. Protect your jewelry’s longevity with these best practices:
+                    RJ House pieces are made to endure—but care makes the difference. Protect your jewelry’s longevity with these best practices:
                 </Typography>
                 <Typography variant="h4"><b>How to Measure:</b></Typography>
                 <Typography variant="h5">

@@ -1,261 +1,291 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Button from "../Button/Button";
+import React, { useEffect, useMemo, useState } from "react";
 import Typography from "../Typography/Typography";
 import HeartIcon from "@/components/Icons/HeartIcon";
 import { useRouter } from "next/navigation";
 import { useProductCardLayout } from "./useProductCardLayout";
 import { toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { store } from "@/store/store";
 import { usePreferences } from "@/context/PreferencesContext";
-import { getCurrencySymbol } from "@/utils/currencySymbol";
+import { formatProductPrice } from "@/utils/money";
+import { getDiscount } from "@/utils/discount";
 import Link from "next/link";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
+import { SHAPE_CODES_IMAGE, shapeToCode } from "@/constants/constant";
+
+const SHAPES = SHAPE_CODES_IMAGE[0] || {};
+const shapeIconOf = (name) => SHAPES[shapeToCode(name)]?.icon || null;
+const shapeTitleOf = (name) => SHAPES[shapeToCode(name)]?.title || toTitleCase(name || "");
+
+// ── Metal swatch appearance + labels ────────────────────────────────────────
+const COLOR_MAP = {
+  WHITE: "var(--white-gold)",
+  YELLOW: "var(--yellow-gold)",
+  ROSE: "var(--rose-gold)",
+  "WHITE/YELLOW": "linear-gradient(135deg, var(--white-gold) 50%, var(--yellow-gold) 50%)",
+  "WHITE/ROSE": "linear-gradient(135deg, var(--white-gold) 50%, var(--rose-gold) 50%)",
+};
+const COLOR_LABEL = {
+  WHITE: "White Gold", YELLOW: "Yellow Gold", ROSE: "Rose Gold",
+  "WHITE/YELLOW": "Two-Tone (White / Yellow)", "WHITE/ROSE": "Two-Tone (White / Rose)",
+};
+const swatchBackground = (v) =>
+  COLOR_MAP[v] || (v?.includes("/")
+    ? `linear-gradient(135deg, ${COLOR_MAP[v.split("/")[0]] || "var(--grey-3)"} 50%, ${COLOR_MAP[v.split("/")[1]] || "var(--grey-3)"} 50%)`
+    : "var(--grey-3)");
+const toSwatchKey = (mc) => {
+  const u = (mc || "").toUpperCase();
+  if (u.includes("WHITE") && u.includes("YELLOW")) return "WHITE/YELLOW";
+  if (u.includes("WHITE") && u.includes("ROSE")) return "WHITE/ROSE";
+  if (u.includes("WHITE")) return "WHITE";
+  if (u.includes("ROSE")) return "ROSE";
+  return "YELLOW";
+};
+
+function Chevron({ dir }) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {dir === "left" ? <path d="M15 18l-6-6 6-6" /> : <path d="M9 6l6 6-6 6" />}
+    </svg>
+  );
+}
 
 const ProductCard = ({
-  productName,
-  price,
-  colorsPalettes,
-  productImg,
-  gridLayout,
-  className,
-  cardClass = "",
-  imgClass = "",
-  hoverImage: initialHoverImage,
-  customWidth,
-  productId,
-  metalColor,
-  wishlistStatus,
-  categoryId,
-  shape,
-  metalType,
-  centerDiamondWeight,
-  ringSize,
-  size,
-  isWishlistCard,
-  designNo,
-  category,
-  disableWishlistPopup = false,
-  id,
+  productName, price, colorsPalettes, productImg, gridLayout, className,
+  cardClass = "", imgClass = "", hoverImage: initialHoverImage, customWidth,
+  productId, metalColor, wishlistStatus, categoryId, shape, metalType,
+  centerDiamondWeight, ringSize, size, isWishlistCard, designNo, category,
+  disableWishlistPopup = false, id, imagesByColor, allImages,
+  shapeVariants, isDesignGroupCard,
 }) => {
   const router = useRouter();
-  const [currentImage, setCurrentImage] = useState(productImg);
-  const [hoverImage, setHoverImage] = useState(initialHoverImage);
-  const [selectedColor, setSelectedColor] = useState(metalColor || null);
-  const state = store.getState();
-  const customerId = state.auth?.customer?.id;
-  const { create } = useCrudApi(`/api/product/change-color`);
   const { selectedCountry } = usePreferences();
+
+  // A card is either a design group (multiple shape siblings) or a single product.
+  const variants = useMemo(() => {
+    if (shapeVariants && shapeVariants.length) return shapeVariants;
+    return [{ shape, product_id: productId, product_image: productImg, rollover_image: initialHoverImage,
+      images_by_color: imagesByColor, all_images: allImages, product_price: price, metal_color: colorsPalettes }];
+  }, [shapeVariants, shape, productId, productImg, initialHoverImage, imagesByColor, allImages, price, colorsPalettes]);
+
+  const [activeShapeIdx, setActiveShapeIdx] = useState(0);
+  const [activeColor, setActiveColor] = useState(toSwatchKey(metalColor));
+  const [sliderIndex, setSliderIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(wishlistStatus);
+
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
   const { openFor } = useWishlistPopup();
+  const { toggleWishlist, removeFromWishlist } = useWishlistLogic({
+    createWishlistApi: createWishlist,
+    onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
+  });
+  const { containerClass: container, imageClass: img } = useProductCardLayout(gridLayout, customWidth);
 
-  const { toggleWishlist, removeFromWishlist, checkIfWishlisted } =
-    useWishlistLogic({
-      createWishlistApi: createWishlist,
-      onWishlisted: disableWishlistPopup ? undefined : () => openFor(2000),
-    });
+  const current = variants[activeShapeIdx] || variants[0];
+
+  const sliderImages = useMemo(() => {
+    const byColor = current?.images_by_color?.[activeColor] || current?.images_by_color?.[toSwatchKey(activeColor)];
+    const pool = (byColor && byColor.length && byColor) ||
+      (current?.all_images && current.all_images.length && current.all_images) ||
+      [current?.product_image, current?.rollover_image].filter(Boolean);
+    return [...new Set((pool || []).filter(Boolean))];
+  }, [current, activeColor]);
+
+  const activeImage = sliderImages[sliderIndex] || sliderImages[0] || current?.product_image;
+  const hasSlider = sliderImages.length > 1;
+  const metalSwatches = (current?.metal_color?.length ? current.metal_color : (colorsPalettes?.length ? colorsPalettes : ["YELLOW", "WHITE", "ROSE"]));
+  const displayPrice = current?.product_price ?? price;
+  const discount = current?.price_on_request ? null : getDiscount(current?.product_id || productId, displayPrice);
+
+  useEffect(() => { if (wishlistStatus !== undefined) setIsWishlisted(wishlistStatus); }, []);
+  useEffect(() => { setSliderIndex(0); }, [activeShapeIdx, activeColor]);
+
+  const previewShape = (i) => { setActiveShapeIdx(i); };
+  const previewColor = (key) => { setActiveColor(key); };
+  const stepSlide = (d) => setSliderIndex((i) => (sliderImages.length ? (i + d + sliderImages.length) % sliderImages.length : 0));
+
+  const goToProduct = () => {
+    const pid = current?.product_id || productId;
+    const qs = new URLSearchParams();
+    if (categoryId) qs.set("categoryId", categoryId);
+    if (activeColor) qs.set("selectedMetalColor", activeColor);
+    if (pid) qs.set("variantId", pid);
+    const sh = current?.shape || shape;
+    if (sh) qs.set("shape", sh);
+    router.push(`/product/${pid}${qs.toString() ? `?${qs}` : ""}`);
+  };
 
   const handleWishlistToggle = async () => {
     const wishlisted = await toggleWishlist({
-      product_id: productId,
-      product_price: price,
-      category_id: categoryId,
-      metal_type: metalType,
-      metal_color: selectedColor.toUpperCase(),
-      diamond_shape: shape,
-      center_diamond_weight: centerDiamondWeight?.toString() || "",
-      ring_size: ringSize?.toString() || "",
-      size: size?.toString() || "",
+      product_id: current?.product_id || productId, product_price: current?.product_price || price,
+      category_id: categoryId, metal_type: metalType, metal_color: (activeColor || "").toUpperCase(),
+      diamond_shape: current?.shape || shape, center_diamond_weight: centerDiamondWeight?.toString() || "",
+      ring_size: ringSize?.toString() || "", size: size?.toString() || "",
     });
-
     setIsWishlisted(wishlisted);
   };
 
-  useEffect(() => {
-    if (wishlistStatus !== undefined) {
-      setIsWishlisted(wishlistStatus);
-    }
-  }, []);
-
-  const { containerClass: container, imageClass: img } = useProductCardLayout(
-    gridLayout,
-    customWidth
-  );
-  const [isHovered, setIsHovered] = useState(false);
-
-  const colorMap = {
-    WHITE: "var(--white-gold)",
-    YELLOW: "var(--yellow-gold)",
-    ROSE: "var(--rose-gold)",
-    "WHITE/YELLOW": "linear-gradient(135deg, #ffffff 50%, #FFD700 50%)",
-    "WHITE/ROSE": "linear-gradient(135deg, #ffffff 50%, #E75480 50%)",
-  };
-
-  const getBackground = (value) =>
-    value.includes("/")
-      ? `linear-gradient(135deg, ${colorMap[value.split("/")[0]]} 50%, ${
-          colorMap[value.split("/")[1]]
-        } 50%)`
-      : colorMap[value] || "#ccc";
-
-  const handleClick = (id) => {
-    router.push(
-      `/product/${id}?categoryId=${categoryId}&selectedMetalColor=${selectedColor}&variantId=${productId}&shape=${shape}`
-    );
-  };
-
-  const handleChangeMetalColor = async (palette) => {
-    try {
-      const response = await create(
-        { product_id: productId, color: palette },
-        { headers: { "x-customer-id": customerId } }
-      );
-
-      setSelectedColor(palette);
-      setCurrentImage(response.product_image);
-      setHoverImage(response.rollover_image);
-
-      const wishlisted = await checkIfWishlisted({
-        product_id: productId,
-        metal_color: palette,
-        metal_type: metalType,
-        diamond_shape: shape,
-        center_diamond_weight: centerDiamondWeight,
-        ring_size: ringSize,
-        size: size,
-      });
-      setIsWishlisted(wishlisted);
-    } catch (error) {
-      console.error("Error changing metal color:", error);
-    }
-  };
+  const visibleShapes = variants.slice(0, 5);
+  const extraShapes = variants.length - visibleShapes.length;
+  const visibleMetals = metalSwatches.slice(0, 5);
 
   return (
     <div className={`z-0 ${className}`}>
+      {/* Image area — sliderable, click navigates to the active variant */}
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={`bg-[#F5F5F5] relative mb-[14px] cursor-pointer ${
-          customWidth ? cardClass : container
-        }`}
-        onClick={() => handleClick(productId)}
+        className={`group bg-white relative overflow-hidden mb-[14px] cursor-pointer ${customWidth ? cardClass : container}`}
+        onClick={goToProduct}
+        onMouseEnter={() => { if (hasSlider && sliderIndex === 0) setSliderIndex(1); }}
+        onMouseLeave={() => setSliderIndex(0)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToProduct(); }
+          else if (e.key === "ArrowRight" && hasSlider) { e.preventDefault(); stepSlide(1); }
+          else if (e.key === "ArrowLeft" && hasSlider) { e.preventDefault(); stepSlide(-1); }
+        }}
+        aria-label={`View ${productName}`}
       >
+        {/* One image drives BOTH the hover rollover (enter → 2nd image) and the
+            ◀▶ slider (steps sliderIndex). key + fade gives a soft crossfade. */}
         <img
-          src={isHovered && hoverImage ? hoverImage : currentImage}
+          key={activeImage}
+          src={activeImage}
           alt={productName}
+          width={400}
+          height={400}
           onContextMenu={(e) => e.preventDefault()}
           onDragStart={(e) => e.preventDefault()}
-          style={{
-            userSelect: "none",
-          }}
-          className={`object-contain transition-transform duration-300 ease-in-out  hover:scale-105 ${
-            customWidth ? imgClass : img
-          }`}
+          style={{ userSelect: "none" }}
+          className={`card-img-fade object-contain ${customWidth ? imgClass : img}`}
         />
 
-        <div className="absolute top-0 right-0 m-[19px]">
-          <HeartIcon
-            wishlistStatus={isWishlisted}
-            onClick={() => {
-              if (isWishlistCard) {
-                removeFromWishlist(id);
-              } else {
-                handleWishlistToggle();
-              }
-            }}
-          />
+        {hasSlider && (
+          <>
+            <button type="button" aria-label="Previous image" onClick={(e) => { e.stopPropagation(); stepSlide(-1); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 grid place-items-center w-9 h-9 rounded-full bg-white/85 text-[var(--grey-2)] shadow-sm opacity-0 group-hover:opacity-100 hover:bg-white transition-opacity">
+              <Chevron dir="left" />
+            </button>
+            <button type="button" aria-label="Next image" onClick={(e) => { e.stopPropagation(); stepSlide(1); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 grid place-items-center w-9 h-9 rounded-full bg-white/85 text-[var(--grey-2)] shadow-sm opacity-0 group-hover:opacity-100 hover:bg-white transition-opacity">
+              <Chevron dir="right" />
+            </button>
+            <div className="absolute bottom-3 left-0 right-0 z-10 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              {sliderImages.map((_, i) => (
+                <span key={i} className={`h-1.5 rounded-full transition-all ${i === sliderIndex ? "w-4 bg-[var(--teal-1)]" : "w-1.5 bg-[var(--teal-3)]"}`} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {discount && (
+          <div className="absolute top-0 left-0 m-[12px] z-10 rounded-[3px] bg-[var(--color-error)] px-[8px] py-[3px] text-[11px] font-[600] leading-none text-white">
+            −{discount.percent}%
+          </div>
+        )}
+
+        <div className="absolute top-0 right-0 m-[16px] z-10">
+          <HeartIcon wishlistStatus={isWishlisted} onClick={() => (isWishlistCard ? removeFromWishlist(id) : handleWishlistToggle())} />
         </div>
       </div>
 
-      <div>
-        <div className="space-y-[12px]">
-          <Typography variant="p" className="!capitalize ">
-            {toTitleCase(productName)}
-          </Typography>
+      {/* Meta */}
+      <div className="space-y-[8px]">
+        {/* Ecksand-matched card typography: title 15px/400/0.25px, price 14px, "From" 11px */}
+        <p className="text-[15px] font-[400] tracking-[0.25px] leading-[1.35] capitalize line-clamp-2 text-[var(--grey-2)]">
+          {toTitleCase(productName)}
+        </p>
 
-          {/* <Typography variant="p" textColor="customGrey" className="text-[10px]">{descri}</Typography> */}
-          <Typography variant="h4" textColor="teal">
-            {getCurrencySymbol(selectedCountry?.currency) + " " + price}
-          </Typography>
-
-          {isWishlistCard && (
-            <div className="space-y-[10px] mt-[18px]">
-              <Typography variant="h6" className="!capitalize">
-                Design No. : <span className="font-[500]">{designNo}</span>
-              </Typography>
-              <Typography variant="h6" className="!capitalize">
-                Diamond Shape :{" "}
-                <span className="font-[500]">{toTitleCase(shape)}</span>
-              </Typography>
-              <Typography variant="h6" className="!capitalize">
-                Metal :{" "}
-                <span className="font-[500]">
-                  {toTitleCase(metalType) +
-                    " " +
-                    toTitleCase(metalColor) +
-                    " Gold"}
+        <div className="text-[var(--grey-2)] leading-tight flex flex-wrap items-center gap-x-[8px] gap-y-[2px]">
+          <span>
+            <span className="text-[12px] text-[var(--placeholder)]">From </span>
+            <span className="text-[14px] font-[500]">{formatProductPrice(displayPrice, selectedCountry)}</span>
+          </span>
+          {discount && (
+            <>
+              <span className="text-[12px] text-[var(--placeholder)] line-through">
+                {formatProductPrice(discount.originalPrice, selectedCountry)}
+              </span>
+              {discount.endsSoon && (
+                <span className="text-[10px] font-[600] uppercase tracking-[0.03em] text-[var(--color-error)]">
+                  • Ends soon
                 </span>
-              </Typography>
-              {centerDiamondWeight ? (
-                <Typography variant="h6" className="!capitalize">
-                  Center Diamond Weight :{" "}
-                  <span className="font-[500]">
-                    {centerDiamondWeight + "  " + "CT"}
-                  </span>
-                </Typography>
-              ) : (
-                ""
               )}
-              {ringSize ? (
-                <div className="inline-flex gap-2 items-center">
-                  {" "}
-                  {
-                    <Typography variant="h6">
-                      {toTitleCase(category)} Size : {ringSize}
-                    </Typography>
-                  }{" "}
-                  <Link
-                    className="flex gap-2 items-center"
-                    href="/ring-size-guide"
-                  >
-                    <img
-                      src="/icons/info.svg"
-                      className="cursor-pointer w-[14px] h-[14px]"
-                    />
-                  </Link>
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
+            </>
           )}
         </div>
-        {colorsPalettes && (
-          <div className="flex gap-[5px]">
-            {colorsPalettes?.map((palette, i) => {
-              return (
-                <Button
-                  ariaLabel={palette}
-                  background={getBackground(palette)}
-                  variant="colorPalette"
-                  key={palette}
-                  onClick={(e) => {
-                    handleChangeMetalColor(palette);
-                    // checkIfWishlisted(palette);
-                    e.stopPropagation();
-                  }}
-                  className={
-                    selectedColor === palette
-                      ? "border-[1px] border-[var(--teal-1)]"
-                      : "border-[1px] border-transparent"
-                  }
-                />
-              );
-            })}
+
+        {isWishlistCard && (
+          <div className="space-y-[10px] mt-[10px]">
+            <Typography variant="h6" className="!capitalize">Design No. : <span className="font-[500]">{designNo}</span></Typography>
+            <Typography variant="h6" className="!capitalize">Diamond Shape : <span className="font-[500]">{toTitleCase(shape)}</span></Typography>
+            <Typography variant="h6" className="!capitalize">Metal : <span className="font-[500]">{toTitleCase(metalType) + " " + toTitleCase(metalColor) + " Gold"}</span></Typography>
+            {centerDiamondWeight ? (<Typography variant="h6" className="!capitalize">Center Diamond Weight : <span className="font-[500]">{centerDiamondWeight + "  CT"}</span></Typography>) : null}
+            {ringSize ? (
+              <div className="inline-flex gap-2 items-center">
+                <Typography variant="h6">{toTitleCase(category)} Size : {ringSize}</Typography>
+                <Link className="flex gap-2 items-center" href="/ring-size-guide" aria-label="Ring size guide info">
+                  <img src="/icons/info.svg" alt="Ring size guide info" width={14} height={14} className="cursor-pointer w-[14px] h-[14px]" />
+                </Link>
+              </div>
+            ) : null}
           </div>
+        )}
+
+        {!isWishlistCard && (
+          <>
+            {/* Metal swatches (hover to preview) */}
+            <div className="flex items-center gap-[10px] pt-[2px]">
+              {visibleMetals.map((palette) => {
+                const key = String(palette).toUpperCase();
+                const isSel = activeColor === key || toSwatchKey(activeColor) === key;
+                return (
+                  <span key={palette} className="group/sw relative inline-flex">
+                    <button type="button" aria-label={COLOR_LABEL[key] || toTitleCase(palette)} aria-pressed={isSel}
+                      onMouseEnter={() => previewColor(key)}
+                      onFocus={() => previewColor(key)}
+                      onClick={(e) => { e.stopPropagation(); previewColor(key); }}
+                      style={{ background: swatchBackground(key) }}
+                      className={`relative w-[18px] h-[18px] rounded-full transition-[box-shadow] before:content-[''] before:absolute before:inset-[-6px] ${isSel ? "ring-2 ring-[var(--teal-1)] ring-offset-2" : "ring-1 ring-[var(--grey-1)] hover:ring-[var(--teal-2)]"}`} />
+                    <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--grey-2)] px-2 py-1 text-[11px] text-white opacity-0 group-hover/sw:opacity-100 transition-opacity z-20">
+                      {COLOR_LABEL[key] || toTitleCase(palette)}
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Diamond-shape swatches (hover to preview + change product) */}
+            {variants.length > 1 && (
+              <div className="flex items-center gap-[6px] pt-[4px]">
+                {visibleShapes.map((v, i) => {
+                  const Icon = shapeIconOf(v.shape);
+                  const title = shapeTitleOf(v.shape);
+                  const isSel = i === activeShapeIdx;
+                  return (
+                    <span key={v.product_id || i} className="group/sh relative inline-flex">
+                      <button type="button" aria-label={title} aria-pressed={isSel}
+                        onMouseEnter={() => previewShape(i)}
+                        onFocus={() => previewShape(i)}
+                        onClick={(e) => { e.stopPropagation(); previewShape(i); goToProduct(); }}
+                        className={`grid place-items-center w-[22px] h-[22px] rounded-md transition-colors ${isSel ? "text-[var(--teal-1)]" : "text-[var(--grey-2)] hover:text-[var(--teal-1)]"}`}>
+                        {Icon ? <Icon className="w-[14px] h-[14px]" /> : <span className="text-[8px] uppercase">{shapeToCode(v.shape).slice(0, 3)}</span>}
+                      </button>
+                      <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--grey-2)] px-2 py-1 text-[11px] text-white opacity-0 group-hover/sh:opacity-100 transition-opacity z-20">
+                        {title}
+                      </span>
+                    </span>
+                  );
+                })}
+                {extraShapes > 0 && (
+                  <button type="button" onClick={(e) => { e.stopPropagation(); goToProduct(); }} className="text-[12px] italic text-[var(--placeholder)] hover:text-[var(--teal-1)]">
+                    +{extraShapes} more
+                  </button>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

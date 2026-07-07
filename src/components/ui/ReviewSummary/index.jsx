@@ -16,7 +16,10 @@ const ReviewSummary = ({
   return (
     <div className="flex items-center gap-2">
       {/* Stars */}
-      <div className="flex items-center gap-[2px]">
+      <div
+        className="flex items-center gap-[2px]"
+        aria-label={`Rated ${rating} out of ${maxRating}`}
+      >
         {[...Array(fullStars)].map((_, i) => (
           <Star key={`full-${i}`} size={size} type="full" />
         ))}
@@ -29,10 +32,13 @@ const ReviewSummary = ({
       </div>
 
       {/* Rating text */}
-      <span className="text-sm text-gray-700">
+      <span className="text-sm text-[var(--grey-2)]">
         {Number(rating).toFixed(1)}
         {showCount && totalReviews !== undefined && (
-          <span className="text-gray-500"> ({totalReviews} reviews)</span>
+          <span className="text-[var(--placeholder)]">
+            {" "}
+            ({totalReviews} {totalReviews === 1 ? "review" : "reviews"})
+          </span>
         )}
       </span>
     </div>

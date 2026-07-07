@@ -50,11 +50,11 @@ const CustomSlider = ({
       {/* Track */}
       <div
         ref={trackRef}
-        className="relative h-1 bg-gray-300 rounded"
+        className="relative h-1 bg-[var(--grey-1)] rounded"
       >
         {/* Active Track */}
         <div
-          className="absolute h-1 bg-teal-600"
+          className="absolute h-1 bg-[var(--teal-1)]"
           style={{
             left: handlePosition(minIndex),
             width: `calc(${handlePosition(maxIndex)} - ${handlePosition(minIndex)})`,
@@ -63,7 +63,7 @@ const CustomSlider = ({
 
         {/* Handles */}
         <div
-          className="absolute w-4 h-4 rounded-full bg-teal-700 cursor-pointer -top-1.5"
+          className="absolute w-4 h-4 rounded-full bg-[var(--teal-1)] cursor-pointer -top-1.5"
           style={{ left: handlePosition(minIndex) }}
           onMouseDown={(e) => {
             const move = (ev) => handleDrag(ev, "min");
@@ -73,7 +73,7 @@ const CustomSlider = ({
           }}
         />
         <div
-          className="absolute w-4 h-4 rounded-full bg-teal-700 cursor-pointer -top-1.5"
+          className="absolute w-4 h-4 rounded-full bg-[var(--teal-1)] cursor-pointer -top-1.5"
           style={{ left: handlePosition(maxIndex) }}
           onMouseDown={(e) => {
             const move = (ev) => handleDrag(ev, "max");

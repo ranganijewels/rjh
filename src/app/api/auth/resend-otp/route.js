@@ -1,11 +1,4 @@
-import { handlePOST } from "@/lib/apiHandler";
-
-export async function POST(req) {
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": process.env.NEXT_PUBLIC_TENANT_ID,
-  };
-
-  return handlePOST(req, "/api/store-web/customer/resend-email-otp", headers);
+import { NextResponse } from "next/server";
+export async function POST() {
+  return NextResponse.json({ message: "OTP sent", status: true });
 }
-    

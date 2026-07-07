@@ -118,7 +118,7 @@ const StepFour = forwardRef((props, ref) => {
           label="Preferred Contact Method"
           options={["Phone", "Email"]}
           onChange={handleDropdownChange}
-          buttonStyle="bg-[#FFFFFF]"
+          buttonStyle="bg-white"
         />
 
         <Input
@@ -127,7 +127,7 @@ const StepFour = forwardRef((props, ref) => {
           placeholder="Enter Phone Number"
           value={formData.Phone}
           onChange={handleChange}
-          className="!bg-[#FFFFFF] !border-[#FFFFFF]"
+          className="bg-white border-white"
           type="tel"
           pattern="[0-9]{10}"
         />
@@ -139,7 +139,7 @@ const StepFour = forwardRef((props, ref) => {
             placeholder="Enter City"
             value={formData.City}
             onChange={handleChange}
-            className="!bg-[#FFFFFF] !border-[#FFFFFF]"
+            className="bg-white border-white"
           />
 
           <Input
@@ -148,7 +148,7 @@ const StepFour = forwardRef((props, ref) => {
             placeholder="Enter Country"
             value={formData.Country}
             onChange={handleChange}
-            className="!bg-[#FFFFFF] !border-[#FFFFFF]"
+            className="bg-white border-white"
           />
         </div>
 

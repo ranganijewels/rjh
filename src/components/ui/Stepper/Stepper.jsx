@@ -1,6 +1,12 @@
 import React from "react";
 import Typography from "../Typography/Typography";
 
+export const CART_STEPS = [
+  { title: "Shopping cart", path: "/cart" },
+  { title: "Checkout details", path: "/cart/checkout" },
+  { title: "Order complete", path: "/cart/order-complete" },
+];
+
 const Stepper = ({ steps, currentPath }) => {
   return (
     <div className="flex md:justify-center justify-start gap-[32px] mb-8 overflow-x-auto hide-scrollbar no-scrollbar scroll-smooth">

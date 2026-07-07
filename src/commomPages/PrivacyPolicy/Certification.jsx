@@ -9,7 +9,7 @@ const Certification = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    Every Elova diamond is independently certified by leading gemological labs like IGI or GIA. Certification guarantees your diamond’s 4Cs, grading accuracy, and ethical origin.
+                    Every RJ House diamond is independently certified by leading gemological labs like IGI or GIA. Certification guarantees your diamond’s 4Cs, grading accuracy, and ethical origin.
                 </Typography>
                 
                 <Typography variant="h4"><b>Each purchase includes :</b></Typography>

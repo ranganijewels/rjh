@@ -13,7 +13,7 @@ export const loginUser = createAsyncThunk(
       }
 
       if (res.token) {
-        localStorage.setItem("authTokenElova", res.token);
+        localStorage.setItem("authTokenRJHouse", res.token);
       }
 
       return { customer: res.customer, token: res.token };
@@ -53,7 +53,7 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem("authTokenElova");
+      const token = localStorage.getItem("authTokenRJHouse");
 
       if (!token) {
         return thunkAPI.rejectWithValue("No token found, logout failed");
@@ -82,7 +82,7 @@ export const logoutUser = createAsyncThunk(
         return thunkAPI.rejectWithValue(data.error || "Logout failed");
       }
 
-      localStorage.removeItem("authTokenElova");
+      localStorage.removeItem("authTokenRJHouse");
 
       return data.message || "Logout successful";
     } catch (err) {

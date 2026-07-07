@@ -1,14 +1,40 @@
-import { handlePOST } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 
+// Persist a contact-form submission to the backend (CMS forms inbox reads these
+// from /storefront/contact-submissions). Previously a no-op stub.
 export async function POST(req) {
-  const token = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
+  try {
+    const b = await req.json().catch(() => ({}));
+    const payload = {
+      name: b.full_name || b.name || "",
+      email: b.email || "",
+      phone: b.phone || b.phone_number || null,
+      subject: b.query || b.subject || "General Enquiry",
+      message: b.message || "",
+    };
 
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Authorization: `Bearer ${token}`,
-  };
+    if (!payload.name || !payload.email || !payload.message) {
+      return NextResponse.json(
+        { status: false, message: "Name, email and message are required" },
+        { status: 422 }
+      );
+    }
 
-  return handlePOST(req, `/api/store-web/customer/contact-us`, headers);
+    const result = await rjApi("POST", "/storefront/contact-submissions", { body: payload });
+    if (!result.ok) {
+      return NextResponse.json(
+        { status: false, message: result.raw?.message || "Submission failed" },
+        { status: result.status || 500 }
+      );
+    }
+    return NextResponse.json({
+      status: true,
+      message: "Thank you! We will get back to you soon.",
+      data: result.raw?.data || result.raw,
+    });
+  } catch (e) {
+    console.error("contact-us submit error:", e);
+    return NextResponse.json({ status: false, message: e.message }, { status: 500 });
+  }
 }

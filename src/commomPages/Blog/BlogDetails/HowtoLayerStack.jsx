@@ -25,7 +25,7 @@ export const HowtoLayerStack = () => {
                     <li>Alternate stacking on both wrists or ears for harmony</li>
                 </Typography>
                 <Typography variant="h5">
-                    Elova's modular designs are perfect for stacking—designed to interlock or complement each other effortlessly.
+                    RJ House's modular designs are perfect for stacking—designed to interlock or complement each other effortlessly.
                 </Typography>
             </div>
         </section>

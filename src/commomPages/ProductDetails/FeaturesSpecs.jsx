@@ -46,6 +46,10 @@ const FeaturesSpecs = ({
   selectedCarat,
   selectedColor,
   pricingDetails,
+  // CMS-editable copy (CMS → Product Detail): bullet lists for the Shipping &
+  // Returns and Certification accordions. Fall back to the built-in copy.
+  shippingReturns,
+  certificationCare,
 }) => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.faq);
@@ -82,9 +86,9 @@ const FeaturesSpecs = ({
         productDetail?.sku_no || productDetail?.design_no,
         productDetail?.title || "-",
         productDetail?.category?.name || "-",
-        productDetail?.pricing_details[0]?.length || "-",
-        productDetail?.pricing_details[0]?.width || "-",
-        productDetail?.category?.finding_types[0]?.finding_type || "-",
+        productDetail?.pricing_details?.[0]?.length || "-",
+        productDetail?.pricing_details?.[0]?.width || "-",
+        productDetail?.category?.finding_types?.[0]?.finding_type || "-",
         productDetail?.gender || "-",
       ],
     },
@@ -162,19 +166,8 @@ const FeaturesSpecs = ({
         toTitleCase(productDetail?.diamonds[0]?.setting || "-"),
       ],
     },
-
-
-    // SECTION 3: METAL & TOTALS
-    {
-      title: ["Metal Details"],
-      labels: ["Metal Type", "Metal Purity", "Metal Weight"],
-      values: [
-        `${toTitleCase(selectedColor)} ${toTitleCase(productDetail?.metal)}`,
-        selectedMetal?.karat?.value || "-",
-        `${pricingDetails?.pricing?.data?.[0]?.nwt || "-"} GMS`, //
-        // CT unit sathe
-      ],
-    },
+    // Metal details intentionally omitted — Product Details covers diamond
+    // specs + overall info only; the metal choice lives in the selector above.
   ];
   const [conversionRate, setConversionRate] = useState(null);
   const [convertedDetail, setConvertedDetail] = useState(null);
@@ -219,9 +212,9 @@ const FeaturesSpecs = ({
   }, [conversionRate, detail]);
 
   const priceBreakdown = useMemo(() => {
-    let labour = Number(convertedDetail?.Product_Detail[0]?.labour_amount || 0);
-    let diamond = Number(convertedDetail?.Product_Detail[0]?.diamond_rate) || 0;
-    let metal = Number(convertedDetail?.Product_Detail[0]?.metal_amount);
+    let labour = Number(convertedDetail?.Product_Detail?.[0]?.labour_amount || 0);
+    let diamond = Number(convertedDetail?.Product_Detail?.[0]?.diamond_rate) || 0;
+    let metal = Number(convertedDetail?.Product_Detail?.[0]?.metal_amount);
     const weight = parseFloat(
       typeof selectedWeight === "object"
         ? selectedWeight?.label?.match(/[\d.]+/)?.[0] || "0"
@@ -379,7 +372,7 @@ const FeaturesSpecs = ({
           title="Professional Maintenance"
           icon={<Maintenance />}
           points={[
-            "Contact ELOVA for a complimentary cleaning & inspection every 6 months.",
+            "Contact RJ HOUSE for a complimentary cleaning & inspection every 6 months.",
             'We’ll check your prongs, polish your ring, and ensure it remains as radiant as the day you said "yes".',
           ]}
         />
@@ -398,49 +391,74 @@ const FeaturesSpecs = ({
           icon={<Pin />}
           points={[
             "Don’t use ultrasonic cleaners at home unless advised.",
-            "Don’t attempt to resize or repair your ring without ELOVA support — it may void your warranty.",
+            "Don’t attempt to resize or repair your ring without RJ HOUSE support — it may void your warranty.",
           ]}
           isLast
         />
       </Accordion>
       <Accordion title="Shipping & Returns" btnStyle="!capitalize">
-        <div className="flex flex-col gap-5">
-          {SHIPPING_RETURNS_DATA.map((section, index) => (
-            <div
-              key={index}
-              className="py-5 border-[var(--teal-3)] flex flex-col gap-3"
-            >
-              <Typography variant="h6" className="font-[500]">
-                {section.title}
-              </Typography>
-              <ul className="list-disc list-inside marker:text-[8px] text-[14px]">
-                {section.points.map((point, i) => (
-                  <li key={i}>{point}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        {Array.isArray(shippingReturns) && shippingReturns.length > 0 ? (
+          // CMS-authored bullet list (CMS → Product Detail → Shipping & Returns)
+          <ul className="list-disc list-inside marker:text-[8px] text-[14px] flex flex-col gap-2 py-3">
+            {shippingReturns.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex flex-col gap-5">
+            {SHIPPING_RETURNS_DATA.map((section, index) => (
+              <div
+                key={index}
+                className="py-5 border-[var(--teal-3)] flex flex-col gap-3"
+              >
+                <Typography variant="h6" className="font-[500]">
+                  {section.title}
+                </Typography>
+                <ul className="list-disc list-inside marker:text-[8px] text-[14px]">
+                  {section.points.map((point, i) => (
+                    <li key={i}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
       </Accordion>
-      <div>
-        <Accordion title="FAQs" btnStyle="!capitalize">
-          {items
-            ?.find((e) => e.faq_category_title === "Product Details")
-            ?.faqs?.map((que, idx) => (
+      <Accordion title="Certification" btnStyle="!capitalize">
+        <ul className="list-disc list-inside marker:text-[8px] text-[14px] flex flex-col gap-2 py-3">
+          {(Array.isArray(certificationCare) && certificationCare.length > 0
+            ? certificationCare
+            : [
+                "Each diamond is graded and accompanied by a lab certificate (IGI / GIA).",
+                "Precious metals are responsibly sourced and hallmarked for purity.",
+                "Complimentary cleaning & inspection at our atelier, for life.",
+              ]
+          ).map((line, i) => (
+            <li key={i}>{line}</li>
+          ))}
+        </ul>
+      </Accordion>
+      {(() => {
+        // Prefer a "Product Details" FAQ group; fall back to the first group so
+        // the accordion still renders when the CMS uses a different category
+        // name (live data groups everything under "FAQs Page").
+        const faqGroup =
+          items?.find((e) => e.faq_category_title === "Product Details") ||
+          items?.[0];
+        if (!faqGroup?.faqs?.length) return null;
+        return (
+          <Accordion title="FAQs" btnStyle="!capitalize">
+            {faqGroup.faqs.map((que, idx) => (
               <AccordionListSection
                 key={idx}
                 title={`${idx + 1}. ${que?.question}`}
                 points={Array.isArray(que?.answer) ? que.answer : [que?.answer]}
-                isLast={
-                  idx ===
-                  items.find((e) => e.faq_category_title === "Product Details")
-                    ?.faqs.length -
-                  1
-                }
+                isLast={idx === faqGroup.faqs.length - 1}
               />
             ))}
-        </Accordion>
-      </div>
+          </Accordion>
+        );
+      })()}
     </div>
   );
 };

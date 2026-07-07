@@ -13,84 +13,49 @@ export const MENUS_OPTIONS = [
       {
         title: "SHOP BY STYLE",
         items: [
-          { label: "Solitaire", link: "/product" },
-          { label: "Side stone", link: "/product" },
-          { label: "Halo", link: "/product" },
-          { label: "Three stone", link: "/product" },
-          { label: "Hidden halo", link: "/product" },
-          { label: "Vintage & antique", link: "/product" },
-          { label: "Bridal sets", link: "/product" },
-          { label: "Gemstone", link: "/product" },
-          { label: "Two Stone", link: "/product" },
-          { label: "Pave", link: "/product" },
+          { label: "Solitaire", link: "/product?subcat=Solitaire&collection=Engagement" },
+          { label: "Side stone", link: "/product?subcat=Side+Stone&collection=Engagement" },
+          { label: "Halo", link: "/product?subcat=Halo&collection=Engagement" },
+          { label: "Three stone", link: "/product?subcat=Three+Stone&collection=Engagement" },
+          { label: "Hidden halo", link: "/product?subcat=Hidden+Halo&collection=Engagement" },
+          { label: "Vintage & antique", link: "/product?subcat=Vintage&collection=Engagement" },
+          { label: "Bridal sets", link: "/product?subcat=Bridal+Sets&collection=Engagement" },
+          { label: "Gemstone", link: "/product?subcat=Gemstone&collection=Engagement" },
+          { label: "Two Stone", link: "/product?subcat=Two+Stone&collection=Engagement" },
+          { label: "Pave", link: "/product?subcat=Pave&collection=Engagement" },
         ],
       },
       {
         title: "SHOP BY SHAPE",
         items: [
-          { label: "Round", link: "/product?shape=11&category_id=10" },
-          { label: "Princess", link: "/product?shape=9&category_id=10" },
-          { label: "Oval", link: "/product?shape=7&category_id=10" },
-          { label: "Radiant", link: "/product?shape=10&category_id=10" },
-          { label: "Pear", link: "/product?shape=8&category_id=10" },
-          { label: "Emerald", link: "/product?shape=4&category_id=10" },
-          { label: "Marquise", link: "/product?shape=6&category_id=10" },
-          { label: "Heart", link: "/product?shape=5&category_id=10" },
-          { label: "Cushion", link: "/product?shape=3&category_id=10" },
-          { label: "Asscher", link: "/product?shape=1&category_id=10" },
+          { label: "Round", link: "/product?shape=Round&collection=Engagement" },
+          { label: "Princess", link: "/product?shape=Princess&collection=Engagement" },
+          { label: "Oval", link: "/product?shape=Oval&collection=Engagement" },
+          { label: "Radiant", link: "/product?shape=Radiant&collection=Engagement" },
+          { label: "Pear", link: "/product?shape=Pear&collection=Engagement" },
+          { label: "Emerald", link: "/product?shape=Emerald&collection=Engagement" },
+          { label: "Marquise", link: "/product?shape=Marquise&collection=Engagement" },
+          { label: "Heart", link: "/product?shape=Heart&collection=Engagement" },
+          { label: "Cushion", link: "/product?shape=Cushion&collection=Engagement" },
+          { label: "Asscher", link: "/product?shape=Asscher&collection=Engagement" },
         ],
       },
       {
         title: "METAL",
         items: [
-          {
-            label: "Yellow Gold",
-            link: "/product?metal=yellow&category_id=10",
-          },
-          {
-            label: "White Gold",
-            link: "/product?metal=white&category_id=10",
-          },
-          {
-            label: "Rose Gold",
-            link: "/product?metal=rose&category_id=10",
-          },
-          {
-            label: "Two Tone",
-            link: "/product?metal=two tone&category_id=10",
-          },
-          // {
-          //   label: "White & Yellow",
-          //   link: "/product?metal=white/yellow&category_id=10",
-          // },
-          // {
-          //   label: "White & Rose",
-          //   link: "/product?metal=white/rose&category_id=10",
-          // },
+          { label: "Yellow Gold", link: "/product?metal=yellow&collection=Engagement" },
+          { label: "White Gold", link: "/product?metal=white&collection=Engagement" },
+          { label: "Rose Gold", link: "/product?metal=rose&collection=Engagement" },
+          { label: "Two Tone", link: "/product?metal=Two+Tone&collection=Engagement" },
         ],
       },
       {
         title: "CUSTOM & SERVICES",
         items: [
-          {
-            label: "Design Your Own Ring",
-            link: "/customize?category=ring",
-          },
-          // {
-          //   label: "Start with a Diamond",
-          //   link: "/customize",
-          // },
-          {
-            label: "Virtual Consultation",
-            link: "/book-consultancy",
-          },
-          // "Ready-to-Ship Rings",
+          { label: "Design Your Own Ring", link: "/customize?category=ring" },
+          { label: "Virtual Consultation", link: "/book-consultancy" },
           "Free Resizing",
-          {
-            label: "Jewelry Care",
-            link: "/jewelry-care",
-          },
-          ,
+          { label: "Jewelry Care", link: "/jewelry-care" },
         ],
       },
     ],
@@ -113,115 +78,54 @@ export const MENUS_OPTIONS = [
       {
         title: "SHOP BY STYLE",
         items: [
-          "Solitaire",
-          "Side stone",
-          "Halo",
-          "Three stone",
-          "Hidden halo",
-          "Vintage & antique",
-          "Bridal sets",
-          "Gemstone",
-          "Two Stone",
-          "Pave",
+          { label: "Solitaire", link: "/product?subcat=Solitaire&collection=Wedding" },
+          { label: "Side stone", link: "/product?subcat=Side+Stone&collection=Wedding" },
+          { label: "Halo", link: "/product?subcat=Halo&collection=Wedding" },
+          { label: "Three stone", link: "/product?subcat=Three+Stone&collection=Wedding" },
+          { label: "Vintage & antique", link: "/product?subcat=Vintage&collection=Wedding" },
+          { label: "Bridal sets", link: "/product?subcat=Bridal+Sets&collection=Wedding" },
+          { label: "Two Stone", link: "/product?subcat=Two+Stone&collection=Wedding" },
+          { label: "Pave", link: "/product?subcat=Pave&collection=Wedding" },
         ],
       },
       {
         title: "SHOP BY SHAPE",
         items: [
-          {
-            label: "Round",
-            link: "/product?shape=11&collection=wedding&category_id=1",
-          },
-          {
-            label: "Princess",
-            link: "/product?shape=9&collection=wedding&category_id=1",
-          },
-          {
-            label: "Oval",
-            link: "/product?shape=7&collection=wedding&category_id=1",
-          },
-          {
-            label: "Radiant",
-            link: "/product?shape=10&collection=wedding&category_id=1",
-          },
-          {
-            label: "Pear",
-            link: "/product?shape=8&collection=wedding&category_id=1",
-          },
-          {
-            label: "Emerald",
-            link: "/product?shape=4&collection=wedding&category_id=1",
-          },
-          {
-            label: "Marquise",
-            link: "/product?shape=6&collection=wedding&category_id=1",
-          },
-          {
-            label: "Heart",
-            link: "/product?shape=5&collection=wedding&category_id=1",
-          },
-          {
-            label: "Cushion",
-            link: "/product?shape=3&collection=wedding&category_id=1",
-          },
-          {
-            label: "Asscher",
-            link: "/product?shape=1&collection=wedding&category_id=1",
-          },
+          { label: "Round", link: "/product?shape=Round&collection=Wedding" },
+          { label: "Princess", link: "/product?shape=Princess&collection=Wedding" },
+          { label: "Oval", link: "/product?shape=Oval&collection=Wedding" },
+          { label: "Radiant", link: "/product?shape=Radiant&collection=Wedding" },
+          { label: "Pear", link: "/product?shape=Pear&collection=Wedding" },
+          { label: "Emerald", link: "/product?shape=Emerald&collection=Wedding" },
+          { label: "Marquise", link: "/product?shape=Marquise&collection=Wedding" },
+          { label: "Heart", link: "/product?shape=Heart&collection=Wedding" },
+          { label: "Cushion", link: "/product?shape=Cushion&collection=Wedding" },
+          { label: "Asscher", link: "/product?shape=Asscher&collection=Wedding" },
         ],
       },
       {
         title: "METAL",
         items: [
-          {
-            label: "Yellow Gold",
-            link: "/product?metal=yellow&collection=wedding&category_id=1",
-          },
-          {
-            label: "White Gold",
-            link: "/product?metal=white&collection=wedding&category_id=1",
-          },
-          {
-            label: "Rose Gold",
-            link: "/product?metal=rose&collection=wedding&category_id=1",
-          },
-          {
-            label: "Two Tone",
-            link: "/product?metal=two tone&category_id=1",
-          },
-          // {
-          //   label: "White & Yellow",
-          //   link: "/product?metal=white/yellow&collection=wedding",
-          // },
-          // {
-          //   label: "White & Rose",
-          //   link: "/product?metal=white/rose&collection=wedding",
-          // },
+          { label: "Yellow Gold", link: "/product?metal=yellow&collection=Wedding" },
+          { label: "White Gold", link: "/product?metal=white&collection=Wedding" },
+          { label: "Rose Gold", link: "/product?metal=rose&collection=Wedding" },
+          { label: "Two Tone", link: "/product?metal=Two+Tone&collection=Wedding" },
         ],
       },
       {
         title: "Mens",
         items: [
-          { label: "Men’s Diamond Ring", link: "/product?gender=male" },
-          { label: "Diamond & Gemstone", link: "/product?gender=male" },
+          { label: "Men's Diamond Ring", link: "/product?search=mens&collection=Wedding" },
+          { label: "Diamond & Gemstone", link: "/product?search=gemstone&collection=Wedding" },
         ],
       },
-      // {
-      //   title: "CUSTOM & SERVICES",
-      //   items: [
-      //     "Design Your Wedding Band",
-      //     "Pair with Engagement Ring",
-      //     "Choose Your Metal",
-      //     "Add an Engraving",
-      //   ],
-      // },
     ],
     imageSection: [
       {
-        imageUrl: "/images/home/wedding.jpg ",
+        imageUrl: "/images/home/wedding.jpg",
         callToAction: {
           text: "Explore Matching Bands",
-          url: "/product?collection=wedding&category_id=1",
+          url: "/product?collection=Wedding",
         },
         additionalTitle: "Bands That Tell Your Story",
         additionalDescription:
@@ -233,28 +137,13 @@ export const MENUS_OPTIONS = [
     title: "Jewelry",
     categories: [
       {
-        title: "Shop by Category ",
+        title: "Shop by Category",
         items: [
-          {
-            label: "Rings",
-            link: "/product?category_id=10&collection=jewellery",
-          },
-          {
-            label: "Earrings",
-            link: "/product?category_id=4&collection=jewellery",
-          },
-          {
-            label: "Necklaces",
-            link: "/product?category_id=6&collection=jewellery",
-          },
-          {
-            label: "Bracelets",
-            link: "/product?category_id=3&collection=jewellery",
-          },
-          {
-            label: "Pendant",
-            link: "/product?category_id=8&collection=jewellery",
-          },
+          { label: "Rings", link: "/product?category_id=ring&collection=Jewellery" },
+          { label: "Earrings", link: "/product?category_id=earring&collection=Jewellery" },
+          { label: "Necklaces", link: "/product?category_id=necklace&collection=Jewellery" },
+          { label: "Bracelets", link: "/product?category_id=bracelet&collection=Jewellery" },
+          { label: "Pendant", link: "/product?category_id=pendant&collection=Jewellery" },
         ],
       },
       {
@@ -271,22 +160,14 @@ export const MENUS_OPTIONS = [
       {
         title: "FEATURED",
         items: [
-          {
-            label: "New Arrivals",
-            link: "/product?sort_by=new_arrival",
-          },
-          {
-            label: "Bestsellers",
-            link: "/#best-seller",
-          },
-
+          { label: "New Arrivals", link: "/product?sort_by=createdAt_desc" },
+          { label: "Bestsellers", link: "/#best-seller" },
           "Limited Editions",
-          "Curated by ELOVA",
-          "Jewelry Under $1000",
+          "Curated by RJ HOUSE",
         ],
       },
       {
-        title: "STYLE & EDUCATION ",
+        title: "STYLE & EDUCATION",
         items: [
           "Jewelry Styling Guide",
           "How to Layer & Stack",
@@ -298,7 +179,7 @@ export const MENUS_OPTIONS = [
     ],
     imageSection: [
       {
-        imageUrl: "/images/home/jewellery.jpg ",
+        imageUrl: "/images/home/jewellery.jpg",
         callToAction: {
           text: "EXPLORE THE COLLECTION",
           url: "/product",
@@ -313,177 +194,74 @@ export const MENUS_OPTIONS = [
     title: "Customize",
     categoriesWithMedia: true,
     mediaCategories: [
+      // Land on /customize with a per-category hero banner; its Start button
+      // opens the form pre-scoped (category_id + size) — see /api/customize
+      // CATEGORY_HEROES.
       {
         label: "Engagement Rings",
-        image: "/images/customize/engagement.jpg",
-        link: "/customize/form/reference?category_id=10&size=ring",
+        image: "/images/customize/proposal-ring.png",
+        link: "/customize?category=ring",
       },
       {
         label: "Wedding Bands",
-        image: "/images/customize/band.jpg",
-        link: "/customize/form/reference?category_id=1&size=band",
+        image: "/images/customize/twin-band-design.png",
+        link: "/customize?category=band",
       },
       {
         label: "Bracelets",
-        image: "/images/customize/bracelet.jpg",
-        link: "/customize/form/reference?category_id=3&size=bracelet",
+        image: "/images/home/Bracelets-collection.png",
+        link: "/customize?category=bracelet",
       },
       {
         label: "Necklaces",
-        image: "/images/customize/necklace.jpg",
-        link: "/customize/form/reference?category_id=6&size=necklace",
+        image: "/images/home/Necklaces-collection.png",
+        link: "/customize?category=necklace",
       },
       {
         label: "Earrings",
-        image: "/images/customize/earring.jpg",
-        link: "/customize/form/reference?category_id=4&size=earring",
+        image: "/images/home/Earrings-collection.png",
+        link: "/customize?category=earring",
       },
     ],
     categories: [],
   },
-
-  // {
-  //   title: "Customize",
-  //   // categoriesWithMedia: true,
-  //   // mediaCategories: [
-  //   //   {
-  //   //     label: "Engagement Rings",
-  //   //     image: "/images/customize/engagement.jpg",
-  //   //     link: "/customize-form?category_id=10&size=ring",
-  //   //   },
-
-  //   //   {
-  //   //     label: "Wedding Bands",
-  //   //     image: "/images/customize/engagement.jpg",
-  //   //     link: "/customize-form?category_id=10&size=ring",
-  //   //   },
-  //   //   {
-  //   //     label: "Necklace & Pendants",
-  //   //     image: "/images/customize/engagement.jpg",
-  //   //     link: "/customize-form?category_id=10&size=ring",
-  //   //   },
-  //   //   {
-  //   //     label: "Bracelets",
-  //   //     image: "/images/customize/engagement.jpg",
-  //   //     link: "/customize-form?category_id=10&size=ring",
-  //   //   },
-  //   //   {
-  //   //     label: "Earring",
-  //   //     image: "/images/customize/engagement.jpg",
-  //   //     link: "/customize-form?category_id=10&size=ring",
-  //   //   },
-  //   // ],
-  //   categories: [
-  //     {
-  //       title: "Customize Jewelry",
-  //       items: [
-  //         {
-  //           label: "Engagement Ring",
-  //           link: "/customize-form?category_id=10&size=ring",
-  //         },
-  //         {
-  //           label: "Wedding Band",
-  //           link: "/customize-form?category_id=1&size=band",
-  //         },
-  //         {
-  //           label: "Necklace",
-  //           link: "/customize-form?category_id=6&size=necklace",
-  //         },
-  //         {
-  //           label: "Bracelet",
-  //           link: "/customize-form?category_id=3&size=bracelet",
-  //         },
-  //         // { label: "Earrings", link: "/customize-form?category_id=4" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Guides & Support",
-  //       items: [
-  //         { label: "Customization Guide", link: "/customize" },
-  //         { label: "Diamond Selection Guide", link: "/customize" },
-  //         { label: "Metal & Setting Options", link: "/customize" },
-  //         { label: "Ring Size Guide", link: "/customize" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Inspiration Gallery",
-  //       items: [
-  //         { label: "Past Custom Designs", link: "/customize" },
-  //         { label: "Customer Stories", link: "/customize" },
-  //         { label: "Behind the Craft", link: "/customize" },
-  //         { label: "Explore Signature Details", link: "/customize" },
-  //       ],
-  //     },
-  //     {
-  //       title: "STYLE & EDUCATION",
-  //       items: [
-  //         { label: "Jewelry Styling Guide", link: "/jewelry" },
-  //         { label: "How to Layer & Stack", link: "/jewelry" },
-  //         { label: "Jewelry Care", link: "/jewelry" },
-  //         { label: "Metals & Materials", link: "/jewelry" },
-  //         { label: "Lab-Grown Diamond Info", link: "/jewelry" },
-  //       ],
-  //     },
-  //   ],
-  //   imageSection: [
-  //     {
-  //       imageUrl: "/images/home/start-designing.png ",
-  //       callToAction: {
-  //         text: "START DESIGNING",
-  //         url: "/customize",
-  //       },
-  //       additionalTitle: "Your Vision. Our Craft.",
-  //       additionalDescription:
-  //         "From modern minimalism to timeless romance — design bespoke pieces that reflect you.",
-  //     },
-  //   ],
-  // },
   {
     title: "About us",
     categories: [
       {
         title: "Our Story",
         items: [
-          { label: "The ELOVA Journey", link: "/about-us" },
-          { label: "Our Mission & Values", link: "/about-us" },
-          { label: "The Meaning Behind the Name", link: "/about-us" },
-          { label: "What Makes Us Different", link: "/about-us" },
+          { label: "The RJ HOUSE Journey", link: "/about-us#our-story" },
+          { label: "Our Mission & Values", link: "/about-us#mission-values" },
+          { label: "The Meaning Behind the Name", link: "/about-us#meaning-name" },
+          { label: "What Makes Us Different", link: "/about-us#what-different" },
         ],
       },
       {
         title: "Craftsmanship",
         items: [
-          { label: "Craft of an ELOVA Piece", link: "/about-us" },
-          { label: "Our Design Philosophy", link: "/about-us" },
-          { label: "Behind the Atelier", link: "/about-us" },
-          { label: "Materials & Sourcing", link: "/about-us" },
+          { label: "Craft of an RJ HOUSE Piece", link: "/craftsmanship#craft" },
+          { label: "Our Design Philosophy", link: "/craftsmanship#design-philosophy" },
+          { label: "Behind the Atelier", link: "/craftsmanship#atelier" },
+          { label: "Materials & Sourcing", link: "/craftsmanship#materials" },
         ],
       },
       {
         title: "Sustainability",
         items: [
-          { label: "Our Ethical Promise", link: "/about-us" },
-          { label: "Lab-Grown Diamond Commitment", link: "/about-us" },
-          { label: "Responsible Sourcing", link: "/about-us" },
-          { label: "Environmental Impact ", link: "/about-us" },
+          { label: "Our Ethical Promise", link: "/sustainability#ethical-promise" },
+          { label: "Lab-Grown Diamond Commitment", link: "/sustainability#lab-grown" },
+          { label: "Responsible Sourcing", link: "/sustainability#responsible-sourcing" },
+          { label: "Environmental Impact", link: "/sustainability#environmental-impact" },
         ],
       },
       {
         title: "Customer Love",
         items: [
-          { label: "Testimonials", link: "/about-us" },
-          { label: "Reviews", link: "/about-us" },
-          { label: "Client Stories", link: "/about-us" },
-          { label: "Real Moments", link: "/about-us" },
-        ],
-      },
-      {
-        title: "Press & Features",
-        items: [
-          { label: "In the News", link: "/about-us" },
-          { label: "Magazine Features", link: "/about-us" },
-          { label: "Influencer Collaborations", link: "/about-us" },
-          { label: "Awards & Recognitions", link: "/about-us" },
+          { label: "Testimonials", link: "/customer-love#testimonials" },
+          { label: "Reviews", link: "/customer-love#reviews" },
+          { label: "Client Stories", link: "/customer-love#client-stories" },
+          { label: "Real Moments", link: "/customer-love#real-moments" },
         ],
       },
     ],

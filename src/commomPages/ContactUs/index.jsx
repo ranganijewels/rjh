@@ -18,6 +18,7 @@ const ContactUs = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const { create } = useCrudApi("/api/contact-us");
 
   const handleChange = (field, value) => {
@@ -45,7 +46,9 @@ const ContactUs = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+    if (isLoading) return;
 
+    setIsLoading(true);
     try {
       const response = await create(formData);
 
@@ -63,6 +66,8 @@ const ContactUs = () => {
     } catch (error) {
       console.error("ContactUs submission error:", error);
       toast.error("Failed to send message. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -78,25 +83,33 @@ const ContactUs = () => {
             <div>
               <Input
                 borderBottom
+                name="full_name"
                 label={"Full Name"}
                 placeholder="Full Name"
                 value={formData.full_name}
                 onChange={(e) => handleChange("full_name", e.target.value)}
+                hasError={!!errors.full_name}
               />
               {errors.full_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.full_name}</p>
+                <p id="full_name-error" className="text-red-700 text-sm mt-1">
+                  {errors.full_name}
+                </p>
               )}
             </div>
             <div>
               <Input
                 borderBottom
+                name="email"
                 label={"Email Address"}
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                hasError={!!errors.email}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                <p id="email-error" className="text-red-700 text-sm mt-1">
+                  {errors.email}
+                </p>
               )}
             </div>
           </div>
@@ -111,28 +124,38 @@ const ContactUs = () => {
             fullWidth
           />
           {errors.query && (
-            <p className="text-red-500 text-sm mt-1">{errors.query}</p>
+            <p className="text-red-700 text-sm mt-1">{errors.query}</p>
           )}
 
-          <label className="block text-[16px] font-[400] text-[var(--grey-2)] mb-1">
+          <label
+            htmlFor="message"
+            className="block lg:text-[16px] text-[12px] font-[400] text-[var(--grey-2)] mb-2"
+          >
             Message
           </label>
           <textarea
-            borderBottom
-            label="Message"
+            id="message"
+            name="message"
             placeholder="Type your message"
-            className="border-b xl:text-[16px] text-[12px] font-[400] border-[var(--placeholder)] focus:border-b-2 focus:border-[var(--teal-2)] focus:outline-0 p-[20px_11px] w-full"
+            aria-invalid={!!errors.message || undefined}
+            aria-describedby={errors.message ? "message-error" : undefined}
+            className={`border-b xl:text-[16px] text-[12px] font-[400] ${
+              errors.message ? "border-red-700" : "border-[var(--placeholder)]"
+            } focus:border-b-2 focus:border-[var(--teal-2)] p-[20px_16px] w-full`}
             value={formData.message}
             onChange={(e) => handleChange("message", e.target.value)}
           />
           {errors.message && (
-            <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+            <p id="message-error" className="text-red-700 text-sm mt-1">
+              {errors.message}
+            </p>
           )}
 
           <Button
-            title={"Send message"}
+            title={isLoading ? "Sending..." : "Send message"}
             className="mt-[30px] w-full"
             onClick={handleSubmit}
+            disabled={isLoading}
           />
         </div>
       </div>

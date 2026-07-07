@@ -1,6 +1,6 @@
 "use client";
 import PageHeading from "@/components/ui/Heading/PageHeading";
-import Stepper from "@/components/ui/Stepper/Stepper";
+import Stepper, { CART_STEPS } from "@/components/ui/Stepper/Stepper";
 import { usePreferences } from "@/context/PreferencesContext";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { usePathname, useRouter } from "next/navigation";
@@ -11,11 +11,7 @@ import Typography from "@/components/ui/Typography/Typography";
 import FeaturedCollections from "@/components/common/FeaturedCollections";
 import { useHomepageData } from "@/commomPages/Home/useHomepageData";
 
-const steps = [
-  { title: "Shopping cart", path: "/cart" },
-  { title: "Checkout details", path: "/cart/checkout" },
-  { title: "Order complete", path: "/cart/order-complete" },
-];
+const steps = CART_STEPS;
 
 const CartLayout = ({ children }) => {
   const dispatch = useDispatch();
@@ -41,7 +37,7 @@ const CartLayout = ({ children }) => {
   useEffect(() => {
     const token =
       typeof window !== "undefined"
-        ? localStorage.getItem("authTokenElova")
+        ? localStorage.getItem("authTokenRJHouse")
         : null;
     if (!token) {
       router.replace(`/login?redirect=${pathname}`);
@@ -52,7 +48,7 @@ const CartLayout = ({ children }) => {
 
   const token =
     typeof window !== "undefined"
-      ? localStorage.getItem("authTokenElova")
+      ? localStorage.getItem("authTokenRJHouse")
       : null;
   if (!token) return null;
 
@@ -90,7 +86,8 @@ const CartLayout = ({ children }) => {
               <div>
                 <Typography
                   variant="h2"
-                  className="!text-[40px] !font-[400] mb-[20px] text-[var(--grey-2)]"
+                  textColor="grey"
+                  className="text-[40px] font-[400] mb-[20px]"
                 >
                   Your Shopping Bag Is Empty
                 </Typography>

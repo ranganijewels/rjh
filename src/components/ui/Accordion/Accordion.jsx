@@ -21,8 +21,10 @@ const Accordion = ({
       id={id}
     >
       <button
-        className={`w-full flex justify-between items-start text-left text-[14px] font-[500] transition uppercase gap-2 ${btnStyle}`}
+        className={`w-full flex justify-between items-start text-left text-[14px] font-[500] transition uppercase gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--teal-1)] ${btnStyle}`}
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={`${id}-panel`}
       >
         {icon ? (
           <div className="flex items-center gap-2">
@@ -33,11 +35,14 @@ const Accordion = ({
         )}
         {/* <span className="flex-1 whitespace-normal">{title}</span> */}
         <span className="shrink-0">
-          <img src={isOpen ? openIcon : closeIcon} alt="accordion-caret" />
+          <img src={isOpen ? openIcon : closeIcon} alt="" />
         </span>
       </button>
       {isOpen && (
-        <div className="text-[14px] font-[400] text-[var(--grey-2)] mt-[12px]">
+        <div
+          id={`${id}-panel`}
+          className="text-[14px] font-[400] text-[var(--grey-2)] mt-[12px]"
+        >
           {children}
         </div>
       )}

@@ -1,5 +1,6 @@
 import Accordion from "@/components/ui/Accordion/Accordion";
 import Heading from "@/components/ui/Heading/Heading";
+import Typography from "@/components/ui/Typography/Typography";
 import React from "react";
 import { QUESTIONS } from "./constant";
 
@@ -25,7 +26,15 @@ const Questions = ({ faq }) => {
               close: "icons/plus.svg",
             }}
           >
-            <li className="list-disc list-inside">{que.answer}</li>
+            <li>
+              <Typography
+                variant="p"
+                as="span"
+                className="list-disc list-inside"
+              >
+                {que.answer}
+              </Typography>
+            </li>
           </Accordion>
         </ul>
       ))}

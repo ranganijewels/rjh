@@ -19,7 +19,7 @@ export const PickingYourSettingStyle = () => {
                 </Typography>
 
                 <Typography variant="h5">
-                   Let Elova design specialists help you find the perfect combination of practicality and personality.
+                   Let RJ House design specialists help you find the perfect combination of practicality and personality.
                 </Typography>
                 <Typography variant="h5">
                     Need personal assistance? Schedule a virtual fitting with our team, and we’ll guide you through the process.

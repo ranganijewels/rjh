@@ -8,6 +8,7 @@ import Link from "next/link";
 import { loginUser } from "@/store/authThunks";
 import toast from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
+import { authFormContainer } from "./authFormStyles";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -40,18 +41,38 @@ const LoginForm = () => {
     if (loginUser.fulfilled.match(resultAction)) {
       router.push(redirectTo);
     } else {
-      toast.error(resultAction.payload || "Login failed");
+      const payload = resultAction.payload;
+      const message =
+        typeof payload === "string" ? payload.toLowerCase() : "";
+
+      if (message.includes("verify") || message.includes("unverified")) {
+        toast.error("Please verify your email before logging in.");
+      } else if (
+        message.includes("invalid") ||
+        message.includes("incorrect") ||
+        message.includes("wrong password") ||
+        message.includes("credentials")
+      ) {
+        toast.error("Incorrect email or password.");
+      } else if (message.includes("network") || message === "") {
+        toast.error("Something went wrong. Please try again.");
+      } else {
+        toast.error(payload);
+      }
     }
   };
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="md:w-[50%] w-full space-y-[30px] 2xl:px-[240px] xl:px-[100px] lg:px-[67px] md:px-[47px] px-[18px] py-[41px] md:py-0 md:m-auto"
-    >
-      <h2 className="xl:text-[18px] text-[16px] font-[500]">
-        Login to Your ELOVA Account
-      </h2>
+    <form onSubmit={handleLogin} className={authFormContainer}>
+      <h1 className="xl:text-[18px] text-[16px] font-medium">
+        Login to Your RJ HOUSE Account
+      </h1>
+
+      <p className="text-[13px] font-normal text-[var(--grey-2)] leading-relaxed -mt-3">
+        Sign in to complete your purchase, track orders, save your wishlist and
+        register your lifetime warranty. New here? Creating an account takes a
+        moment.
+      </p>
 
       <Input
         placeholder="Email Address"
@@ -73,16 +94,13 @@ const LoginForm = () => {
             <button
               type="button"
               onClick={() => setShow((p) => !p)}
-              className="text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+              aria-label={show ? "Hide password" : "Show password"}
+              className="text-[var(--teal-2)] hover:text-[var(--teal-1)] focus-visible:ring-2 focus-visible:ring-[var(--teal-2)] focus-visible:rounded-full"
             >
               {show ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           }
         />
-
-        <Link href="/" className="xl:text-[14px] text-[12px] font-[400]">
-          Forgot Password?
-        </Link>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -95,14 +113,20 @@ const LoginForm = () => {
           disabled={isLoading}
         />
 
-        <p
-          onClick={() => !isLoading && router.push("/sign-up")}
-          className={`text-[14px] font-[400] underline uppercase ${
+        <Link
+          href={
+            redirectTo && redirectTo !== "/"
+              ? `/sign-up?redirect=${encodeURIComponent(redirectTo)}`
+              : "/sign-up"
+          }
+          aria-disabled={isLoading}
+          onClick={(e) => isLoading && e.preventDefault()}
+          className={`text-[14px] font-normal underline uppercase ${
             isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
         >
           Create New Account
-        </p>
+        </Link>
       </div>
     </form>
   );

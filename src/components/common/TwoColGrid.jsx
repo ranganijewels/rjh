@@ -18,6 +18,7 @@ const TwoColGrid = ({
   file,
   buttons,
   subTitle,
+  alt,
 }) => {
   const { isVideo } = useFileType(file);
   return (
@@ -38,7 +39,9 @@ const TwoColGrid = ({
         ) : (
           <img
             src={file}
-            alt="explore-ring-size"
+            alt={alt || "explore-ring-size"}
+            width={920}
+            height={548}
             className="w-full xl:h-[548px] lg:h-[292px] h-[225px] object-cover"
           />
         )}
@@ -58,12 +61,12 @@ const TwoColGrid = ({
             <p className="md:text-[18px] text-[14px] font-[500] text-[var(--grey-2)] uppercase">
               {subTitle && subTitle}
             </p>
-            <div className="text-[var(--grey-2)] xl:text-[24px] text-[14px] font-[500] uppercase tracking-wide">
+            <h3 className="text-[var(--grey-2)] xl:text-[24px] text-[14px] font-[500] uppercase tracking-wide">
               {title}
-              <p className="lg:text-[12px] text-[10px] font-[200] italic">
-                {designation}
-              </p>
-            </div>
+            </h3>
+            <p className="text-[var(--grey-2)] xl:text-[12px] lg:text-[12px] text-[12px] font-[400] italic">
+              {designation}
+            </p>
             <div className="text-[var(--grey-2)] xl:text-[18px] text-[10px] font-[400] tracking-tight">
               {description}
             </div>
@@ -73,10 +76,12 @@ const TwoColGrid = ({
             <div>
               <img
                 src="/icons/quotes.svg"
+                width={24}
+                height={24}
                 className="xl:h-[48px] xl:w-[48px] h-[24px] w-[24px]"
                 alt="quotes"
               />
-              <p className="tracking-tight font-[400] xl:text-[14px] lg:text-[12px] text-[10px] line-clamp-3">
+              <p className="tracking-tight font-[400] xl:text-[14px] lg:text-[12px] text-[12px] line-clamp-3">
                 {reviewText}
               </p>
             </div>

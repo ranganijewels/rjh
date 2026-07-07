@@ -20,11 +20,14 @@ const MobileFilterModal = ({
     <section className="fixed top-0 left-0 w-full h-screen bg-[var(--grey-00)] z-[9999] overflow-y-auto scroll-smooth">
       <div className="flex justify-between border-b border-b-[var(--grey-3)] p-[24px_20px]">
         <label className="text-[18px] font-[500]">FILTER</label>
-        <img
-          src="/icons/close.svg"
+        <button
+          type="button"
+          aria-label="Close filters"
           onClick={() => setShowFilterModal(false)}
           className="cursor-pointer"
-        />
+        >
+          <img src="/icons/close.svg" alt="" />
+        </button>
       </div>
 
       <div className="mb-[91px]">
@@ -49,9 +52,11 @@ const MobileFilterModal = ({
 
             return (
               <div key={index}>
-                <div
+                <button
+                  type="button"
                   onClick={() => handleFilterClick(index)}
-                  className="p-[16px_20px] flex justify-between"
+                  className="p-[16px_20px] flex justify-between w-full text-left"
+                  aria-expanded={activeFilterIndex === index && !!showOptions}
                 >
                   {menu.title}
                   <img
@@ -60,8 +65,9 @@ const MobileFilterModal = ({
                         ? "/icons/down-caret.svg"
                         : "/icons/right-caret.svg"
                     }
+                    alt=""
                   />
-                </div>
+                </button>
 
                 {activeFilterIndex === index && showOptions && (
                   <div className="p-[10px_18px] grid grid-cols-2 gap-y-[15px]">
@@ -71,10 +77,11 @@ const MobileFilterModal = ({
                       const isSelected = selectedValue === value;
 
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={optIndex}
                           className={clsx(
-                            "flex items-center gap-[12px] cursor-pointer",
+                            "flex items-center gap-[12px] cursor-pointer text-left",
                             isSelected && "text-primary font-semibold"
                           )}
                           onClick={() => {
@@ -89,7 +96,7 @@ const MobileFilterModal = ({
                           }}
                         >
                           <p className="text-[12px] font-[400]">{value}</p>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -102,7 +109,7 @@ const MobileFilterModal = ({
       <div className="p-[24px_20px] space-y-[10px]">
         <Button
           variant="primary"
-          title="view products"
+          title="View Products"
           className="py-[16px] w-full"
           onClick={() => {
             setShowFilterModal(false);
@@ -110,7 +117,7 @@ const MobileFilterModal = ({
         />
         <Button
           variant="ghost"
-          title="Clear filter"
+          title="Clear Filter"
           className="py-[16px] w-full"
           onClick={() => {
             clearFilters();

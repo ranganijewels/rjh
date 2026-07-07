@@ -163,7 +163,7 @@ const ReviewForm = () => {
         </label>
         <textarea
           placeholder="Enter text..."
-          className={`border-b border-b-[var(--teal-3)] p-3 resize-none focus:outline-0`}
+          className={`border-b border-b-[var(--teal-3)] p-3 resize-none focus:outline-[var(--teal-1)] focus:outline-1`}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />

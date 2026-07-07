@@ -35,7 +35,13 @@ export const applyCoupon = createAsyncThunk(
   async (code, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
-      const token = state.auth?.token;
+      // Redux state isn't persisted across reloads, but the token is in
+      // localStorage — fall back to it so the cart refetch isn't sent Bearer null.
+      const token =
+        state.auth?.token ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("authTokenRJHouse")
+          : null);
 
       const response = await apiPost("/api/cart/apply-coupon", { code }, token);
 

@@ -17,7 +17,7 @@ export const CRAFTING_YOUR_VISION = [
   {
     icon: "/icons/crafted-delivered.svg",
     title: "Crafted & Delivered",
-    text: "Your bespoke jewelry is handcrafted and delivered in our signature ELOVA box.",
+    text: "Your bespoke jewelry is handcrafted and delivered in our signature RJ HOUSE box.",
   },
 ];
 
@@ -32,7 +32,7 @@ export const QUESTIONS = [
   },
   {
     question: "3. Do you ship internationally?",
-    ans: "Yes, ELOVA offers secure and insured worldwide shipping. We also handle all customs and duties for a seamless delivery experience.",
+    ans: "Yes, RJ HOUSE offers secure and insured worldwide shipping. We also handle all customs and duties for a seamless delivery experience.",
   },
   {
     question: "4. Is there a design fee?",
@@ -44,7 +44,7 @@ export const QUESTIONS = [
   },
   {
     question: "6. Are your diamonds certified?",
-    ans: "Absolutely. All ELOVA diamonds — natural or lab-grown — come with independent certification (such as GIA or IGI) for cut, clarity, carat, and color.",
+    ans: "Absolutely. All RJ HOUSE diamonds — natural or lab-grown — come with independent certification (such as GIA or IGI) for cut, clarity, carat, and color.",
   },
   {
     question: "7. What is your return policy on custom orders?",
@@ -160,14 +160,14 @@ export const DESIGN_WITH_CONFIDENCE = [
     imageUrl: "/images/customize/choosing-ring-metal.png",
     title: "Lab-Grown Diamonds Info",
     description:
-      "At Elova, our commitment to innovation, ethics, and beauty is embodied in our use of lab-grown diamonds...",
+      "At RJ House, our commitment to innovation, ethics, and beauty is embodied in our use of lab-grown diamonds...",
   },
   {
     slug: "jewelry-care",
     imageUrl: "/images/customize/picking-your-setting.png",
     title: "Jewelry Care",
     description:
-      "Your Elova piece is more than jewelry—it’s a keepsake, a memory, a reflection of your story...",
+      "Your RJ House piece is more than jewelry—it’s a keepsake, a memory, a reflection of your story...",
   },
   {
     slug: "jewelry-styling-guide",
@@ -181,14 +181,14 @@ export const DESIGN_WITH_CONFIDENCE = [
     imageUrl: "/images/customize/custom-engravings.png",
     title: "Metal Setting Options",
     description:
-      "The setting is more than a frame—it’s the stage on which your diamond shines. At Elova...",
+      "The setting is more than a frame—it’s the stage on which your diamond shines. At RJ House...",
   },
   {
     slug: "care-longevity",
     imageUrl: "/images/customize/customize-5.png",
     title: "Care & Longevity",
     description:
-      "Elova pieces are made to endure—but care makes the difference...",
+      "RJ House pieces are made to endure—but care makes the difference...",
   },
   {
     slug: "how-to-layer-stack",

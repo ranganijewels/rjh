@@ -15,7 +15,9 @@ import DiamondOptions from "../ProductDetails/DiamondOptions";
 import MetalSelector from "../ProductDetails/MetalSelector";
 import RingSizeSelector from "../ProductDetails/RingSizeSelector";
 import { CUSTOM_DIAMOND_WEIGHTS } from "../ProductDetails/constants";
-import { SHAPE_CODES_IMAGE } from "@/constants/constant";
+// shapeToCode maps full shape names (from /api/product/filters) → the 3-letter
+// codes SHAPE_CODES_IMAGE keys on, so DiamondOptions' icon lookup resolves.
+import { SHAPE_CODES_IMAGE, shapeToCode } from "@/constants/constant";
 
 const StepTwo = forwardRef(({ data, setData }, ref) => {
   const { data: filters } = useSelector((state) => state.filters);
@@ -114,8 +116,10 @@ const StepTwo = forwardRef(({ data, setData }, ref) => {
 
   const normalizedShapes = filtersData?.shape?.map((s) => ({
     id: s.id,
-    designno: s.slug,
-    shape: s.name,
+    designno: s.slug ?? String(s.id),
+    // Store the CODE so DiamondOptions' SHAPE_CODES_IMAGE icon lookup resolves.
+    shape: shapeToCode(s.name),
+    name: s.name,
     label: s.custom_title || s.name,
     image: null,
     variant_product_id: null,

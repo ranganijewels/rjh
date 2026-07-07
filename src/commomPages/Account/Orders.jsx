@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { CheckIcon } from "@/components/Icons/CheckIcon";
 import Button from "@/components/ui/Button/Button";
 import Typography from "@/components/ui/Typography/Typography";
@@ -45,49 +46,31 @@ const Orders = () => {
     return (numericPrice * quantity).toFixed(2);
   };
 
-  // const handleViewInvoice = async (id, download = false) => {
-  //   try {
-  //     const blob = await fetchById(id);
+  const [invoiceBusy, setInvoiceBusy] = useState(null);
 
-  //     const url = window.URL.createObjectURL(blob);
-  //     window.open(url, "_blank");
-
-  //     if (download) {
-  //       const link = document.createElement("a");
-  //       link.href = url;
-  //       link.download = `invoice-${id}.pdf`;
-  //       document.body.appendChild(link);
-  //       link.click();
-  //       document.body.removeChild(link);
-  //     } else {
-  //       window.open(url, "_blank");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching invoice:", err);
-  //   }
-  // };
-
-  const handleViewInvoice = async (id, download = false) => {
+  // Generate the invoice PDF entirely on the client from the order we already
+  // have in state — no backend round-trip, so it always works.
+  const handleViewInvoice = async (order, download = false) => {
+    const ord = typeof order === "object" ? order : orders.find((o) => o.id === order);
+    if (!ord) return;
+    setInvoiceBusy(ord.id);
     try {
-      const res = await fetchById(id, { raw: true });
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      if (download) {
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `invoice-${id}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        window.open(url, "_blank");
-      }
-
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const account = (() => {
+        try {
+          const raw = localStorage.getItem("userRJHouse") || localStorage.getItem("user");
+          const u = raw ? JSON.parse(raw) : {};
+          return { name: u?.name || u?.fullName || "", email: u?.email || "" };
+        } catch {
+          return {};
+        }
+      })();
+      const mod = await import("@/lib/invoice/orderInvoice");
+      if (download) await mod.downloadOrderInvoice(ord, { account });
+      else await mod.openOrderInvoice(ord, { account });
     } catch (err) {
-      console.error("Error fetching invoice:", err);
+      console.error("Error generating invoice:", err);
+    } finally {
+      setInvoiceBusy(null);
     }
   };
 
@@ -112,7 +95,7 @@ const Orders = () => {
         <Button
           title="View invoice"
           variant="outlineTeal"
-          onClick={() => handleViewInvoice(order.id)}
+          onClick={() => handleViewInvoice(order)}
         />
       </div>
     );
@@ -173,9 +156,9 @@ const Orders = () => {
       <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)] xl:mb-[50px] mb-[30px]">
         Orders
       </p>
-      {orders?.data?.length > 0 ? (
+      {orders?.length > 0 ? (
         <div className="space-y-[30px]">
-          {orders?.data?.map((order, orderIdx) => {
+          {orders?.map((order, orderIdx) => {
             return (
               <div key={orderIdx} className="bg-[var(--grey-0)]">
                 {/* --- ORDER HEADER --- */}
@@ -193,7 +176,7 @@ const Orders = () => {
                       },
                     ].map((item, i) => (
                       <div key={i} className="flex flex-col">
-                        <Typography variant="h6" className="font-[500] text-gray-400 uppercase text-[9px] tracking-[0.1em] mb-1.5 leading-none">
+                        <Typography variant="h6" className="font-[500] text-[var(--placeholder)] uppercase text-[9px] tracking-[0.1em] mb-1.5 leading-none">
                           {item.label}
                         </Typography>
                         <Typography variant="h5" className="font-semibold text-[13px] text-[var(--grey-2)]">
@@ -238,7 +221,7 @@ const Orders = () => {
                         <div className="flex flex-col p-[20px]">
                           <div className="flex gap-[16px] items-start mb-5">
                             <div className="bg-[var(--product-bg)] w-[115px] h-[140px] shrink-0 flex items-center justify-center p-3 rounded-lg border border-gray-50/50">
-                              <img className="w-full h-full object-contain" src={item?.product?.image} alt="product" />
+                              <img className="w-full h-full object-contain" src={item?.product?.image} alt={item?.product?.title || "Product image"} />
                             </div>
                             <div className="flex-1 flex flex-col pt-1">
                               <Typography variant="h5" className="font-semibold text-[15px] leading-tight text-[var(--grey-2)] mb-1">
@@ -270,7 +253,13 @@ const Orders = () => {
                           <div className="flex md:flex-row flex-col justify-between">
                             <div className="flex md:gap-[30px] gap-[13px]">
                               <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px]">
-                                <img className="w-[122px] h-[122px] object-cover" src={item?.product?.image} alt="product" />
+                                <Image
+                                  className="w-[122px] h-[122px] object-cover"
+                                  src={item?.product?.image}
+                                  width={122}
+                                  height={122}
+                                  alt={item?.product?.title || "Product image"}
+                                />
                               </div>
                               <div className="space-y-[10px] md:max-w-[357px] max-w-[180px]">
                                 <Typography variant="h5" className="font-[500]">{item?.product?.title}</Typography>
@@ -313,7 +302,7 @@ const Orders = () => {
                     <Button
                       title="View Invoice"
                       variant="outlineTeal"
-                      onClick={() => handleViewInvoice(order.id)}
+                      onClick={() => handleViewInvoice(order)}
                       className="flex-1 !h-[48px] !text-[13px] font-semibold"
                     />
                   </div>
@@ -323,9 +312,12 @@ const Orders = () => {
           })}
         </div>
       ) : (
-        <p className="text-center text-gray-500">
-          You haven't placed any orders yet.
-        </p>
+        <div className="flex flex-col items-center justify-center gap-4 py-[60px] text-center">
+          <p className="text-[var(--placeholder)]">
+            You haven't placed any orders yet.
+          </p>
+          <Button title="Continue Shopping" url="/product" />
+        </div>
       )}
       {/* Sidebar Order Details */}
       {isSidebarOpen && selectedOrder && (
@@ -357,10 +349,12 @@ const Orders = () => {
                   >
                     {/* Image container */}
                     <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px] flex items-center justify-center">
-                      <img
+                      <Image
                         className="w-[122px] h-[122px] object-cover"
                         src={item?.product?.image}
-                        alt="product"
+                        width={122}
+                        height={122}
+                        alt={item?.product?.title || "Product image"}
                       />
                     </div>
 
@@ -475,32 +469,38 @@ const Orders = () => {
                   </Typography>
                 </div>
 
-                <div className="relative">
-                  <img
-                    src="/icons/Ellipse.svg"
-                    className="absolute -left-[32px] top-1 w-3.5 h-3.5"
-                  />
-                  <Typography variant="h5" className="font-[600]">
-                    Product Shipped
-                  </Typography>
-                  <Typography variant="h6" className="text-gray-500">
-                    March 16, 2025 5:23 pm
-                  </Typography>
-                  <div className="mt-2 space-y-1">
-                    <Typography variant="h6" className="font-[500]">
-                      Courier Service:{" "}
-                      <span className="text-[var(--teal-1)]">
-                        UPS. R. Gosling
-                      </span>
+                {(selectedOrder.trackingNumber || selectedOrder.tracking_number || selectedOrder.courierName || selectedOrder.courier) && (
+                  <div className="relative">
+                    <img
+                      src="/icons/Ellipse.svg"
+                      className="absolute -left-[32px] top-1 w-3.5 h-3.5"
+                    />
+                    <Typography variant="h5" className="font-[600]">
+                      Product Shipped
                     </Typography>
-                    <Typography variant="h6" className="font-[500]">
-                      Estimated Delivery Date:{" "}
-                      <span className="text-[var(--teal-1)]">
-                        March 22, 2025
-                      </span>
+                    <Typography variant="h6" className="text-gray-500">
+                      {selectedOrder.shipped_at
+                        ? format(new Date(selectedOrder.shipped_at), "MMMM dd, yyyy hh:mm a")
+                        : "Date not yet available"}
                     </Typography>
+                    <div className="mt-2 space-y-1">
+                      <Typography variant="h6" className="font-[500]">
+                        Courier Service:{" "}
+                        <span className="text-[var(--teal-1)]">
+                          {selectedOrder.courierName || selectedOrder.courier || "Not yet assigned"}
+                        </span>
+                      </Typography>
+                      <Typography variant="h6" className="font-[500]">
+                        Estimated Delivery Date:{" "}
+                        <span className="text-[var(--teal-1)]">
+                          {selectedOrder.estimatedDelivery
+                            ? format(new Date(selectedOrder.estimatedDelivery), "MMMM dd, yyyy")
+                            : "Not yet available"}
+                        </span>
+                      </Typography>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="relative">
                   <img
@@ -511,18 +511,20 @@ const Orders = () => {
                     Product Packaging
                   </Typography>
                   <Typography variant="h6" className="text-gray-500">
-                    March 16, 2025 5:23 pm
+                    {format(new Date(selectedOrder.created_at), "MMMM dd, yyyy hh:mm a")}
                   </Typography>
                   <div className="mt-2 space-y-1">
                     <Typography variant="h6" className="font-[500]">
                       Tracking Number:{" "}
                       <span className="text-[var(--teal-1)]">
-                        3409-4934-4253
+                        {selectedOrder.trackingNumber || selectedOrder.tracking_number || "Tracking not yet available"}
                       </span>
                     </Typography>
                     <Typography variant="h6" className="font-[500]">
                       Warehouse:{" "}
-                      <span className="text-[var(--teal-1)]">Lorem Ipsum</span>
+                      <span className="text-[var(--teal-1)]">
+                        {selectedOrder.warehouse || "Not specified"}
+                      </span>
                     </Typography>
                   </div>
                 </div>
@@ -534,11 +536,11 @@ const Orders = () => {
                 Payment Summary
               </Typography>
             </div>
-            {!summary?.coupon_code && (
+            {summary?.coupon_code && (
               <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
                 <Typography variant="h5" className="flex gap-2">
                   <CouponIcon className="w-5 h-5" />{" "}
-                  <span>{!summary?.coupon_code}</span>
+                  <span>{summary.coupon_code}</span>
                 </Typography>
                 <Typography
                   variant="h5"
@@ -586,7 +588,9 @@ const Orders = () => {
                 <Typography variant="h5" className="font-semibold">
                   Payment Method
                 </Typography>
-                <Typography variant="h6">MasterCard ***********4321</Typography>
+                <Typography variant="h6">
+                  {selectedOrder.payment_method || selectedOrder.paymentMethod || "Not available"}
+                </Typography>
               </div>
             </div>
 
@@ -596,21 +600,25 @@ const Orders = () => {
                   Shipping Address
                 </Typography>
                 <Typography variant="h6">
-                  4517 Washington Ave, Manchester, USA 569874
+                  {selectedOrder.shipping_address ||
+                    selectedOrder.customer_address ||
+                    "Address not available"}
                 </Typography>
               </div>
               <div>
                 <Typography variant="h6" className="font-semibold">
                   Billing Address
                 </Typography>
-                <Typography variant="h6">Same as Shipping Address</Typography>
+                <Typography variant="h6">
+                  {selectedOrder.billing_address || "Same as Shipping Address"}
+                </Typography>
               </div>
             </div>
 
             <div className="flex gap-[20px] mt-6">
               <Button
-                title="Download Invoice"
-                onClick={() => handleViewInvoice(selectedOrder.id, true)}
+                title={invoiceBusy === selectedOrder.id ? "Preparing…" : "Download Invoice"}
+                onClick={() => handleViewInvoice(selectedOrder, true)}
               />
               <Button
                 title="Return / Exchange Product"

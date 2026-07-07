@@ -9,7 +9,7 @@ export const MetalsMaterials = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    At Elova, we believe the beauty of a piece begins long before it’s worn. It begins with our materials—responsibly sourced, meticulously refined, and chosen for their enduring value.
+                    At RJ House, we believe the beauty of a piece begins long before it’s worn. It begins with our materials—responsibly sourced, meticulously refined, and chosen for their enduring value.
                 </Typography>
                 <Typography variant="h5">
                     <b>Precious Metals</b>We use only high-quality, conflict-free gold and platinum. Much of our gold is recycled and refined to minimize environmental impact, without sacrificing purity or strength. Our platinum is sourced for its hypoallergenic properties and superior longevity.

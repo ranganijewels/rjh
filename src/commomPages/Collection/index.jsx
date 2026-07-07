@@ -47,10 +47,15 @@ const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
         let productList = [];
 
         if (apiPath.includes("get-collection")) {
-          const collection = res?.data?.find(
-            (e) =>
-              e.collection_name?.toLowerCase() === collectionName?.toLowerCase()
-          );
+          // Named collection first; fall back to the first collection that has
+          // products so sections like "You Might Also Love" never render empty
+          // just because the CMS collection label changed.
+          const collection =
+            res?.data?.find(
+              (e) =>
+                e.collection_name?.toLowerCase() ===
+                collectionName?.toLowerCase()
+            ) || res?.data?.find((e) => (e.products || []).length > 0);
           productList = collection?.products || [];
           setProducts(productList);
         } else {
@@ -91,7 +96,12 @@ const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
       >
         {loading
           ? Array.from({ length: 5 }).map((_, idx) => (
-              <ProductCardSkeleton key={idx} />
+              <ProductCardSkeleton
+                key={idx}
+                rootClass="shrink-0 space-y-[12px] 2xl:w-[390px] xl:w-[344px] w-[182px]"
+                boxClass="2xl:w-[390px] 2xl:h-[500px] xl:w-[344px] xl:h-[416px] w-[182px] h-[249px]"
+                imgClass="2xl:w-[392px] 2xl:h-[310px] xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full"
+              />
             ))
           : products?.map((item) => {
               return (
@@ -114,6 +124,10 @@ const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
                   imgClass="2xl:w-[392px] 2xl:h-[310px] xl:w-[270px] xl:h-[280px] lg:w-[142px] lg:h-[147px] h-[147px] w-full "
                   gridLayout="lg:grid-cols-5 grid-cols-2"
                   customWidth
+                  imagesByColor={item?.images_by_color}
+                  allImages={item?.all_images}
+                  shapeVariants={item?.shape_variants}
+                  isDesignGroupCard={item?.is_design_group_card}
                   centerDiamondWeight={item?.center_diamond_weight}
                   shape={item?.occasion}
                   metalType={item?.meta_quality}

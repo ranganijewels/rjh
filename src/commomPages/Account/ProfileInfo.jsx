@@ -111,15 +111,18 @@ const ProfileInfo = () => {
             lastName: res.data.last_name || "",
             phone: res.data.phone_number || "",
             email: res.data.email || "",
-            birthDate: standardFormat(res.data.birth_date) || "",
+            // birth_date arrives as ISO (YYYY-MM-DD); the form/picker use DD-MM-YYYY
+            birthDate: displayFormat(res.data.birth_date) || "",
           });
+          // Keep the read-only display (driven by redux `customer`) in sync.
+          dispatch(updateCustomer(res.data));
         }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       }
     };
     getProfile();
-  }, [fetchAll]);
+  }, [fetchAll, dispatch]);
 
   // Action buttons for editing profile and changing password
   const ActionButton = () => (
@@ -213,17 +216,25 @@ const ProfileInfo = () => {
         last_name: editFormData.lastName,
         phone_number: editFormData.phone,
         email: editFormData.email,
-        birth_date: displayFormat(editFormData.birthDate),
+        birth_date: editFormData.birthDate,
       });
 
-      // Update Redux store
-      dispatch(updateCustomer(res.data));
+      if (res?.status === false) {
+        toast.error(res.message || "Failed to update profile");
+        return;
+      }
 
-      // Update localStorage
-      localStorage.setItem("activeUser", JSON.stringify(res.data));
+      // Update Redux store + localStorage with the saved values
+      if (res?.data) {
+        dispatch(updateCustomer(res.data));
+        localStorage.setItem("activeUser", JSON.stringify(res.data));
+      }
 
       setIsEditProfileModal(false);
-    } catch (err) {}
+      toast.success("Profile updated successfully!");
+    } catch (err) {
+      toast.error("Something went wrong while updating your profile");
+    }
   };
 
   const togglePassword = (field) => {

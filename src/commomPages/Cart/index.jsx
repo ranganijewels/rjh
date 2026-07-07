@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { CouponIcon, MinusIcon } from "@/components/Icons/common";
 import Button from "@/components/ui/Button/Button";
-import RadioButton from "@/components/ui/Button/RadioButton";
 import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
@@ -15,10 +15,8 @@ import { toTitleCase } from "@/utils/string";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { useCoupon } from "@/hooks/useCoupon";
-import HeartIcon from "@/components/Icons/HeartIcon";
 import { CloseIcon } from "@/components/Icons/common/CloseIcon";
 import Link from "next/link";
-import { fetchWishlist } from "@/store/slices/wishlistSlice";
 import { Shipping } from "@/components/Icons/common/Shipping";
 import ExchangeIcon from "@/components/Icons/common/ExchangeIcon";
 import PaymentOptions from "@/components/ui/PaymentOptions.jsx/PaymentOptions";
@@ -42,7 +40,6 @@ const Cart = () => {
     "/api/cart/update-quantities"
   );
   const { create: removeCartItem } = useCrudApi("/api/cart/remove-cart-item");
-  const { create: moveToWishlist } = useCrudApi("/api/cart/cart-to-wishlist");
 
   useEffect(() => {
     if (token && selectedCountry?.currency) {
@@ -77,15 +74,9 @@ const Cart = () => {
     );
   };
 
-  if (!cartItems?.length) {
-    return (
-      <section className="py-[40px] lg:py-[80px] text-center">
-        <Typography variant="h5" className="font-[500]">
-          Your cart is empty
-        </Typography>
-      </section>
-    );
-  }
+  // Empty-cart state is fully handled by CartLayout (app/cart/layout.js),
+  // which renders "Your Shopping Bag Is Empty" with continue-shopping suggestions
+  // before this component ever mounts. No redundant fallback needed here.
 
   const handleRemoveCartItem = async (cart_item_id) => {
     try {
@@ -93,25 +84,6 @@ const Cart = () => {
 
       if (response?.status) {
         dispatch(fetchCart({ currency: selectedCountry.currency }));
-      } else {
-        toast.error(response?.message || "Failed to remove item");
-      }
-    } catch (error) {
-      toast.error("An error occurred while removing the item");
-    }
-  };
-
-  const handleMoveToWishlist = async (cart_item_id) => {
-    try {
-      const response = await moveToWishlist(null, {}, cart_item_id);
-
-      if (response?.status) {
-        dispatch(fetchCart({ currency: selectedCountry.currency }));
-        dispatch(
-          fetchWishlist({
-            currency: selectedCountry.currency,
-          })
-        );
       } else {
         toast.error(response?.message || "Failed to remove item");
       }
@@ -142,16 +114,14 @@ const Cart = () => {
 
           {cartItems?.map((item) => (
             <div
-              className=" border-b border-b-[var(--teal-3)]"
+              className="border-b border-b-[var(--teal-3)]"
               key={item?.cart_item_id}
             >
               {/* Desktop View */}
               <div className="hidden md:grid 2xl:grid-cols-5 md:grid-cols-4 gap-[30px] py-[24px] items-center">
-                <div className="flex justify-center px-0 py-[12px] bg-[var(--product-bg)] !cursor-pointer">
-                  <img
-                    src={item?.media_image}
-                    alt={item?.product_name}
-                    className="h-[122px] w-[122px] object-fill cursor-pointer"
+                <div className="relative flex justify-center px-0 py-[12px] bg-[var(--product-bg)]">
+                  <button
+                    type="button"
                     onClick={() =>
                       handleClick(
                         item?.product_id,
@@ -160,13 +130,31 @@ const Cart = () => {
                         item?.diamond_shape
                       )
                     }
-                  />
+                    aria-label={`View ${item?.product_name || "product"} details`}
+                    className="p-0 border-0 bg-transparent"
+                  >
+                    <Image
+                      src={item?.media_image}
+                      alt={item?.product_name || "Product"}
+                      width={122}
+                      height={122}
+                      className="h-[122px] w-[122px] object-contain cursor-pointer"
+                    />
+                  </button>
+                  <button
+                    onClick={() => handleRemoveCartItem(item.cart_item_id)}
+                    className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-red-400 transition-colors shadow-sm"
+                    title="Remove from cart"
+                  >
+                    <CloseIcon className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
                 <div className="flex flex-col gap-[10px] 2xl:col-span-2 md:col-span-1">
                   <Typography
                     variant="h5"
-                    className="font-[500] cursor-pointer"
+                    className="font-[500] cursor-pointer line-clamp-2"
+                    title={toTitleCase(item?.title)}
                   >
                     {toTitleCase(item?.title)}
                   </Typography>
@@ -178,7 +166,7 @@ const Cart = () => {
                     {item?.design_no && (
                       <Typography variant="h6">
                         Design No. :{" "}
-                        <span className="font-[500] text-[#222223]">
+                        <span className="font-[500] text-[var(--grey-2)]">
                           {item?.design_no}
                         </span>
                       </Typography>
@@ -186,7 +174,7 @@ const Cart = () => {
                     {item?.diamond_shape && (
                       <Typography variant="h6">
                         Diamond Shape :{" "}
-                        <span className="font-[500] text-[#222223]">
+                        <span className="font-[500] text-[var(--grey-2)]">
                           {item?.diamond_shape}
                         </span>
                       </Typography>
@@ -194,7 +182,7 @@ const Cart = () => {
                     {item?.metal_type && item?.metal_color && (
                       <Typography variant="h6">
                         Metal :{" "}
-                        <span className="font-[500] text-[#222223]">
+                        <span className="font-[500] text-[var(--grey-2)]">
                           {item?.metal_type +
                             " " +
                             toTitleCase(item?.metal_color) +
@@ -205,7 +193,7 @@ const Cart = () => {
                     {item?.center_diamond_weight ? (
                       <Typography variant="h6">
                         Center Diamond Weight :
-                        <span className="font-[500] text-[#222223]">
+                        <span className="font-[500] text-[var(--grey-2)]">
                           {item?.center_diamond_weight}
                         </span>
                       </Typography>
@@ -224,8 +212,11 @@ const Cart = () => {
                         className="flex gap-2 items-center"
                         href="/ring-size-guide"
                       >
-                        <img
+                        <Image
                           src="/icons/info.svg"
+                          alt="Ring size guide"
+                          width={14}
+                          height={14}
                           className="cursor-pointer w-[14px] h-[14px]"
                         />
                       </Link>
@@ -238,23 +229,29 @@ const Cart = () => {
                   handleQuantities={handleUpdateQuantity}
                 />
 
-                <Typography variant="p" className="font-[600]">
-                  {getCurrencySymbol(selectedCountry?.currency) + " "}
-                  {typeof item.subtotal === "number"
-                    ? item?.subtotal.toLocaleString()
-                    : "0.00"}
-                </Typography>
+                <div className="flex flex-col">
+                  <Typography variant="p" className="font-[600] whitespace-nowrap">
+                    {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                    {typeof item.subtotal === "number"
+                      ? item.subtotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+                      : "—"}
+                  </Typography>
+                  {item.quantity > 1 && (
+                    <span className="text-[11px] text-[var(--grey-2)] whitespace-nowrap">
+                      {getCurrencySymbol(selectedCountry?.currency)}{" "}
+                      {(item.subtotal / item.quantity).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ea.
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Mobile View */}
               <div className="md:hidden flex flex-col py-6 gap-5">
                 <div className="flex gap-5">
                   {/* Image Left */}
-                  <div className="w-[110px] h-[110px] bg-[var(--product-bg)] flex items-center justify-center p-2 rounded-lg flex-shrink-0">
-                    <img
-                      src={item?.media_image}
-                      alt={item?.product_name || "Product"}
-                      className="w-full h-full object-contain cursor-pointer"
+                  <div className="relative w-[110px] h-[110px] bg-[var(--product-bg)] flex items-center justify-center p-2 rounded-lg flex-shrink-0">
+                    <button
+                      type="button"
                       onClick={() =>
                         handleClick(
                           item?.product_id,
@@ -263,7 +260,24 @@ const Cart = () => {
                           item?.diamond_shape
                         )
                       }
-                    />
+                      aria-label={`View ${item?.product_name || "product"} details`}
+                      className="w-full h-full p-0 border-0 bg-transparent"
+                    >
+                      <Image
+                        src={item?.media_image}
+                        alt={item?.product_name || "Product"}
+                        width={110}
+                        height={110}
+                        className="w-full h-full object-contain cursor-pointer"
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleRemoveCartItem(item.cart_item_id)}
+                      className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-red-400 transition-colors shadow-sm"
+                      title="Remove from cart"
+                    >
+                      <CloseIcon className="w-3 h-3" />
+                    </button>
                   </div>
 
                   {/* Content Right */}
@@ -271,7 +285,8 @@ const Cart = () => {
                     {/* Title */}
                     <Typography
                       variant="h5"
-                      className="font-[500] leading-tight"
+                      className="font-[500] leading-tight line-clamp-2"
+                      title={toTitleCase(item?.title || item?.product_name || "")}
                     >
                       {toTitleCase(item?.title || item?.product_name || "")}
                     </Typography>
@@ -289,7 +304,7 @@ const Cart = () => {
                       {item?.design_no && (
                         <Typography variant="h6">
                           Design No. :{" "}
-                          <span className="font-[500] text-[#222223]">
+                          <span className="font-[500] text-[var(--grey-2)]">
                             {item?.design_no}
                           </span>
                         </Typography>
@@ -297,7 +312,7 @@ const Cart = () => {
                       {item?.diamond_shape && (
                         <Typography variant="h6">
                           Diamond Shape :{" "}
-                          <span className="font-[500] text-[#222223]">
+                          <span className="font-[500] text-[var(--grey-2)]">
                             {item?.diamond_shape}
                           </span>
                         </Typography>
@@ -305,7 +320,7 @@ const Cart = () => {
                       {item?.metal_type && item?.metal_color && (
                         <Typography variant="h6">
                           Metal :{" "}
-                          <span className="font-[500] text-[#222223]">
+                          <span className="font-[500] text-[var(--grey-2)]">
                             {item?.metal_type +
                               " " +
                               toTitleCase(item?.metal_color) +
@@ -316,7 +331,7 @@ const Cart = () => {
                       {item?.center_diamond_weight ? (
                         <Typography variant="h6">
                           Center Diamond Weight :
-                          <span className="font-[500] text-[#222223]">
+                          <span className="font-[500] text-[var(--grey-2)]">
                             {item?.center_diamond_weight}
                           </span>
                         </Typography>
@@ -328,10 +343,12 @@ const Cart = () => {
                             {item?.ring_size}
                           </Typography>
                           <Link href="/ring-size-guide">
-                            <img
+                            <Image
                               src="/icons/info.svg"
                               className="cursor-pointer w-[14px] h-[14px]"
-                              alt="info"
+                              alt="Ring size guide"
+                              width={14}
+                              height={14}
                             />
                           </Link>
                         </div>
@@ -341,7 +358,7 @@ const Cart = () => {
                 </div>
 
                 {/* Mobile Quantity & Price Row */}
-                <div className="flex justify-between items-center bg-[#fbfbfb] p-3 rounded-lg border border-[#f0f0f0]">
+                <div className="flex justify-between items-center bg-[var(--grey-00)] p-3 rounded-lg border border-[var(--grey-3)]">
                   <QuantitySelector
                     item={item}
                     handleQuantities={handleUpdateQuantity}
@@ -356,60 +373,14 @@ const Cart = () => {
                     >
                       {getCurrencySymbol(selectedCountry?.currency) + " "}
                       {typeof item.subtotal === "number"
-                        ? item?.subtotal.toLocaleString()
+                        ? item?.subtotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
                         : "0.00"}
                     </Typography>
                   </div>
                 </div>
 
-                {/* Mobile Buttons */}
-                <div className="flex gap-3">
-                  <Button
-                    title={"Move To Wishlist"}
-                    background={"var(--grey-00)"}
-                    textColor={"var(--grey-2)"}
-                    className="flex-1 border border-[var(--teal-3)] h-[44px] !text-[12px]"
-                    icon={<HeartIcon className="w-4 h-4" iconColor="#222223" />}
-                    onClick={() => handleMoveToWishlist(item.cart_item_id)}
-                  >
-                    Move To Wishlist
-                  </Button>
-                  <Button
-                    background={"none"}
-                    textColor={"var(--grey-2)"}
-                    title={"remove"}
-                    className="flex-1 border border-[var(--teal-3)] h-[44px] !text-[12px]"
-                    icon={<CloseIcon className="w-4 h-4" />}
-                    onClick={() => handleRemoveCartItem(item.cart_item_id)}
-                  >
-                    Remove
-                  </Button>
-                </div>
               </div>
 
-              {/* Shared Desktop Buttons (only visible on md+) */}
-              <div className="hidden md:flex gap-4 items-center pb-[24px]">
-                <Button
-                  title={"Move To Wishlist"}
-                  background={"var(--grey-00)"}
-                  textColor={"var(--grey-2)"}
-                  className="w-full border border-[var(--teal-3)]"
-                  icon={<HeartIcon className="w-5 h-5" iconColor="#222223" />}
-                  onClick={() => handleMoveToWishlist(item.cart_item_id)}
-                >
-                  Move To Wishlist
-                </Button>
-                <Button
-                  background={"none"}
-                  textColor={"var(--grey-2)"}
-                  title={"remove"}
-                  className="w-full border border-[var(--teal-3)]"
-                  icon={<CloseIcon className="w-5 h-5" />}
-                  onClick={() => handleRemoveCartItem(item.cart_item_id)}
-                >
-                  Remove
-                </Button>
-              </div>
             </div>
           ))}
         </div>
@@ -435,6 +406,7 @@ const Cart = () => {
                 value: couponCode,
                 onChange: (e) => {
                   setCouponCode(e.target.value);
+                  setError("");
                 },
                 onKeyDown: (e) => {
                   if (e.key === "Enter") {
@@ -446,6 +418,7 @@ const Cart = () => {
               // buttonTitle="Apply"
               className=" w-full"
               onButtonClick={handleCoupon}
+              disabled={loading}
             />
             {error && (
               <Typography variant="h6" className="mt-2 text-red-500">
@@ -460,7 +433,11 @@ const Cart = () => {
                   {summary?.coupon_code}
                 </span>
 
-                <button onClick={remove} className="text-sm font-semibold">
+                <button
+                  onClick={remove}
+                  aria-label="Remove coupon"
+                  className="text-sm font-semibold"
+                >
                   ✕
                 </button>
               </div>
@@ -511,54 +488,30 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h6" className="font-[500]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.cart_total ?? 0)}
+                  {Number(summary?.cart_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </Typography>
               </div>
 
-              <div className="flex justify-between">
-                <Typography variant="h6" className="font-[500]">
-                  Taxes
-                </Typography>
-                <Typography variant="h6" className="font-[500]">
-                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.cart_total ?? 0)}
-                </Typography>
-              </div>
-
-              {/* 
-              <div className="flex justify-between">
-                <Typography variant="h6" className="font-[500]">
-                  Shipping Chargess
-                </Typography>
-                <Typography variant="h6" className="font-[500]">
-                  {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.selectedShipping ?? 0)}
-                </Typography>
-              </div> */}
+              {/* Shipping is free; no tax line until a real tax engine is wired. */}
 
               {/* DISCOUNT ROW */}
               {summary?.coupon_code && (
-                <div className="flex justify-between items-center whitespace-nowrap gap-3">
-                  <Typography
-                    variant="h6"
-                    className="font-[500] flex items-center gap-2 whitespace-nowrap)]"
-                  >
+                <div className="flex justify-between items-center gap-3">
+                  <Typography variant="h6" className="font-[500]">
                     Discount
                   </Typography>
-                  <Typography
-                    variant="h6"
-                    className="font-[500] flex items-center gap-1 whitespace-nowrap "
-                  >
+                  <span className="flex items-center gap-1 text-[13px] font-[500] whitespace-nowrap">
                     <MinusIcon />
                     {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                    {Number(summary?.discount)}{" "}
-                    <span
-                      className="text-[var(--teal-1)] cursor-pointer"
+                    {Number(summary?.discount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                    <button
                       onClick={remove}
+                      disabled={loading}
+                      className="ml-1 text-[var(--teal-1)] underline underline-offset-2 text-[11px] hover:opacity-70 disabled:opacity-40"
                     >
-                      [Remove]
-                    </span>
-                  </Typography>
+                      Remove
+                    </button>
+                  </span>
                 </div>
               )}
               {/* TOTAL */}
@@ -568,19 +521,19 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h5" className="font-[600]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.grand_total ?? 0)}
+                  {Number(summary?.grand_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </Typography>
               </div>
             </div>
 
             <div className="pt-[16px] text-[14px]">
-              <label className="flex gap-[10px] items-center justify-center mb-[10px]">
+              <div className="flex gap-[10px] items-center justify-center mb-[10px]">
                 <Shipping /> Free Insured Shipping
-              </label>
+              </div>
 
-              <label className="flex gap-[10px] items-center justify-center break-all">
+              <div className="flex gap-[10px] items-center justify-center break-all">
                 <ExchangeIcon /> 30 days Free Returns & Exchange
-              </label>
+              </div>
             </div>
 
             <Button
@@ -590,7 +543,7 @@ const Cart = () => {
             />
           </div>
           <div className="text-center mt-[16px]">
-            <label className="text-[12px]">Safe Checkout Guaranteed</label>
+            <p className="text-[12px]">Safe Checkout Guaranteed</p>
             <PaymentOptions className="flex gap-[10px] items-center justify-center mt-[10px]" />
           </div>
         </div>

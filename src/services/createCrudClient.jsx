@@ -1,8 +1,22 @@
 import { useSelector } from "react-redux";
 
+// Expired session: clear the stale token and bounce to login (returning the
+// shopper to the current page). Only fires when a token was present — a 401
+// with no token is just an unauthenticated public call, not an expiry.
+let redirectingForExpiry = false;
+const handleSessionExpiry = (res, token) => {
+  if (res.status !== 401 || !token || typeof window === "undefined") return false;
+  if (redirectingForExpiry) return true; // avoid double-redirects from parallel calls
+  redirectingForExpiry = true;
+  localStorage.removeItem("authTokenRJHouse");
+  const back = encodeURIComponent(window.location.pathname + window.location.search);
+  window.location.href = `/login?redirect=${back}`;
+  return true;
+};
+
 export const createCrudClient = (baseUrl) => {
   // const token = useSelector((state) => state.auth.token);
-  const token = localStorage.getItem("authTokenElova");
+  const token = localStorage.getItem("authTokenRJHouse");
   const storeId = process.env.NEXT_PUBLIC_TENANT_ID;
   const customerId = useSelector((state) => state.auth?.customer?.id);
 
@@ -24,6 +38,7 @@ export const createCrudClient = (baseUrl) => {
           ...headers,
         },
       });
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) throw new Error("Failed to fetch data");
       return res.json();
     },
@@ -45,6 +60,7 @@ export const createCrudClient = (baseUrl) => {
         // credentials: "include",
       });
 
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) {
         const text = await res.text().catch(() => "");
         throw new Error(`FetchById failed (${res.status}): ${text}`);
@@ -63,7 +79,9 @@ export const createCrudClient = (baseUrl) => {
 
       const headers = {
         ...getAuthHeaders(),
-        ...(formBody ? { "Content-Type": "application/json" } : {}),
+        // Never set a JSON Content-Type for FormData — the browser must add
+        // the multipart boundary itself, or file uploads fail to parse.
+        ...(formBody && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...extra.headers,
       };
 
@@ -79,6 +97,7 @@ export const createCrudClient = (baseUrl) => {
         body,
       });
 
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) {
         const errorResponse = await res.json().catch(() => ({}));
 
@@ -111,6 +130,7 @@ export const createCrudClient = (baseUrl) => {
         body: JSON.stringify(body),
       });
 
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || "Failed to update record");
@@ -124,6 +144,7 @@ export const createCrudClient = (baseUrl) => {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || "Failed to delete record");
@@ -137,6 +158,7 @@ export const createCrudClient = (baseUrl) => {
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ is_active }),
       });
+      if (handleSessionExpiry(res, token)) throw new Error("Session expired");
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || "Failed to toggle status");

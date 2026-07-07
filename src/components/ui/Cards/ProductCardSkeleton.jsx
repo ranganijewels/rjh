@@ -6,20 +6,26 @@ const SkeletonBox = ({ className }) => (
   <div className={`bg-[var(--teal-3)] animate-pulse ${className}`} />
 );
 
-const ProductCardSkeleton = ({ gridLayout, customWidth = false }) => {
+const ProductCardSkeleton = ({
+  gridLayout,
+  customWidth = false,
+  rootClass,
+  boxClass,
+  imgClass,
+}) => {
   const { containerClass: container, imageClass: img } = useProductCardLayout(
     gridLayout,
     customWidth
   );
 
   return (
-    <div className="w-full space-y-[12px] cursor-pointer">
+    <div className={rootClass || "w-full space-y-[12px] cursor-pointer"}>
       <div
         className={`relative bg-[var(--product-bg)] ${
-          customWidth ? "" : container
+          boxClass || (customWidth ? "" : container)
         }`}
       >
-        <SkeletonBox className={`w-full object-contain ${img}`} />
+        <SkeletonBox className={`w-full object-contain ${imgClass || img}`} />
       </div>
 
       <SkeletonBox className="w-3/4 h-[15px] rounded" />

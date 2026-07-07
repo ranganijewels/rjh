@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
 
-const TopBar = ({ isTopBarHidden }) => {
+const TopBar = () => {
   const { fetchAll } = useCrudApi(`/api/swiper-messages`);
   const [swiperMessages, setSwiperMessages] = useState([]);
   const { isMobile } = useIsMobile();
@@ -38,12 +38,7 @@ const TopBar = ({ isTopBarHidden }) => {
 
   return (
     <>
-      <div
-        className={clsx(
-          "bg-[var(--teal-1)] text-[var(--grey-00)] py-[8px] px-[30px] flex text-[12px] font-[500] justify-center transition-transform duration-300 ease-in-out w-full z-[1000]",
-          isTopBarHidden ? "-translate-y-full" : "translate-y-0"
-        )}
-      >
+      <div className="bg-[var(--teal-1)] text-[var(--grey-00)] py-2 px-8 flex text-[12px] font-[500] justify-center w-full">
         {!isMobile && (
           <SocialMediaIcons className="w-[300px]" icons={SOCIAL_MEDIA_ICONS} />
         )}

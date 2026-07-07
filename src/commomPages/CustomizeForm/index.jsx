@@ -51,7 +51,7 @@ const CustomizeForm = ({ children }) => {
     //     imageClass={"xl:h-[475px] lg:h-[326px] h-[418px] object-right"}
     //     title={"Design Your Own Masterpiece"}
     //     description={
-    //       "Create a one-of-a-kind piece as unique as your story — crafted by ELOVA's master artisans."
+    //       "Create a one-of-a-kind piece as unique as your story — crafted by RJ HOUSE's master artisans."
     //     }
     //   />
 

@@ -9,9 +9,11 @@ import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
 import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
 import { toTitleCase } from "@/utils/string";
 import { useRouter } from "next/navigation";
+import { usePreferences } from "@/context/PreferencesContext";
 
 const MobileNav = ({ closeMobile, menus }) => {
   const router = useRouter();
+  const { selectedCountry } = usePreferences();
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [selectedMainMenu, setSelectedMainMenu] = useState("");
   const subMenu = menus.find(
@@ -34,30 +36,38 @@ const MobileNav = ({ closeMobile, menus }) => {
       >
         {/* Top bar */}
         <div className="flex justify-between items-center border-b border-b-[var(--grey-3)] p-[24px_20px]">
-          <img src="/icons/elova-logo.svg" alt="Elova Logo" className="h-6" />
-          <img
-            src="/icons/close.svg"
+          <img src="/icons/rj-house-logo.svg" alt="RJ House Logo" className="h-6" />
+          <button
+            type="button"
             onClick={() => closeMobile(false)}
-            className="sm:w-4 sm:h-4 w-3 h-3 cursor-pointer"
-            alt="close"
-          />
+            aria-label="Close menu"
+            className="cursor-pointer p-3 -m-3"
+          >
+            <img
+              src="/icons/close.svg"
+              className="sm:w-4 sm:h-4 w-3 h-3"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
         {/* Main menu items */}
         <div className="mb-[91px]">
           {menus.map((menu, index) => (
-            <a
+            <button
+              type="button"
               key={index}
               onClick={() => {
                 setIsSubMenuOpen(true);
                 setSelectedMainMenu({ label: menu.title });
               }}
+              className="w-full p-[16px_20px] flex justify-between"
+              aria-label={`Open ${menu.title} submenu`}
             >
-              <div className="p-[16px_20px] flex justify-between">
-                {menu.title}
-                <img src="/icons/right-caret.svg" />
-              </div>
-            </a>
+              {menu.title}
+              <img src="/icons/right-caret.svg" alt="" aria-hidden="true" />
+            </button>
           ))}
         </div>
 
@@ -79,7 +89,13 @@ const MobileNav = ({ closeMobile, menus }) => {
         </Link>
         <a>
           <div className="p-[16px_20px] flex justify-between uppercase border-t border-t-[var(--teal-3)]">
-            Canada (CAD $) <img src="/icons/right-caret.svg" />
+            {(selectedCountry?.label || "United States") +
+              " (" +
+              (selectedCountry?.currency || "USD") +
+              " " +
+              (selectedCountry?.symbol || "$") +
+              ")"}{" "}
+            <img src="/icons/right-caret.svg" />
           </div>
         </a>
         {/* <a>
@@ -117,35 +133,43 @@ const MobileNav = ({ closeMobile, menus }) => {
             <img src="/icons/left-caret.svg" alt="back-icon" />
             <p>{selectedMainMenu.label}</p>
           </div>
-          <img src="/icons/close.svg" onClick={() => closeMobile(false)} />
+          <button
+            type="button"
+            onClick={() => closeMobile(false)}
+            aria-label="Close menu"
+            className="cursor-pointer"
+          >
+            <img
+              src="/icons/close.svg"
+              alt=""
+              aria-hidden="true"
+              className="w-4 h-4"
+            />
+          </button>
         </div>
 
         {isCustomize && (
           <div className="grid grid-cols-2 gap-[16px] p-[16px_20px]">
-            {customizeData?.cms_page?.collection_section?.[0]?.items.map(
-              (item, idx) => (
-                <div
-                  key={idx}
-                  className="cursor-pointer"
-                  onClick={() => {
-                    router.push(
-                      `/customize/?category=${item.title.toLowerCase()}`
-                    );
-                    setIsSubMenuOpen(false);
-                    closeMobile(false);
-                  }}
-                >
-                  <img
-                    src={item.file}
-                    alt={item.title}
-                    className="w-full h-[140px] object-cover"
-                  />
-                  <p className="mt-[8px] text-center text-[12px] font-[500] uppercase">
-                    {item.title}
-                  </p>
-                </div>
-              )
-            )}
+            {subMenu?.mediaCategories?.map((item, idx) => (
+              <Link
+                key={idx}
+                href={item.link}
+                className="cursor-pointer"
+                onClick={() => {
+                  setIsSubMenuOpen(false);
+                  closeMobile(false);
+                }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.label}
+                  className="w-full h-[140px] object-cover"
+                />
+                <p className="mt-[8px] text-center text-[12px] font-[500] uppercase">
+                  {item.label}
+                </p>
+              </Link>
+            ))}
           </div>
         )}
 
@@ -198,7 +222,7 @@ const MobileNav = ({ closeMobile, menus }) => {
               <img
                 src={section.imageUrl}
                 alt={section.additionalTitle}
-                className="pb-[16px] object-cover md:h-[270px] w-[301px] h-[216px]"
+                className="pb-[16px] object-cover w-full max-w-[301px] h-[216px] md:h-[270px]"
               />
               <h2 className="pb-[12px] text-[14px] font-[500]">
                 {section.additionalTitle}

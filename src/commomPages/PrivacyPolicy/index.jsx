@@ -5,12 +5,12 @@ import React from "react";
 const PrivacyPolicy = () => {
   return (
     <section>
-      <PageHeading title={"PriVacy Policy"} />
+      <PageHeading title={"Privacy Policy"} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-        <Typography variant="h4">Welcome to Elova </Typography>
+        <Typography variant="h3">Welcome to RJ House </Typography>
         <Typography variant="h5">
-          Elova values your privacy and is committed to safeguarding it. This
+          RJ House values your privacy and is committed to safeguarding it. This
           Privacy Statement outlines the types of personal information we
           collect when you use our website, online services, or platforms
           (collectively referred to as the “Services”). It explains how we use
@@ -30,7 +30,7 @@ const PrivacyPolicy = () => {
         <Typography variant="h4">Terms of Our Privacy Policy</Typography>
         <Typography variant="h4">Personal Information Collected</Typography>
         <Typography variant="h5">
-          By accepting this Privacy Policy, you authorize Elova to collect,
+          By accepting this Privacy Policy, you authorize RJ House to collect,
           store, and use any information you provide on our website or native
           mobile applications. The information we collect includes:
         </Typography>
@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
         <Typography variant="h5">
           Cookies are small pieces of information stored by your browser on your
           device. They are used to record various aspects of your visit and help
-          Elova provide you with seamless service. Elova does not use cookies to
+          RJ House provide you with seamless service. RJ House does not use cookies to
           store personal information for external purposes.
         </Typography>
         <Typography variant="h5">
@@ -68,12 +68,12 @@ const PrivacyPolicy = () => {
           impressions and services are connected to visits to our website.
         </Typography>
         <Typography variant="h5">
-          Elova.com retains full ownership of all information collected via the
+          RJ House.com retains full ownership of all information collected via the
           website or applications installed on the website or native mobile
           applications.
         </Typography>
         <Typography variant="h5">
-          As applicable, the information collected by Elova.com will be used for
+          As applicable, the information collected by RJ House.com will be used for
           the following purposes:
         </Typography>
         <Typography variant="h5">
@@ -103,7 +103,7 @@ const PrivacyPolicy = () => {
           Certain information may be shared with third parties, such as courier
           companies, credit card processing companies, and vendors, to
           facilitate their services and fulfill your order requirements.
-          Elova.com strictly prohibits unauthorized individuals or organizations
+          RJ House.com strictly prohibits unauthorized individuals or organizations
           from accessing or using any information collected through the website
           and native mobile applications.
         </Typography>

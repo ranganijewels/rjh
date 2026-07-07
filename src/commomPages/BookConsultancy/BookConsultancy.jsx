@@ -53,16 +53,20 @@ const BookConsultancy = () => {
             borderBottom
             fullWidth
           />
-          <div className="grid grid-cols-2 gap-[40px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[40px]">
             <div>
               {" "}
               <AppointmentCalendar />
             </div>
             <div className="space-y-[30px]">
               <div className="space-y-2">
-                <label className="block text-[16px] font-[400] text-[var(--grey-2)] mb-1">
+                <Typography
+                  as="label"
+                  variant="h4"
+                  className="block mb-1"
+                >
                   Select Mode Of Meeting
-                </label>
+                </Typography>
                 <div className="flex gap-[22px] mt-[22px]">
                   {["Virtual / Online Meeting", "Visit Store"].map((option) => (
                     <label
@@ -73,10 +77,10 @@ const BookConsultancy = () => {
                     >
                       <input
                         type="radio"
-                        name="previouslyRepaired"
+                        name="meetingMode"
                         className="w-[20px] h-[20px] accent-[var(--teal-1)] cursor-pointer"
-                        //   checked={formData.previouslyRepaired === option}
-                        //   onChange={() => handleRadio("previouslyRepaired", option)}
+                        //   checked={formData.meetingMode === option}
+                        //   onChange={() => handleRadio("meetingMode", option)}
                       />
                       <span className="text-stone-700">{option}</span>
                     </label>
@@ -84,7 +88,7 @@ const BookConsultancy = () => {
                 </div>
               </div>
 
-              <div className="px-[40px] space-y-[7px]">
+              <div className="px-4 md:px-10 space-y-[7px]">
                 <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />
@@ -106,9 +110,13 @@ const BookConsultancy = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-[16px] font-[400] text-[var(--grey-2)] mb-1">
+                <Typography
+                  as="label"
+                  variant="h4"
+                  className="block mb-1"
+                >
                   Special Notes / Requirements
-                </label>
+                </Typography>
                 <textarea
                   borderBottom
                   label="Special Notes / Requirements"
@@ -123,7 +131,7 @@ const BookConsultancy = () => {
         </div>
 
         <div className="mt-[60px]">
-          <Button title={"Book Appointment"} className="w-full" />
+          <Button title={"Book Consultancy"} className="w-full" />
         </div>
       </div>
     </section>

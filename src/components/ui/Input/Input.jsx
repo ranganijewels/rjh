@@ -14,6 +14,7 @@ const Input = ({
   borderBottom,
   containerClass,
   rightIcon,
+  hasError = false,
   ...rest
 }) => {
   return (
@@ -37,11 +38,14 @@ const Input = ({
           placeholder={placeholder}
           required={required}
           disabled={disabled}
+          aria-invalid={hasError || undefined}
+          aria-describedby={hasError && name ? `${name}-error` : undefined}
           className={`w-full ${
             borderBottom
-              ? "border-b focus:border-b-2 focus:border-[var(--teal-2)] py-[10px] pl-[10px] pr-[36px]"
+              ? "border-b py-[16px] pl-[10px] pr-[36px] md:py-[12px] focus:border-b-2 focus:border-[var(--teal-2)]"
               : "border focus:ring-2 focus:ring-[var(--teal-2)] focus:border-transparent p-[10px_20px]"
-          } border-[var(--placeholder)] focus:outline-none caret-[var(--teal-2)]
+          } ${hasError ? "border-red-500" : "border-[var(--placeholder)]"} focus:outline-none focus:ring-2 focus:ring-[var(--teal-2)] focus:ring-offset-1 caret-[var(--teal-2)]
+          disabled:bg-[var(--grey-0)] disabled:opacity-60 disabled:cursor-not-allowed
           md:text-[14px] text-[12px] font-[400]
           placeholder:md:text-[16px] placeholder:text-[12px] placeholder:capitalize
           ${className}`}

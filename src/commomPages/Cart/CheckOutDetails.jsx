@@ -23,7 +23,8 @@ import { useCoupon } from "@/hooks/useCoupon";
 
 const CheckOutDetails = () => {
   const [isDifferentBilling, setIsDifferentBilling] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  // Cash on Delivery is the only live payment method until a gateway is wired.
+  const [selectedPayment, setSelectedPayment] = useState("cod");
   const [errors, setErrors] = useState({});
   const [placingOrder, setPlacingOrder] = useState(false);
   const { customer } = useSelector((state) => state.auth);
@@ -146,7 +147,10 @@ const CheckOutDetails = () => {
         router.push("/cart/order-complete");
       }
     } catch (error) {
-      toast.error("Failed to place order");
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to place order. Please review your information and try again."
+      );
     } finally {
       setPlacingOrder(false);
     }
@@ -221,16 +225,18 @@ const CheckOutDetails = () => {
       newErrors.selectedPayment = "Select a payment method.";
     }
 
-    if (!paymentDetails.cardNumber.trim()) {
-      newErrors.cardNumber = "Card number is required.";
-    }
+    if (selectedPayment === "card" || selectedPayment === "credit-card") {
+      if (!paymentDetails.cardNumber.trim()) {
+        newErrors.cardNumber = "Card number is required.";
+      }
 
-    if (!paymentDetails.expiryDate.trim()) {
-      newErrors.expiryDate = "Expiry date is required.";
-    }
+      if (!paymentDetails.expiryDate.trim()) {
+        newErrors.expiryDate = "Expiry date is required.";
+      }
 
-    if (!paymentDetails.cvv.trim()) {
-      newErrors.cvv = "CVV is required.";
+      if (!paymentDetails.cvv.trim()) {
+        newErrors.cvv = "CVV is required.";
+      }
     }
 
     return newErrors;
@@ -345,12 +351,12 @@ const CheckOutDetails = () => {
     <section className="flex lg:flex-row flex-col xl:gap-[64px] lg:gap-[50px]">
       <div className="lg:w-[50%] lg:order-1 order-2 w-full space-y-[24px]">
         {/* Contact Information */}
-        <div className="border border-[var(--teal-3)] py-[40px] px-[24px]">
+        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
           <div className="space-y-[24px]">
             <Typography variant="h4" className="font-[500]">
               Contact Information
             </Typography>
-            <div className="flex gap-[24px]">
+            <div className="flex flex-col sm:flex-row gap-[24px]">
               <div className="w-full">
                 <Input
                   label="First Name *"
@@ -360,9 +366,10 @@ const CheckOutDetails = () => {
                   name="firstName"
                   value={contactInfo.firstName}
                   onChange={handleContactChange}
+                  hasError={!!errors.firstName}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p id="firstName-error" className="text-red-500 text-sm mt-1">
                     {errors.firstName}
                   </p>
                 )}
@@ -376,9 +383,10 @@ const CheckOutDetails = () => {
                   name="lastName"
                   value={contactInfo.lastName}
                   onChange={handleContactChange}
+                  hasError={!!errors.lastName}
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                  <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -391,9 +399,10 @@ const CheckOutDetails = () => {
               name="phone"
               value={contactInfo.phone}
               onChange={handleContactChange}
+              hasError={!!errors.phone}
             />
             {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>
             )}
             <Input
               label="Email address"
@@ -403,15 +412,16 @@ const CheckOutDetails = () => {
               name="email"
               value={contactInfo.email}
               onChange={handleContactChange}
+              hasError={!!errors.email}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>
             )}
           </div>
         </div>
 
         {/* Shipping Address */}
-        <div className="border border-[var(--teal-3)] py-[40px] px-[24px]">
+        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
           <div className="space-y-[24px]">
             <Typography variant="h4" className="font-[500]">
               Shipping Address
@@ -434,7 +444,7 @@ const CheckOutDetails = () => {
               />
             </div>
             {errors.addressType && (
-              <p className="text-red-500 text-sm mt-1">{errors.addressType}</p>
+              <p id="addressType-error" className="text-red-500 text-sm mt-1">{errors.addressType}</p>
             )}{" "}
             <Input
               label="Street Address *"
@@ -443,9 +453,10 @@ const CheckOutDetails = () => {
               name="street"
               value={address.street}
               onChange={handleAddressChange}
+              hasError={!!errors.street}
             />
             {errors.street && (
-              <p className="text-red-500 text-sm mt-1">{errors.street}</p>
+              <p id="street-error" className="text-red-500 text-sm mt-1">{errors.street}</p>
             )}
             {/* <Dropdown
               label="Country *"
@@ -467,11 +478,12 @@ const CheckOutDetails = () => {
               name="city"
               value={address.city}
               onChange={handleAddressChange}
+              hasError={!!errors.city}
             />
             {errors.city && (
-              <p className="text-red-500 text-sm">{errors.city}</p>
+              <p id="city-error" className="text-red-500 text-sm">{errors.city}</p>
             )}
-            <div className="flex gap-[24px]">
+            <div className="flex flex-col sm:flex-row gap-[24px]">
               <div className="w-full">
                 <Input
                   label="State *"
@@ -481,9 +493,10 @@ const CheckOutDetails = () => {
                   name="state"
                   value={address.state}
                   onChange={handleAddressChange}
+                  hasError={!!errors.state}
                 />
                 {errors.state && (
-                  <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                  <p id="state-error" className="text-red-500 text-sm mt-1">{errors.state}</p>
                 )}
               </div>
 
@@ -496,9 +509,10 @@ const CheckOutDetails = () => {
                   name="zipCode"
                   value={address.zipCode}
                   onChange={handleAddressChange}
+                  hasError={!!errors.zipCode}
                 />
                 {errors.zipCode && (
-                  <p className="text-red-500 text-sm mt-1">{errors.zipCode}</p>
+                  <p id="zipCode-error" className="text-red-500 text-sm mt-1">{errors.zipCode}</p>
                 )}
               </div>
             </div>
@@ -519,9 +533,10 @@ const CheckOutDetails = () => {
                   name="billingStreetAddress"
                   value={address.billingStreetAddress}
                   onChange={handleAddressChange}
+                  hasError={!!errors.billingStreetAddress}
                 />
                 {errors.billingStreetAddress && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p id="billingStreetAddress-error" className="text-red-500 text-sm mt-1">
                     {errors.billingStreetAddress}
                   </p>
                 )}
@@ -532,13 +547,14 @@ const CheckOutDetails = () => {
                   name="billingCity"
                   value={address.billingCity}
                   onChange={handleAddressChange}
+                  hasError={!!errors.billingCity}
                 />
                 {errors.billingCity && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p id="billingCity-error" className="text-red-500 text-sm mt-1">
                     {errors.billingCity}
                   </p>
                 )}
-                <div className="flex gap-[24px]">
+                <div className="flex flex-col sm:flex-row gap-[24px]">
                   <Input
                     label="State"
                     placeholder="State"
@@ -547,9 +563,10 @@ const CheckOutDetails = () => {
                     name="billingState"
                     value={address.billingState}
                     onChange={handleAddressChange}
+                    hasError={!!errors.billingState}
                   />
                   {errors.billingState && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p id="billingState-error" className="text-red-500 text-sm mt-1">
                       {errors.billingState}
                     </p>
                   )}
@@ -561,9 +578,10 @@ const CheckOutDetails = () => {
                     name="billingZipcode"
                     value={address.billingZipcode}
                     onChange={handleAddressChange}
+                    hasError={!!errors.billingZipcode}
                   />
                   {errors.billingZipcode && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p id="billingZipcode-error" className="text-red-500 text-sm mt-1">
                       {errors.billingZipcode}
                     </p>
                   )}
@@ -574,21 +592,31 @@ const CheckOutDetails = () => {
         </div>
 
         {/* Payment Methods */}
-        <div className="border border-[var(--teal-3)] py-[40px] px-[24px]">
+        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
           <div className="space-y-[24px]">
             <Typography variant="h4" className="font-[500]">
               Payment method
             </Typography>
             <div className="space-y-[12px]">
+              {/* Card payment is disabled until a payment gateway is
+                  integrated — no gateway means "card" would place an order
+                  without ever charging the customer. */}
               <RadioButton
                 name="payment"
                 value="credit-card"
-                checked
-                // checked={selectedPayment === "card"}
-                onChange={() => handlePaymentChange("card")}
+                checked={false}
+                onChange={() => {}}
+                disabled
+                aria-disabled="true"
+                labelClassName="opacity-50 !cursor-not-allowed focus-within:ring-2 focus-within:ring-[var(--teal-1)] focus-within:ring-offset-2"
               >
-                <div className="flex justify-between w-full">
-                  <span>Pay by Card Credit</span>
+                <div className="flex justify-between w-full items-center">
+                  <span>
+                    Card / UPI
+                    <span className="ml-2 text-[11px] uppercase tracking-wide text-[var(--placeholder)] border border-[var(--teal-3)] rounded-full px-2 py-[1px]">
+                      Coming soon
+                    </span>
+                  </span>
                   <span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -644,7 +672,7 @@ const CheckOutDetails = () => {
                 </div>
               </RadioButton> */}
 
-              {/* <RadioButton
+              <RadioButton
                 name="payment"
                 value="cod"
                 checked={selectedPayment === "cod"}
@@ -653,68 +681,73 @@ const CheckOutDetails = () => {
                 <div className="flex justify-between w-full">
                   <span>Cash On Delivery</span>
                 </div>
-              </RadioButton> */}
+              </RadioButton>
             </div>
 
-            {/* Add your payment input fields here... */}
-            <Input
-              label="Card Number *"
-              placeholder="1234 1234 1234 1234"
-              borderBottom
-              type="text"
-              name="cardNumber"
-              value={paymentDetails.cardNumber}
-              onChange={(e) => {
-                let value = e.target.value.replace(/\D/g, ""); // remove non-digits
-                value = value.slice(0, 16); // max 16 digits
-                // format into groups of 4
-                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-                setPaymentDetails((prev) => ({ ...prev, cardNumber: value }));
-              }}
-              // errorMessage={errors.cardNumber}
-            />
-            {errors.cardNumber && (
-              <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>
+            {/* Card fields only shown for card payment */}
+            {(selectedPayment === "card" || selectedPayment === "credit-card") && (
+              <div className="space-y-[24px]">
+                <div>
+                  <Input
+                    label="Card Number *"
+                    placeholder="1234 1234 1234 1234"
+                    borderBottom
+                    type="text"
+                    name="cardNumber"
+                    value={paymentDetails.cardNumber}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/\D/g, "");
+                      value = value.slice(0, 16);
+                      value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                      setPaymentDetails((prev) => ({ ...prev, cardNumber: value }));
+                    }}
+                    hasError={!!errors.cardNumber}
+                  />
+                  {errors.cardNumber && (
+                    <p id="cardNumber-error" className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-[24px]">
+                  <div className="w-full">
+                    <Input
+                      label="Expiration date *"
+                      placeholder="MM/YY"
+                      borderBottom
+                      type="text"
+                      containerClass="w-full"
+                      name="expiryDate"
+                      value={paymentDetails.expiryDate}
+                      onChange={handlePaymentDetailsChange}
+                      hasError={!!errors.expiryDate}
+                    />
+                    {errors.expiryDate && (
+                      <p id="expiryDate-error" className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>
+                    )}
+                  </div>
+
+                  <div className="w-full">
+                    <Input
+                      label="CVV *"
+                      placeholder="CVV code"
+                      borderBottom
+                      containerClass="w-full"
+                      name="cvv"
+                      value={paymentDetails.cvv}
+                      onChange={handlePaymentDetailsChange}
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={3}
+                      hasError={!!errors.cvv}
+                    />
+                    {errors.cvv && (
+                      <p id="cvv-error" className="text-red-500 text-sm mt-1">{errors.cvv}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
-
-            <div className="flex gap-[24px]">
-              <div className="w-full">
-                <Input
-                  label="Expiration date *"
-                  placeholder="MM/YY"
-                  borderBottom
-                  type="text"
-                  containerClass="w-full"
-                  name="expiryDate"
-                  value={paymentDetails.expiryDate}
-                  onChange={handlePaymentDetailsChange}
-                />
-                {errors.expiryDate && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.expiryDate}
-                  </p>
-                )}
-              </div>
-
-              <div className="w-full">
-                <Input
-                  label="CVV *"
-                  placeholder="CVV code"
-                  borderBottom
-                  containerClass="w-full"
-                  name="cvv"
-                  value={paymentDetails.cvv}
-                  onChange={handlePaymentDetailsChange}
-                  type="password"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={3}
-                />
-                {errors.cvv && (
-                  <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>
-                )}
-              </div>
-            </div>
             <Button
               title={placingOrder ? "Placing Order..." : "Place Order"}
               className="!w-full"
@@ -752,12 +785,12 @@ const CheckOutDetails = () => {
       {/* Order Summary */}
       <div className="lg:w-[50%] lg:order-2 order-1 w-full">
         <div className="lg:border-l lg:border-l-[var(--teal-3)] xl:pl-[64px] lg:pl-[24px] space-y-[24px] top-0 sticky">
-          <h2 className="font-[500] md:text-[20px] text-[16px]">
+          <Typography variant="h4" className="font-[500]">
             Order summary
-          </h2>
+          </Typography>
 
           <div className="h-[522px] overflow-y-auto no-scrollbar space-y-[24px] custom-scroll border-b lg:border-b-[var(--teal-3)]">
-            {cartItems.length > 0 &&
+            {cartItems.length > 0 ? (
               cartItems?.map((items) => (
                 <div
                   key={items.cart_item_id}
@@ -765,7 +798,14 @@ const CheckOutDetails = () => {
                 >
                   {" "}
                   <div className="px-[18px] py-[13px] bg-[var(--product-bg)] flex items-center mx-auto">
-                    <img src={items.image} className="h-[78px] w-[78px]" />
+                    <img
+                      src={items.image}
+                      alt={toTitleCase(items?.title) || "Product"}
+                      width={78}
+                      height={78}
+                      loading="lazy"
+                      className="h-[78px] w-[78px]"
+                    />
                   </div>
                   <div className="flex flex-col w-full items-start 2xl:col-span-2 md:col-span-1">
                     <Typography variant="h5" className="font-[500]">
@@ -820,7 +860,12 @@ const CheckOutDetails = () => {
                     {items.subtotal ?? 0}
                   </Typography>
                 </div>
-              ))}
+              ))
+            ) : (
+              <Typography variant="h5" className="text-center py-8">
+                No items to display
+              </Typography>
+            )}
           </div>
 
           {/* Coupon Section */}
@@ -890,15 +935,6 @@ const CheckOutDetails = () => {
               </Typography>
             </div>
 
-            <div className="flex justify-between">
-              <Typography variant="h5" className="font-[500]">
-                Taxes
-              </Typography>
-              <Typography variant="h5" className="font-[500]">
-                {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                {Number(summary?.cart_total ?? 0)}
-              </Typography>
-            </div>
 
             {/* <div className="flex justify-between">
               <Typography variant="h5" className="font-[500]">

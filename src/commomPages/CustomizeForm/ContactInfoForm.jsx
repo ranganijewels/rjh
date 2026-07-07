@@ -69,7 +69,11 @@ const ContactInfoForm = () => {
 
         file: filesBase64,
         description: referenceForm.description || "",
-        url: referenceForm.urls || "",
+        // API reads `reference_url` (a string); urls is an array — join them so the
+        // customer's reference links aren't silently dropped from the request.
+        reference_url: Array.isArray(referenceForm.urls)
+          ? referenceForm.urls.filter(Boolean).join(", ")
+          : referenceForm.urls || "",
 
         shape: referenceForm.shape?.label || "",
 
@@ -123,7 +127,7 @@ const ContactInfoForm = () => {
       </div>
 
       <form className="space-y-[52px] w-full">
-        <div className="grid grid-cols-2 gap-[42px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[42px]">
           <div>
             {" "}
             <Input
@@ -134,7 +138,7 @@ const ContactInfoForm = () => {
               className=" !border-[var(--teal-3)]"
               value={form.fullName}
               onChange={handleChange}
-              error={errors?.full_name?.[0]}
+              hasError={!!errors?.full_name}
             />
             {errors?.full_name && (
               <p className="text-red-500 text-sm mt-1">{errors.full_name[0]}</p>
@@ -152,6 +156,7 @@ const ContactInfoForm = () => {
               onChange={handleChange}
               type="tel"
               pattern="[0-9]{10}"
+              hasError={!!errors?.phone}
             />
             {errors?.phone && (
               <p className="text-red-500 text-sm mt-1">{errors.phone[0]}</p>
@@ -167,53 +172,78 @@ const ContactInfoForm = () => {
             className=" !border-[var(--teal-3)]"
             value={form.email}
             onChange={handleChange}
+            hasError={!!errors?.email}
           />
           {errors?.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-[42px]">
-          <Input
-            label="Country"
-            name="country"
-            placeholder="Enter Country"
-            borderBottom
-            className=" !border-[var(--teal-3)]"
-            containerClass="w-full"
-            value={form.country}
-            onChange={handleChange}
-          />
-          <Input
-            label="State"
-            name="state"
-            placeholder="Enter State"
-            value={form.state}
-            onChange={handleChange}
-            className=" !border-[var(--teal-3)]"
-            borderBottom
-            containerClass="w-full"
-          />
-          <Input
-            label="Town/City :"
-            name="city"
-            placeholder="Enter City"
-            value={form.city}
-            onChange={handleChange}
-            className=" !border-[var(--teal-3)]"
-            borderBottom
-            containerClass="w-full"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[42px]">
+          <div>
+            <Input
+              label="Country"
+              name="country"
+              placeholder="Enter Country"
+              borderBottom
+              className=" !border-[var(--teal-3)]"
+              containerClass="w-full"
+              value={form.country}
+              onChange={handleChange}
+              hasError={!!errors?.country}
+            />
+            {errors?.country && (
+              <p className="text-red-500 text-sm mt-1">{errors.country[0]}</p>
+            )}
+          </div>
+          <div>
+            <Input
+              label="State"
+              name="state"
+              placeholder="Enter State"
+              value={form.state}
+              onChange={handleChange}
+              className=" !border-[var(--teal-3)]"
+              borderBottom
+              containerClass="w-full"
+              hasError={!!errors?.state}
+            />
+            {errors?.state && (
+              <p className="text-red-500 text-sm mt-1">{errors.state[0]}</p>
+            )}
+          </div>
+          <div>
+            <Input
+              label="Town/City :"
+              name="city"
+              placeholder="Enter City"
+              value={form.city}
+              onChange={handleChange}
+              className=" !border-[var(--teal-3)]"
+              borderBottom
+              containerClass="w-full"
+              hasError={!!errors?.city}
+            />
+            {errors?.city && (
+              <p className="text-red-500 text-sm mt-1">{errors.city[0]}</p>
+            )}
+          </div>
 
-          <Input
-            label="Zipcode :"
-            name="zipcode"
-            placeholder="Enter zipcode"
-            value={form.zipcode}
-            onChange={handleChange}
-            className=" !border-[var(--teal-3)]"
-            borderBottom
-            containerClass="w-full"
-          />
+          <div>
+            <Input
+              label="Zipcode :"
+              name="zipcode"
+              placeholder="Enter zipcode"
+              value={form.zipcode}
+              onChange={handleChange}
+              className=" !border-[var(--teal-3)]"
+              borderBottom
+              containerClass="w-full"
+              hasError={!!errors?.zip_code}
+            />
+            {errors?.zip_code && (
+              <p className="text-red-500 text-sm mt-1">{errors.zip_code[0]}</p>
+            )}
+          </div>
         </div>
         <div className="flex gap-[14px]">
           <input
@@ -240,7 +270,11 @@ const ContactInfoForm = () => {
         <Button
           title="Previous"
           variant="outlineTeal"
-          onClick={() => router.push(`/customize/form/review?size=${sizeSlug}`)}
+          onClick={() =>
+            router.push(
+              `/customize/form/review?size=${sizeSlug}&size_category_id=${sizeCategoryId}`
+            )
+          }
         />
         <Button
           title={submitting ? "Submitting..." : "Submit"}

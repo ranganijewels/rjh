@@ -1,12 +1,16 @@
-import { handleGET } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 
-export async function GET(req, { params }) {
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-  };
-
-  return handleGET(`/api/cms/product-categories/get-category`, headers);
+export async function GET(req) {
+  try {
+    const result = await rjApi("GET", "/masters/categories");
+    const cats = result.raw?.data || [];
+    const jewelry = cats.find(c => c.categoryKey === "jewelry_category");
+    const values = jewelry?.values || [];
+    return NextResponse.json({
+      data: values.map(v => ({ id: v.id, name: v.valueLabel, slug: v.valueKey, image: "" }))
+    });
+  } catch {
+    return NextResponse.json({ data: [] });
+  }
 }

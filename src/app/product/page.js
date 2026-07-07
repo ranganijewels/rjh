@@ -4,19 +4,13 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePreferences } from "@/context/PreferencesContext";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const Page = () => {
   useEffect(() => {
-    const disableRightClick = (e) => {
-      e.preventDefault();
-    };
-
+    const disableRightClick = (e) => e.preventDefault();
     document.addEventListener("contextmenu", disableRightClick);
-
-    return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-    };
+    return () => document.removeEventListener("contextmenu", disableRightClick);
   }, []);
 
   const { create } = useCrudApi("/api/product");
@@ -26,43 +20,24 @@ const Page = () => {
   const mapParamsToPayload = (params) => {
     const payload = {};
     if (params.get("search")) payload.search = params.get("search");
-    if (params.get("gender")) payload.gender = params.get("gender");
-    if (params.get("subcat"))
-      payload.sub_category_id = Number(params.get("subcat"));
     if (params.get("metal")) payload.metal_color = params.get("metal");
-    if (params.get("quality"))
-      payload.quality_id = Number(params.get("quality"));
-    if (params.get("shape")) payload.occassion_id = Number(params.get("shape"));
-    if (params.get("category_id"))
-      payload.category_id = Number(params.get("category_id"));
+    if (params.get("shape")) payload.diamond_shape = params.get("shape");   // shape name e.g. "Round"
+    if (params.get("subcat")) payload.sub_category = params.get("subcat");  // style name e.g. "Solitaire"
+    if (params.get("category_id")) payload.category = params.get("category_id");
     if (params.get("sort_by")) payload.sort_by = params.get("sort_by");
-    if (params.get("collection")) {
-      if (
-        params.get("collection") === "wedding" ||
-        params.get("collection") === "Wedding"
-      ) {
-        payload.collection_id = 2;
-      } else if (
-        params.get("collection") === "engagement" ||
-        params.get("collection") === "Engagement"
-      ) {
-        payload.collection_id = 3;
-      } else if (
-        params.get("collection") === "jewellery" ||
-        params.get("collection") === "Jewellery"
-      ) {
-        payload.collection_id = 1;
-      }
-    }
+
+    // collection maps to category in NestJS
+    const collection = params.get("collection");
+    if (collection) payload.category = collection;
 
     return payload;
   };
 
   const payload = mapParamsToPayload(searchParams);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["product-list", payload, selectedCountry?.currency],
-
       queryFn: async ({ pageParam = 1 }) => {
         const res = await create(
           { ...payload, page: pageParam },
@@ -70,14 +45,12 @@ const Page = () => {
         );
         return res;
       },
-
       getNextPageParam: (lastPage) => {
         if (!lastPage?.meta) return undefined;
         if (lastPage.meta.current_page < lastPage.meta.last_page)
           return lastPage.meta.current_page + 1;
         return undefined;
       },
-
       staleTime: 1000 * 60 * 5,
     });
 
@@ -85,14 +58,10 @@ const Page = () => {
 
   useEffect(() => {
     if (!loaderRef.current || !hasNextPage) return;
-
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) fetchNextPage();
-      },
+      (entries) => { if (entries[0].isIntersecting) fetchNextPage(); },
       { threshold: 1 }
     );
-
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [loaderRef, hasNextPage]);
@@ -101,7 +70,6 @@ const Page = () => {
 
   return (
     <>
-      {" "}
       <ProductListing
         initialProducts={{ data: products }}
         loading={isLoading}

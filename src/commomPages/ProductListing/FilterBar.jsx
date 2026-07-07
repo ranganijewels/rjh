@@ -56,17 +56,21 @@ const FilterBar = ({ filtersData }) => {
     if (value) {
       switch (key) {
         case "category_id":
-          paramValue = value.id;
+          paramValue = value.slug || value.name?.toLowerCase() || value.id;
           break;
         case "subcat":
-          paramValue = value.id;
+          // Use style name so NestJS can ILIKE match it
+          paramValue = value.value || value.name || value.id;
           break;
         case "metal":
           paramValue = value.value || null;
           break;
-        case "quality":
         case "shape":
-          paramValue = value.id;
+          // Use shape name (e.g. "Round") so NestJS can ILIKE match it
+          paramValue = value.value || value.name || value.id;
+          break;
+        case "quality":
+          paramValue = value.value || value.id;
           break;
         default:
           paramValue = value;
@@ -95,7 +99,12 @@ const FilterBar = ({ filtersData }) => {
           label="Category :"
           value={
             categoryId
-              ? CATEGORIES_ITEMS.find((opt) => String(opt.id) === categoryId)
+              ? CATEGORIES_ITEMS.find(
+                  (opt) =>
+                    opt.slug === categoryId ||
+                    opt.name?.toLowerCase() === categoryId?.toLowerCase() ||
+                    String(opt.id) === categoryId
+                )
               : null
           }
           buttonStyle="!outline-0 !focus:ring-0 !p-0"
@@ -110,18 +119,42 @@ const FilterBar = ({ filtersData }) => {
       {/* Style Dropdown */}
       <div
         className="p-[10px_14px]"
+        {...(!categoryId
+          ? {
+              role: "button",
+              tabIndex: 0,
+              "aria-disabled": true,
+              "aria-describedby": "style-dropdown-hint",
+            }
+          : {})}
         onClick={() => {
           if (!categoryId) {
             toast("Please select a category first", { icon: "⚠️" });
           }
         }}
+        onKeyDown={(e) => {
+          if (!categoryId && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            toast("Please select a category first", { icon: "⚠️" });
+          }
+        }}
       >
+        {!categoryId && (
+          <span id="style-dropdown-hint" className="sr-only">
+            Please select a category first to enable the style filter.
+          </span>
+        )}
         <Dropdown
           labelStyle="font-[500]"
           label="Style :"
           value={
             style
-              ? filtersData?.style?.find((opt) => String(opt.id) === style)
+              ? filtersData?.style?.find(
+                  (opt) =>
+                    opt.value === style ||
+                    opt.name === style ||
+                    String(opt.id) === style
+                )
               : null
           }
           // value={
@@ -160,7 +193,12 @@ const FilterBar = ({ filtersData }) => {
           label="Diamond shape :"
           value={
             shape
-              ? filtersData?.shape?.find((opt) => String(opt?.id) === shape)
+              ? filtersData?.shape?.find(
+                  (opt) =>
+                    opt.value === shape ||
+                    opt.name === shape ||
+                    String(opt.id) === shape
+                )
               : null
           }
           buttonStyle="!outline-0 !focus:ring-0 !p-0"
@@ -184,7 +222,11 @@ const FilterBar = ({ filtersData }) => {
                     (opt) =>
                       opt.value !== "WHITE/ROSE" && opt.value !== "WHITE/YELLOW"
                   )
-                  .find((opt) => String(opt.id) === metal)
+                  .find(
+                    (opt) =>
+                      opt.value?.toLowerCase() === metal?.toLowerCase() ||
+                      String(opt.id)?.toLowerCase() === metal?.toLowerCase()
+                  )
               : null
           }
           buttonStyle="!outline-0 !focus:ring-0 !p-0"

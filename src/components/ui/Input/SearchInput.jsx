@@ -26,6 +26,9 @@ const SearchInput = ({ value, onChange, onClear }) => {
           <div className="w-6 h-6 relative overflow-hidden">
             <img
               src="/icons/search.svg"
+              alt=""
+              width={24}
+              height={24}
               className="w-6 h-6 left-[0.01px] top-[0.01px] absolute"
             />
           </div>
@@ -40,13 +43,20 @@ const SearchInput = ({ value, onChange, onClear }) => {
             className="w-full focus:outline-none placeholder:text-[var(--placeholder)] text-[16px] font-[400]"
           />
         </div>
-        <div className="w-6 h-6 relative overflow-hidden">
+        <button
+          type="button"
+          aria-label="Clear search"
+          onClick={onClear}
+          className="w-6 h-6 relative overflow-hidden"
+        >
           <img
             src="/icons/close.svg"
+            alt=""
+            width={14}
+            height={14}
             className="w-3.5 h-3.5 left-[5px] top-[5px] absolute cursor-pointer"
-            onClick={onClear}
           />
-        </div>
+        </button>
       </div>
     </div>
   );

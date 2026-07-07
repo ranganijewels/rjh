@@ -9,10 +9,10 @@ const ReviewCard = ({ name, designation, review, customerImg, className }) => {
     >
       <div className="xl:max-w-[335px] max-w-[50%] p-[30px_13px] xl:p-[60px_27px] flex flex-col items-start justify-between lg:gap-[33px]">
         <div className="flex flex-col">
-          <label className="tracking-tight font-[500] xl:text-[20px] lg:text-[18px] text-[16px] capitalize">
+          <label className="tracking-tight font-medium xl:text-[20px] lg:text-[18px] text-[16px] capitalize">
             {name}
           </label>
-          <p className="tracking-tight font-[200] lg:text-[12px] text-[10px] italic">
+          <p className="tracking-tight font-extralight lg:text-[12px] text-[10px] italic">
             {designation}
           </p>
         </div>
@@ -22,7 +22,7 @@ const ReviewCard = ({ name, designation, review, customerImg, className }) => {
             className="xl:h-[48px] xl:w-[48px] h-[24px] w-[24px]"
             alt="quotes"
           />
-          <p className="tracking-tight font-[400] xl:text-[14px] lg:text-[12px] text-[10px] line-clamp-3">
+          <p className="tracking-tight font-normal xl:text-[14px] lg:text-[12px] text-[10px] line-clamp-3">
             {review}
           </p>
         </div>

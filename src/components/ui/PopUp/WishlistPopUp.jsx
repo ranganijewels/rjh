@@ -73,9 +73,11 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
                     className="!font-[600]"
                     textColor="teal"
                   >
-                    {getCurrencySymbol(selectedCountry?.currency) +
-                      " " +
-                      Math.floor(Number(item?.product_price))}
+                    {Number(item?.product_price) > 0
+                      ? getCurrencySymbol(selectedCountry?.currency) +
+                        " " +
+                        Math.floor(Number(item?.product_price))
+                      : "Price on request"}
                   </Typography>
 
                   <div className="flex gap-[10px] mt-[20px]">

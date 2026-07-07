@@ -1,4 +1,4 @@
-export const useExchangeRate = (from = "INR", to = "CAD") => {
+export const useExchangeRate = (from = "USD", to = "USD") => {
   const [rate, setRate] = useState(0);
   useEffect(() => {
     fetch(`https://api.exchangerate.host/convert?from=${from}&to=${to}`)

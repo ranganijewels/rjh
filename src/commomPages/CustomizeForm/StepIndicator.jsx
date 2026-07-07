@@ -39,7 +39,7 @@ export const StepIndicator = ({ steps, currentStep }) => {
                 className={`text-sm shrink-0 ${
                   index === currentStep
                     ? "font-semibold text-gray-900"
-                    : "text-gray-400"
+                    : "text-[var(--placeholder)]"
                 }`}
               >
                 {label}

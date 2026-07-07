@@ -4,16 +4,23 @@ import HeroSection from "@/components/common/HeroSection";
 import TwoColGrid from "@/components/common/TwoColGrid";
 import React, { useEffect, useState } from "react";
 import Heading from "@/components/ui/Heading/Heading";
-import CustomerReview from "../Home/CustomerReview";
 import Newsletter from "../Home/Newsletter";
 import JewelryCTA from "@/components/common/JewelryCTA";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { useHomepageData } from "../Home/useHomepageData";
+import { usePageHero } from "@/hooks/usePageHero";
+import StoryBlocks, { Testimonials } from "../StoryPages/blocks";
+import { OUR_STORY } from "../StoryPages/content";
+import { useHashScroll } from "@/hooks/useHashScroll";
 
-const About = () => { 
+const About = () => {
   const [aboutData, setAboutData] = useState([]);
   const { fetchAll } = useCrudApi(`/api/about`);
-  const { homeData } = useHomepageData();
+  // Hero comes from the same CMS "Banners & Hero → About Us" tab as every other
+  // page (most-recent hero-banner). Falls back to the /api/about default.
+  const hero = usePageHero("about-us");
+  const aboutHero = aboutData?.hero_section?.[0];
+  // Deep-link support for the "About us → Our Story" nav items (/about-us#id).
+  useHashScroll(aboutData);
 
   useEffect(() => {
     fetchAll()
@@ -21,28 +28,22 @@ const About = () => {
       .catch((err) => console.error("Error fetching about Page", err));
   }, [fetchAll]);
 
-  useEffect(() => {
-    const disableRightClick = (e) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener("contextmenu", disableRightClick);
-
-    return () => {
-      document.removeEventListener("contextmenu", disableRightClick);
-    };
-  }, []);
-
   return (
     <div className="xl:space-y-[80px] space-y-[40px]">
       <HeroSection
-        backgroundUrl={aboutData?.hero_section?.[0]?.file}
-        title={aboutData?.hero_section?.[0]?.title}
-        description={aboutData?.hero_section?.[0]?.subtitle}
+        backgroundUrl={hero?.file || aboutHero?.file}
+        mobileFile={hero?.mobileFile}
+        title={hero?.title || aboutHero?.title}
+        description={hero?.description || aboutHero?.subtitle}
         imageClass="!h-[475px]"
         containerClass="!h-[475px]"
-        buttons={aboutData?.hero_section?.[0]?.buttons}
+        buttons={hero?.buttons?.length ? hero.buttons : aboutHero?.buttons}
       />
+
+      {/* Our Story — the four anchored sub-sections linked from the
+          "About us → Our Story" nav group (/about-us#our-story, etc.):
+          image split → stats band → values band → pull-quote → split. */}
+      <StoryBlocks blocks={OUR_STORY.blocks} />
 
       {(aboutData?.explore || []).map((items, index) => (
         <TwoColGrid
@@ -74,18 +75,15 @@ const About = () => {
         )}
       </div>
 
-      <div>
-        <Heading
-          className={"lg:px-[30px] px-[18px]"}
-          title={aboutData?.testimonial_section?.[1]?.title ?? ""}
-          description={aboutData?.testimonial_section?.[1]?.description ?? ""}
-        />
-
-        <CustomerReview
-          reviewdata={homeData?.testimonial_section?.[0] ?? null}
-          hideLabel
-        />
-      </div>
+      {/* Testimonials — CMS-titled (About Page editor), review cards from the
+          live homepage testimonial_section.reviews. Replaces the legacy
+          CustomerReview carousel, which mapped a `testimonialitems` key the
+          API no longer sends and therefore rendered an empty strip. */}
+      <Testimonials
+        eyebrow="In Their Words"
+        title={aboutData?.testimonial_section?.[1]?.title || "Loved by Our Customers"}
+        intro={aboutData?.testimonial_section?.[1]?.description || ""}
+      />
 
       {aboutData?.banner_section?.[0] && (
         <JewelryCTA

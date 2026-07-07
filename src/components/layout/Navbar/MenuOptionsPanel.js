@@ -102,75 +102,28 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
         })}
 
       {isCustomize && (
-        <div className="grid grid-cols-5 gap-[24px] w-full">
-          {customizeData?.cms_page?.collection_section?.[0]?.items.map(
-            (item, idx) => {
-              return (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    if (!categories.length) return;
-
-                    const productNameNormalized = normalizeString(item.title);
-
-                    const category = categories.find((c) =>
-                      productNameNormalized?.includes(normalizeString(c.name))
-                    );
-
-                    if (!category) return;
-
-                    const sizeSlug = category.slug;
-                    const categoryId = category.id;
-
-                    // router.push(
-                    //   `/customize/form/reference?category_id=${categoryId}&size=${sizeSlug}`
-                    // );
-                    router.push(`/customize/?category=${sizeSlug}`);
-
-                    setActiveMenu(null);
-                  }}
-                  // onClick={() => setActiveMenu(null)}
-                  className="group cursor-pointer"
-                >
-                  <div className="overflow-hidden bg-white">
-                    <img
-                      src={item.file}
-                      alt={item.title}
-                      className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-
-                  <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide uppercase">
-                    {item.title}
-                  </p>
-                </div>
-              );
-            }
-          )}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-[24px] w-full">
+          {selectedMenu.mediaCategories?.map((item, idx) => (
+            <Link
+              key={idx}
+              href={item.link}
+              onClick={() => setActiveMenu(null)}
+              className="group cursor-pointer"
+            >
+              <div className="overflow-hidden bg-white">
+                <img
+                  src={item.image}
+                  alt={item.label}
+                  className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide uppercase">
+                {item.label}
+              </p>
+            </Link>
+          ))}
         </div>
       )}
-
-      {/* {isCustomize &&
-        selectedMenu.mediaCategories?.map((item, idx) => (
-          <Link
-            key={idx}
-            href={item.link}
-            onClick={() => setActiveMenu(null)}
-            className="group cursor-pointer"
-          >
-            <div className="overflow-hidden">
-              <img
-                src={item.image}
-                alt={item.label}
-                className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-
-            <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide">
-              {item.label}
-            </p>
-          </Link>
-        ))} */}
 
       {/* Image and CTA section */}
       {Array.isArray(selectedMenu.imageSection) &&

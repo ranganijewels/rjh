@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, use } from "react";
+import DOMPurify from "dompurify";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import Typography from "@/components/ui/Typography/Typography";
 import { CalenderIcon, UserIcon } from "@/components/Icons/common";
@@ -55,7 +56,11 @@ const BlogDetail = ({ params }) => {
         </div>
       </div>
 
-      <div dangerouslySetInnerHTML={{ __html: blog?.description }} />
+      <div
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(blog?.description || ""),
+        }}
+      />
     </section>
   );
 };

@@ -1,6 +1,7 @@
 "use client";
 import Typography from "@/components/ui/Typography/Typography";
 import React from "react";
+import { BUSINESS } from "@/config/business";
 
 const Support = ({ showHeading }) => {
   return (
@@ -22,11 +23,9 @@ const Support = ({ showHeading }) => {
               Contact our support team
             </Typography>
             <Typography variant="h5" className="font-[500]" textColor="teal">
-              040-671151631
+              {BUSINESS.phone}
             </Typography>
-            <Typography variant="h5">
-              Monday to Saturday 9:00 am - 7:00 pm.
-            </Typography>
+            <Typography variant="h5">{BUSINESS.hours}.</Typography>
           </div>
         </div>
 
@@ -38,16 +37,12 @@ const Support = ({ showHeading }) => {
             <Typography variant="h5">
               Email us to get support from our team
             </Typography>
-            <Typography
-              variant="h5"
-              className="font-[500] cursor-pointer hover:underline"
-              textColor="teal"
-              onClick={() =>
-                (window.location.href = "mailto:info@elovajewel.com")
-              }
+            <a
+              href={`mailto:${BUSINESS.email}`}
+              className="xl:text-[16px] lg:text-[16px] md:text-[14px] text-[12px] font-[500] cursor-pointer hover:underline text-[var(--teal-1)] inline-block"
             >
-              info@elovajewel.com
-            </Typography>
+              {BUSINESS.email}
+            </a>
 
             <Typography variant="h5">Hours: 24x7</Typography>
             {/* <div className="space-x-[20px] space-y-[10px]">

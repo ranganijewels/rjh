@@ -1,16 +1,10 @@
-import { handleGET } from "@/lib/apiHandler";
-
-export async function GET(req, { params }) {
-  const { id } = await params;
-  const tenantId = req.headers.get("x-tenant-id");
-  const currency = req.headers.get("currency");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Accept: "application/json",
-    Currency: currency,
-  };
-
-  return handleGET(`/api/store-web/customer/complete-the-look/${id}`, headers);
+import { NextResponse } from "next/server";
+import { rjApi, transformProduct, attachPrices, consolidateDesignGroups } from "@/lib/apiHandler";
+export async function GET() {
+  try {
+    const result = await rjApi("GET", "/products?limit=60&status=active");
+    const raw = result.raw?.data || [];
+    const products = consolidateDesignGroups(await attachPrices(raw.map(transformProduct))).slice(0, 4);
+    return NextResponse.json({ data: { complete_the_look: products } });
+  } catch { return NextResponse.json({ data: { complete_the_look: [] } }); }
 }

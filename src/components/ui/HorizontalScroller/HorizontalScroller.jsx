@@ -15,7 +15,7 @@ const HorizontalScroller = ({ children, scrollAmount = 100, label }) => {
       {/* Label + Navigation Buttons */}
       <div className="flex justify-between items-center mb-2">
         {label && (
-          <div className="text-[14px] font-[500] text-[#000000]">{label}</div>
+          <div className="text-[14px] font-[500] text-[var(--grey-2)]">{label}</div>
         )}
         <div className="flex gap-2">
           <button

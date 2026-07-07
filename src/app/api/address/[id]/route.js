@@ -1,55 +1,34 @@
-import { handleDELETE, handlePUT } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 
-export async function PUT(req, context) {
+export async function PUT(req, { params }) {
   try {
-    const { id } = await context.params;
-
-    const token = req.headers.get("authorization")?.replace("Bearer ", "");
-    const tenantId = req.headers.get("x-tenant-id");
-
-    const headers = {
-      ...(tenantId && { "x-tenant-id": tenantId }),
-      Authorization: `Bearer ${token}`,
+    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const { id } = await params;
+    const body = await req.json().catch(() => ({}));
+    const payload = {
+      label: body.label,
+      contactName: body.name || body.contact_name,
+      phone: body.phone,
+      addressLine1: body.address_line1 || body.address,
+      addressLine2: body.address_line2,
+      city: body.city,
+      state: body.state,
+      pincode: body.pincode || body.postal_code,
+      country: body.country || "India",
+      isDefault: body.is_default,
     };
-
-    const body = await req.json();
-
-    return handlePUT(
-      `/api/store-web/customer/address/update/${id}`,
-      body,
-      headers
-    );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: "Internal Server Error", details: err.message }),
-      { status: 500 }
-    );
-  }
+    const result = await rjApi("PATCH", `/storefront/addresses/${id}`, { headers: { Authorization: `Bearer ${token}` }, body: payload });
+    if (!result.ok) return NextResponse.json({ status: false }, { status: 400 });
+    return NextResponse.json({ status: true, data: result.raw?.data });
+  } catch (e) { return NextResponse.json({ status: false }, { status: 500 }); }
 }
 
-export async function DELETE(req, context) {
+export async function DELETE(req, { params }) {
   try {
-    const { id } = await context.params;
-
-    const token = req.headers.get("authorization")?.replace("Bearer ", "");
-    const tenantId = req.headers.get("x-tenant-id");
-
-    const headers = {
-      ...(tenantId && { "x-tenant-id": tenantId }),
-      Authorization: `Bearer ${token}`,
-    };
-
-    return handleDELETE(
-      `/api/store-web/customer/address/delete/${id}`,
-      headers
-    );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({
-        error: "Failed to delete record",
-        details: err.message,
-      }),
-      { status: 500 }
-    );
-  }
+    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const { id } = await params;
+    await rjApi("DELETE", `/storefront/addresses/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    return NextResponse.json({ status: true });
+  } catch (e) { return NextResponse.json({ status: false }, { status: 500 }); }
 }

@@ -13,7 +13,7 @@ export const RingSizeGuide = () => {
                 </Typography>
                 <Typography variant="h4"><b>How to Measure:</b></Typography>
                 <Typography variant="h5">
-                    <li>Order a complimentary Elova ring sizer</li>
+                    <li>Order a complimentary RJ House ring sizer</li>
                     <li>Print our at-home sizing chart</li>
                     <li>Use a string or paper strip to measure your finger’s circumference</li>
                 </Typography>

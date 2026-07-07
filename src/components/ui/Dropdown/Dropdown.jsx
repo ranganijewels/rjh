@@ -29,6 +29,16 @@ const Dropdown = ({
     if (!disabled) setIsOpen((prev) => !prev);
   };
 
+  const handleKeyDown = (e) => {
+    if (disabled) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setIsOpen(true);
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     if (value) {
       setSelected(value);
@@ -72,9 +82,13 @@ const Dropdown = ({
         <button
           type="button"
           onClick={toggleDropdown}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
           className={clsx(
             "w-full p-3 inline-flex gap-2 justify-between items-center",
+            "hover:bg-[var(--teal-3)] hover:text-[var(--teal-1)]",
             disabled && "opacity-50 cursor-not-allowed",
             borderBottom
               ? "border-b border-[var(--placeholder)] focus:border-b-2 focus:border-[var(--teal-2)]"
@@ -104,7 +118,7 @@ const Dropdown = ({
                 : toTitleCase(selected)}
             </span>
           ) : (
-            <span className="text-left text-[12px] font-[400] text-[var(--placeholder)] w-full truncate !capitalize">
+            <span className="text-left text-[12px] font-[400] text-[#5a5a5a] w-full truncate !capitalize">
               {typeof selected === "object"
                 ? toTitleCase(selected.custom_title) ||
                   toTitleCase(selected.label) ||
@@ -147,12 +161,40 @@ const Dropdown = ({
             )}
             style={{ top: "100%", right: 0 }}
           >
-            <div className="py-1 text-[var(--grey-2)] max-h-[250px] overflow-y-auto custom-scroll">
+            <div
+              role="listbox"
+              className="py-1 text-[var(--grey-2)] max-h-[250px] overflow-y-auto custom-scroll"
+            >
               {options.map((option, index) => {
+                const isSelected =
+                  typeof option === "object" && typeof selected === "object"
+                    ? option === selected
+                    : option === selected;
                 return (
                   <button
                     key={index}
-                    className="block w-full text-left px-4 py-2 xl:text-[14px] text-[12px] font-[400] hover:bg-[var(--teal-1)] hover:text-white !capitalize"
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        setIsOpen(false);
+                      } else if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSelect(option);
+                      } else if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        e.currentTarget.nextElementSibling?.focus();
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        e.currentTarget.previousElementSibling?.focus();
+                      }
+                    }}
+                    className={clsx(
+                      "block w-full text-left px-4 py-2 xl:text-[14px] text-[12px] font-[400] hover:bg-[var(--teal-1)] hover:text-white !capitalize",
+                      isSelected && "bg-[var(--teal-2)]"
+                    )}
                     onClick={() => handleSelect(option)}
                   >
                     {typeof option === "object"

@@ -68,13 +68,25 @@ export default function DatePicker({
 
       {/* INPUT + ICON */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={label ? `${label} date picker` : "Open date picker"}
         className="flex items-center border-b border-[var(--grey-2)] cursor-pointer"
         onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
       >
         <input
           readOnly
           value={formatValue(value)}
           placeholder={placeholder}
+          tabIndex={-1}
           className="w-full py-[10px] outline-none bg-transparent text-[14px]"
         />
 

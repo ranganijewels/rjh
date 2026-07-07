@@ -9,7 +9,7 @@ export const BehindtheBrilliance = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    Every Elova diamond sparkles with a story. Go beyond the 4Cs and discover what makes our diamonds truly brilliant.
+                    Every RJ House diamond sparkles with a story. Go beyond the 4Cs and discover what makes our diamonds truly brilliant.
                 </Typography>
                 <Typography variant="h5">
                     <b>Cut & Light Performance</b> Our Ideal and Excellent cut grades maximize fire, scintillation, and brilliance. We go beyond certification, inspecting each diamond individually for visual beauty.

@@ -18,8 +18,9 @@ const FAQsPage = () => {
 
   if (loading)
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
         <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+        <p className="text-[14px]">Loading FAQs...</p>
       </div>
     );
 

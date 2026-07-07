@@ -9,6 +9,7 @@ import Modal from "@/components/ui/Modal/Modal";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import Dropdown from "@/components/ui/Dropdown/Dropdown";
+import { toTitleCase } from "@/utils/string";
 
 const Addresses = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -212,7 +213,7 @@ const Addresses = () => {
                     {first_name} {last_name}
                   </h2>
                   <Typography variant="p" className="font-[500]">
-                    {address_type}
+                    {toTitleCase(address_type)}
                   </Typography>
                   <Typography
                     variant="p"
@@ -257,9 +258,12 @@ const Addresses = () => {
               name="firstName"
               value={formData.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
+              hasError={!!errors.firstName}
             />
             {errors.firstName && (
-              <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+              <p id="firstName-error" role="alert" className="text-red-500 text-sm mt-1">
+                {errors.firstName}
+              </p>
             )}
           </div>
           <div>
@@ -270,19 +274,21 @@ const Addresses = () => {
               name="lastName"
               value={formData.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
+              hasError={!!errors.lastName}
             />
             {errors.lastName && (
-              <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+              <p id="lastName-error" role="alert" className="text-red-500 text-sm mt-1">
+                {errors.lastName}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="flex flex-col mt-4">
-          <label htmlFor="addressType" className="text-sm font-medium mb-1">
+        <div className="flex flex-col mt-4" role="group" aria-label="Address Type">
+          <span className="text-sm font-medium mb-1" id="addressType-label">
             Address Type
-          </label>
+          </span>
           <Dropdown
-            id="addressType"
             options={["home", "work", "other"]}
             placeholder={formData.addressType || "Address Type"}
             className="w-full"
@@ -293,7 +299,9 @@ const Addresses = () => {
             fullWidth
           />
           {errors.addressType && (
-            <p className="text-red-500 text-sm mt-1">{errors.addressType}</p>
+            <p id="addressType-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.addressType}
+            </p>
           )}
         </div>
 
@@ -305,9 +313,12 @@ const Addresses = () => {
             name="streetAddress"
             value={formData.streetAddress}
             onChange={(e) => handleChange("streetAddress", e.target.value)}
+            hasError={!!errors.streetAddress}
           />
           {errors.streetAddress && (
-            <p className="text-red-500 text-sm mt-1">{errors.streetAddress}</p>
+            <p id="streetAddress-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.streetAddress}
+            </p>
           )}
 
           <Input
@@ -317,9 +328,12 @@ const Addresses = () => {
             name="city"
             value={formData.city}
             onChange={(e) => handleChange("city", e.target.value)}
+            hasError={!!errors.city}
           />
           {errors.city && (
-            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+            <p id="city-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.city}
+            </p>
           )}
 
           <Input
@@ -329,9 +343,12 @@ const Addresses = () => {
             name="state"
             value={formData.state}
             onChange={(e) => handleChange("state", e.target.value)}
+            hasError={!!errors.state}
           />
           {errors.state && (
-            <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+            <p id="state-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.state}
+            </p>
           )}
 
           <Input
@@ -341,9 +358,12 @@ const Addresses = () => {
             name="zipCode"
             value={formData.zipCode}
             onChange={(e) => handleChange("zipCode", e.target.value)}
+            hasError={!!errors.zipCode}
           />
           {errors.zipCode && (
-            <p className="text-red-500 text-sm mt-1">{errors.zipCode}</p>
+            <p id="zipCode-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.zipCode}
+            </p>
           )}
 
           <Input
@@ -354,9 +374,12 @@ const Addresses = () => {
             value={formData.phone}
             maxLength={10}
             onChange={(e) => handleChange("phone", e.target.value)}
+            hasError={!!errors.phone}
           />
           {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            <p id="phone-error" role="alert" className="text-red-500 text-sm mt-1">
+              {errors.phone}
+            </p>
           )}
 
           <Checkbox

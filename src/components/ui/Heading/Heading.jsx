@@ -1,15 +1,18 @@
 import React from "react";
+import Typography from "../Typography/Typography";
 
-const Heading = ({ title, description, isCenter, className }) => {
+const Heading = ({ title, description, isCenter, className, level }) => {
+  const HeadingTag = level === 1 ? "h1" : level === 3 ? "h3" : "h2";
+
   return (
-    <div
-      className={`text-center ${
-        isCenter ? "text-center" : "text-left"
-      } ${className}`}
-    >
-      <h2 className="xl:text-[28px] text-[16px] font-[400] mb-[11px] text-[var(--grey-2)] capitalize">
+    <div className={`${isCenter ? "text-center" : "text-left"} ${className}`}>
+      <Typography
+        variant="h2"
+        as={HeadingTag}
+        className="mb-[11px] capitalize"
+      >
         {title}
-      </h2>
+      </Typography>
       <p className="xl:text-[16px] text-[12px] font-[400] text-[var(--grey-2)]">{description}</p>
     </div>
   );

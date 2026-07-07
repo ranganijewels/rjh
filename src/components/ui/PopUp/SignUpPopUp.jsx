@@ -8,10 +8,21 @@ import toast from "react-hot-toast";
 const SignUpPopUp = ({ onClose }) => {
   const [error, setError] = useState(false);
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { create } = useCrudApi("/api/subscribe");
 
   const handleSubmit = async () => {
     setError("");
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailPattern.test(email)) {
+      const errorMsg = "Please enter a valid email address.";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const res = await create({ email });
 
@@ -29,6 +40,8 @@ const SignUpPopUp = ({ onClose }) => {
         "The email field must be a valid email address." || err.message;
       setError(errorMsg);
       toast.error(errorMsg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -58,7 +71,11 @@ const SignUpPopUp = ({ onClose }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button title={"SIGN UP"} onClick={handleSubmit} />
+          <Button
+            title={submitting ? "Signing up..." : "SIGN UP"}
+            onClick={handleSubmit}
+            disabled={submitting}
+          />
         </div>
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       </div>

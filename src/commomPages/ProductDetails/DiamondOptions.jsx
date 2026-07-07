@@ -262,9 +262,14 @@ const DiamondOptions = ({
                 variant?.shape === productInfo?.occasion?.name;
 
               return (
-                <div
+                <button
+                  type="button"
                   key={variant.id}
                   ref={isActive ? activeRef : null}
+                  aria-pressed={isActive}
+                  aria-label={`Select ${toTitleCase(
+                    getDisplayShape(variant)
+                  )} shape`}
                   onClick={() => {
                     onShapeClick?.(
                       variant.designno,
@@ -279,7 +284,7 @@ const DiamondOptions = ({
                     );
                   }}
                   className={clsx(
-                    "cursor-pointer flex items-center justify-center shrink-0",
+                    "slide-card cursor-pointer flex items-center justify-center shrink-0",
                     isActive && "border-b border-[var(--teal-1)]"
                   )}
                 >
@@ -289,7 +294,7 @@ const DiamondOptions = ({
                       isActive && "text-[var(--teal-1)] mb-1"
                     )}
                   />
-                </div>
+                </button>
               );
             })}
           </div>
@@ -358,7 +363,7 @@ const DiamondOptions = ({
                       className={clsx(
                         "slide-card border !capitalize transition-all duration-200 min-w-[58px]",
                         isSelected
-                          ? "border-[var(--teal-1)]"
+                          ? "border-[var(--teal-1)] bg-[var(--teal-3)] font-[500]"
                           : "border-[var(--teal-3)] hover:border-[var(--teal-1)]"
                       )}
                     >

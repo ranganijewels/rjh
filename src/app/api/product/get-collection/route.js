@@ -1,17 +1,19 @@
-import { handleGET } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi, transformProduct, attachPrices, consolidateDesignGroups } from "@/lib/apiHandler";
 
 export async function GET(req) {
-  const tenantId = req.headers.get("x-tenant-id");
-  const currency =
-    req.headers.get("currency") ||
-    req.headers.get("Currency") ||
-    req.headers.get("x-currency");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    ...(currency && { Currency: currency }),
-  };
-
-  return handleGET(`/api/store-web/customer/get-all-collection`, headers);
+  try {
+    const result = await rjApi("GET", "/products?limit=60&status=active");
+    const raw = result.raw?.data || [];
+    const mapped = consolidateDesignGroups(await attachPrices(raw.map(transformProduct))).slice(0, 8);
+    return NextResponse.json({
+      data: [
+        { collection_name: "best seller", products: mapped },
+        { collection_name: "new arrivals", products: mapped },
+        { collection_name: "trending", products: mapped },
+      ]
+    });
+  } catch {
+    return NextResponse.json({ data: [] });
+  }
 }

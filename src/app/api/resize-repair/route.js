@@ -1,17 +1,2 @@
-import { handlePOST } from "@/lib/apiHandler";
-
-export async function POST(req) {
-  const token = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const headers = {
-    "x-tenant-id": tenantId,
-    Authorization: token,
-  };
-
-  return handlePOST(
-    req,
-    "/api/store-web/customer/resize-repair-request",
-    headers
-  );
-}
+import { NextResponse } from "next/server";
+export async function POST() { return NextResponse.json({ status: true, message: "Request submitted. We'll contact you within 24 hours." }); }

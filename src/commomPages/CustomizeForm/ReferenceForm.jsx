@@ -13,6 +13,7 @@ import HeadingWithNavigation from "@/components/ui/Heading/HeadingWithNavigation
 import { formatCarat, getPreviewUrl } from "@/utils/string";
 import RangeSlider from "@/components/ui/RangeSlider/RangeSlider";
 import Typography from "@/components/ui/Typography/Typography";
+import { shapeToCode } from "@/constants/constant";
 import toast from "react-hot-toast";
 import clsx from "clsx";
 import { useCustomize } from "@/context/CustomizeContext";
@@ -100,7 +101,8 @@ const ReferenceForm = () => {
 
     if (sizeSlug) {
       return (
-        sizes.find((s) => s.slug.toLowerCase() === sizeSlug.toLowerCase()) ||
+        // Optional-chain the slug — a malformed size row must not crash the form.
+        sizes.find((s) => s.slug?.toLowerCase() === sizeSlug.toLowerCase()) ||
         null
       );
     }
@@ -119,8 +121,10 @@ const ReferenceForm = () => {
     filters?.shape?.map((s) => {
       return {
         id: s.id,
-        designno: s.slug,
-        shape: s.name,
+        designno: s.slug ?? String(s.id),
+        // CODE (RND/OVL…) so DiamondOptions' SHAPE_CODES_IMAGE icon lookup resolves.
+        shape: shapeToCode(s.name),
+        name: s.name,
         label: s.custom_title || s.name,
       };
     }) || [];
@@ -338,7 +342,7 @@ const ReferenceForm = () => {
         {form?.urls.map((url, index) => (
           <div
             key={index}
-            className="flex items-center gap-2 bg-[#f3f3f3] px-3 py-2 rounded"
+            className="flex items-center gap-2 bg-[var(--grey-0)] px-3 py-2 rounded"
           >
             <span className="text-sm truncate max-w-[200px]">{url}</span>
             <button

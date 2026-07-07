@@ -1,3 +1,4 @@
+import Image from "next/image";
 import FeaturesList from "@/components/common/FeaturesList/FeaturesList";
 import { WHY_CHOOSE_ICON } from "@/constants/constant";
 
@@ -5,11 +6,14 @@ export default function AuthLayout({ children }) {
   return (
     <div className="xl:space-y-[80px] space-y-[40px]">
       <div className="w-full flex flex-col md:flex-row">
-        <div className="md:w-[50%] w-full">
-          <img
+        <div className="relative md:w-[50%] w-full xl:h-[787px] md:h-[547px] h-[265px]">
+          <Image
             src="/images/login-banner.jpg"
             alt="Login Banner"
-            className="xl:h-[787px] md:h-[547px] h-[265px] w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            priority
           />
         </div>
         {children}

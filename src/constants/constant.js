@@ -202,42 +202,42 @@ export const CUSTOMER_REVIEW = [
     designation: "Chief Innovation Officer",
     img: "/images/review/review-1.png",
     review:
-      "I recently purchased a stunning diamond necklace from ELOVA, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light. I recently purchased a stunning diamond necklace from ELOVA, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light.I recently purchased a stunning diamond necklace from ELOVA, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light.",
+      "I recently purchased a stunning diamond necklace from RJ HOUSE, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light. I recently purchased a stunning diamond necklace from RJ HOUSE, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light.I recently purchased a stunning diamond necklace from RJ HOUSE, and I couldn't be happier! The quality is exceptional, and it sparkles beautifully in the light.",
   },
   {
     name: "Samantha Brooks",
     designation: "Creative Director",
     img: "/images/review/review-2.png",
     review:
-      "I just purchased a stunning diamond ring from ELOVA, and I couldn’t be happier! The quality of the craftsmanship is exceptional, and it sparkles beautifully in the light. ",
+      "I just purchased a stunning diamond ring from RJ HOUSE, and I couldn’t be happier! The quality of the craftsmanship is exceptional, and it sparkles beautifully in the light. ",
   },
   {
     name: "Samantha Lake",
     designation: "Brand Strategist",
     img: "/images/review/review-3.png",
     review:
-      "I recently bought a breathtaking diamond ring from ELOVA, and I'm absolutely thrilled! The craftsmanship is outstanding, and it shines brilliantly in the light.",
+      "I recently bought a breathtaking diamond ring from RJ HOUSE, and I'm absolutely thrilled! The craftsmanship is outstanding, and it shines brilliantly in the light.",
   },
   {
     name: "Isabella Chen",
     designation: "Creative Director",
     img: "/images/review/review-4.jpg",
     review:
-      "Elova’s attention to detail is second to none. My necklace feels like a true work of art—elegant, refined, and uniquely mine.",
+      "RJ House’s attention to detail is second to none. My necklace feels like a true work of art—elegant, refined, and uniquely mine.",
   },
   {
     name: "Daniel Rivera",
     designation: "Luxury Consultant",
     img: "/images/review/review-5.jpg",
     review:
-      "The moment I opened the box, I knew Elova was different. The ring is radiant, and the entire experience felt personal and luxurious.",
+      "The moment I opened the box, I knew RJ House was different. The ring is radiant, and the entire experience felt personal and luxurious.",
   },
   {
     name: "Priya Kapoor",
     designation: "Brand Strategist",
     img: "/images/review/review-6.jpg",
     review:
-      "From design to delivery, Elova exceeded every expectation. The diamond's sparkle is mesmerizing, and the craftsmanship speaks volumes.",
+      "From design to delivery, RJ House exceeded every expectation. The diamond's sparkle is mesmerizing, and the craftsmanship speaks volumes.",
   },
 ];
 
@@ -582,6 +582,11 @@ export const SHAPE_CODES_IMAGE = [
       icon: CushionShape,
       title: "Cushion",
     },
+    ELC: {
+      label: "ELC",
+      icon: CushionShape,
+      title: "Elongated Cushion",
+    },
     ASC: {
       label: "ASC",
       icon: AsscherShape,
@@ -590,10 +595,29 @@ export const SHAPE_CODES_IMAGE = [
   },
 ];
 
+// SHAPE_CODES_IMAGE keys shapes by 3-letter code (RND/OVL/PEA…). Some data
+// sources (e.g. /api/product/filters) provide full shape names (Round/Oval…),
+// which then fail the icon lookup and render nothing. `shapeToCode` maps a full
+// name → its code (falling back to the uppercased input), so shape icons resolve.
+const _SHAPE_NAME_TO_CODE = (() => {
+  const map = {};
+  const entry = SHAPE_CODES_IMAGE[0] || {};
+  for (const [code, obj] of Object.entries(entry)) {
+    map[code] = code;
+    if (obj?.title) map[obj.title.toUpperCase()] = code;
+  }
+  if (!map.MARQUISE) map.MARQUISE = "MAR"; // title is spelled "Marquies"
+  return map;
+})();
+export const shapeToCode = (name) =>
+  _SHAPE_NAME_TO_CODE[(name || "").toUpperCase()] || (name || "").toUpperCase();
+
 export const COUNTRY_OPTIONS = [
   { value: "us", label: "United States", currency: "USD" },
+  { value: "gb", label: "United Kingdom", currency: "GBP" },
+  { value: "au", label: "Australia", currency: "AUD" },
+  { value: "ae", label: "United Arab Emirates", currency: "AED" },
   { value: "in", label: "India", currency: "INR" },
-  { value: "ca", label: "Canada", currency: "CAD" },
 ];
 
 export const SIZE_OPTIONS = {
@@ -603,22 +627,14 @@ export const SIZE_OPTIONS = {
   "Earring Size": ["Small", "Medium", "Large"],
 };
 
+// Social links — sourced from the single business config so they stay in sync
+// with the JSON-LD sameAs. Replace the handles in src/config/business.js.
+import { BUSINESS } from "@/config/business";
+
 export const SOCIAL_MEDIA_ICONS = [
-  {
-    name: "instagram",
-    url: "https://instagram.com/yourhandle",
-    label: "Instagram",
-  },
-  { name: "facebook", url: "https://facebook.com/yourpage", label: "Facebook" },
-  { name: "twitter", url: "https://twitter.com/yourhandle", label: "Twitter" },
-  {
-    name: "youtube",
-    url: "https://youtube.com/channel/yourchannel",
-    label: "YouTube",
-  },
-  {
-    name: "pinterest",
-    url: "https://pinterest.com/yourpage",
-    label: "Pinterest",
-  },
+  { name: "instagram", url: BUSINESS.social.instagram, label: "Instagram" },
+  { name: "facebook", url: BUSINESS.social.facebook, label: "Facebook" },
+  { name: "twitter", url: BUSINESS.social.twitter, label: "Twitter" },
+  { name: "youtube", url: BUSINESS.social.youtube, label: "YouTube" },
+  { name: "pinterest", url: BUSINESS.social.pinterest, label: "Pinterest" },
 ];

@@ -15,6 +15,7 @@ const SizeProfile = () => {
   const [profiles, setProfiles] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const [form, setForm] = useState({
     label: "",
     ringSize: "",
@@ -93,6 +94,7 @@ const SizeProfile = () => {
       toast.error("Something went wrong while deleting.");
     } finally {
       setLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -200,7 +202,7 @@ const SizeProfile = () => {
                 <Button
                   title="Delete"
                   variant="outlineTeal"
-                  onClick={() => handleDelete(p.id)}
+                  onClick={() => setDeleteId(p.id)}
                 />
               </div>
             </div>
@@ -307,6 +309,32 @@ const SizeProfile = () => {
               setOpenSizeProfile(false);
               resetForm();
             }}
+            disabled={loading}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        title="Delete Size Profile"
+      >
+        <Typography variant="p">
+          Are you sure you want to delete this size profile? This action
+          cannot be undone.
+        </Typography>
+        <div className="flex gap-[20px] pt-[30px]">
+          <Button
+            title={loading ? "Deleting..." : "Delete"}
+            className="w-full"
+            onClick={() => handleDelete(deleteId)}
+            disabled={loading}
+          />
+          <Button
+            title="Cancel"
+            variant="outlineTeal"
+            className="w-full"
+            onClick={() => setDeleteId(null)}
             disabled={loading}
           />
         </div>

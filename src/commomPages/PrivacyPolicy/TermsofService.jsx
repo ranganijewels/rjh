@@ -10,7 +10,7 @@ export const TermsofService = () => {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h4"><b>Overview</b></Typography>
                 <Typography variant="h5">
-                    This website is operated by Elova. Throughout the site, the terms “we,” “us,” and “our” refer to Elova. Elova provides this website, along with all the information, tools, and services available on it, to you, the user, subject to your acceptance of the terms, conditions, policies, and notices outlined here.
+                    This website is operated by RJ House. Throughout the site, the terms “we,” “us,” and “our” refer to RJ House. RJ House provides this website, along with all the information, tools, and services available on it, to you, the user, subject to your acceptance of the terms, conditions, policies, and notices outlined here.
                 </Typography>
                 <Typography variant="h5">
                     By accessing our site and/or purchasing from us, you engage in our “Service” and agree to abide by the following terms and conditions (“Terms of Service” or “Terms”), including any additional terms, conditions, and policies referenced herein or accessible via hyperlink. These Terms of Service apply to all users of the site, including but not limited to browsers, vendors, customers, merchants, and content contributors.
@@ -36,13 +36,6 @@ export const TermsofService = () => {
                     A breach or violation of any of the Terms will result in an immediate termination of your Services.
                 </Typography>
 
-                <Typography variant="h5">
-                    We also provide a printable Ring Size Guide and a complimentary sizer upon
-                    request to help you get the most accurate measurement. Still unsure? Our
-                    jewelry consultants are available for virtual sizing support. With Elova,
-                    comfort and beauty go hand in hand.
-                </Typography>
-
                 <Typography variant="h4"><b>GENERAL CONDITIONS</b></Typography>
                 <Typography variant="h5">
                     We reserve the right to refuse service to anyone for any reason at any time.
@@ -61,17 +54,6 @@ export const TermsofService = () => {
                 </Typography>
                 <Typography variant="h5">
                     This site may contain certain historical information. Historical information, necessarily, is not current and is provided for your reference only. We reserve the right to modify the contents of this site at any time, but we have no obligation to update any information on our site. You agree that it is your responsibility to monitor changes to our site.
-                </Typography>
-
-                <Typography variant="h4"><b>MODIFICATIONS TO THE SERVICE AND PRICE</b></Typography>
-                <Typography variant="h5">
-                    Prices for our products are subject to change without notice.
-                </Typography>
-                <Typography variant="h5">
-                    We reserve the right at any time to modify or discontinue the Service (or any part or content thereof) without notice at any time.
-                </Typography>
-                <Typography variant="h5">
-                    We shall not be liable to you or to any third-party for any modification, price change, suspension or discontinuance of the Service.
                 </Typography>
 
                 <Typography variant="h4"><b>MODIFICATIONS TO THE SERVICE AND PRICE</b></Typography>
@@ -181,7 +163,7 @@ export const TermsofService = () => {
 
                 <Typography variant="h4"><b>INDEMNIFICATION</b></Typography>
                 <Typography variant="h5">
-                    You agree to indemnify, defend and hold harmless Elova and our parent, subsidiaries, affiliates, partners, officers, directors, agents, contractors, licensors, service providers, subcontractors, suppliers, interns and employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third-party due to or arising out of your breach of these Terms of Service or the documents they incorporate by reference, or your violation of any law or the rights of a third-party.
+                    You agree to indemnify, defend and hold harmless RJ House and our parent, subsidiaries, affiliates, partners, officers, directors, agents, contractors, licensors, service providers, subcontractors, suppliers, interns and employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third-party due to or arising out of your breach of these Terms of Service or the documents they incorporate by reference, or your violation of any law or the rights of a third-party.
                 </Typography>
 
                 <Typography variant="h4"><b>SEVERABILITY</b></Typography>

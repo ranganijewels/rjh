@@ -149,7 +149,7 @@ const CreateAccount = () => {
   return (
     <div className="md:w-[50%] w-full space-y-[30px] 2xl:px-[240px] xl:px-[100px] lg:px-[67px] md:px-[47px] px-[18px] py-[41px] md:py-0 md:m-auto">
       <h2 className="xl:text-[18px] text-[16px] font-[500]">
-        Create New Account ELOVA
+        Create New Account RJ HOUSE
       </h2>
 
       <div className="grid grid-cols-2 xl:gap-[30px] gap-[15px]">
@@ -191,7 +191,7 @@ const CreateAccount = () => {
           <button
             type="button"
             onClick={() => birthDateRef.current?.showPicker()}
-            className="text-[var(--teal-2)] hover:text-[var(--teal-1)] border-none bg-transparent p-0 outline-none"
+            className="text-[var(--teal-2)] hover:text-[var(--teal-1)] border-none bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--teal-2)] focus-visible:rounded-sm"
           >
             <Calendar size={18} />
           </button>
@@ -239,6 +239,13 @@ const CreateAccount = () => {
               ? `Resend OTP in ${resendCooldown}s`
               : "Resend OTP"}
           </button>
+          <span className="sr-only" aria-live="polite">
+            {resendCooldown > 0 && resendCooldown % 10 === 0
+              ? `Resend OTP in ${resendCooldown} seconds`
+              : resendCooldown === 0
+                ? "You can resend the OTP now"
+                : ""}
+          </span>
         </div>
       )}
       <div className="flex flex-col gap-[12px] items-center">
@@ -268,23 +275,6 @@ const CreateAccount = () => {
           </span>
         </p>
       </div>
-
-      {/* <div className="flex flex-col gap-[12px] items-center">
-        <Button
-          title="Create new account"
-          className="w-full"
-          onClick={handleCreateAccount}
-        />
-        <p className="uppercase text-[14px] font-[400]">
-          Already have an account?{" "}
-          <span
-            onClick={() => router.push("/login")}
-            className="underline cursor-pointer text-[var(--teal-1)]"
-          >
-            login
-          </span>
-        </p>
-      </div> */}
     </div>
   );
 };

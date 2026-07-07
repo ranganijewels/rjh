@@ -35,7 +35,7 @@ export const useWishlistLogic = ({
   /* ------------------ HELPERS ------------------ */
 
   const ensureAuth = () => {
-    const token = localStorage.getItem("authTokenElova");
+    const token = localStorage.getItem("authTokenRJHouse");
 
     if (!token || !customerId) {
       toast.error("Please login first");

@@ -59,11 +59,13 @@ const FeaturesList = ({
               )}
             >
               <img
-                src={item.image}
-                alt="icon"
+                src={item.image || item.icon}
+                alt={item?.title || "icon"}
+                width={70}
+                height={70}
                 className={clsx(
                   isGrid ? "lg:w-[70px] lg:h-[70px]" : "lg:w-[36px] lg:h-[36px]",
-                  "w-[40px] h-[40px] lg:w-[48px] lg:h-[48px]", // Responsive sizing
+                  "shrink-0 w-[40px] h-[40px] lg:w-[48px] lg:h-[48px]", // Responsive sizing
                   iconClass
                 )}
               />
@@ -74,7 +76,8 @@ const FeaturesList = ({
                   </Typography>
                 )}
                 <Typography
-                  variant={item?.service_description ? "h6" : "p"}
+                  variant="h6"
+                  as="p"
                   className="leading-[1.2] lg:leading-normal"
                 >
                   {item.service_description}

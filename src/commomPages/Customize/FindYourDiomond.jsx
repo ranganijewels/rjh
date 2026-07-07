@@ -71,7 +71,8 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                 setIsAutoScrolling(false);
                 scrollMobile("left");
               }}
-              className="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -ml-1 -mt-4 active:scale-90 transition-transform "
+              aria-label="Scroll to previous diamond shape"
+              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -ml-1 -mt-4 active:scale-90 transition-transform "
             >
               <div className="scale-75 -ml-1">
                 <PreviousIcon />
@@ -82,7 +83,8 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                 setIsAutoScrolling(false);
                 scrollMobile("right");
               }}
-              className="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -mr-1 -mt-4 active:scale-90 transition-transform"
+              aria-label="Scroll to next diamond shape"
+              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -mr-1 -mt-4 active:scale-90 transition-transform"
             >
               <div className="scale-75 -mr-1">
                 <NextIcon />

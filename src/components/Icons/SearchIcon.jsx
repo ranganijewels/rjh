@@ -3,10 +3,10 @@ import React from "react";
 
 const SearchIcon = ({ className = "", onClick, ariaLabel = "Open search" }) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className={`${className} cursor-pointer`}
-      role="button"
+      className={`${className} cursor-pointer inline-flex hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] transition-opacity duration-200`}
       aria-label={ariaLabel}
     >
       <svg
@@ -15,6 +15,7 @@ const SearchIcon = ({ className = "", onClick, ariaLabel = "Open search" }) => {
         height="20"
         viewBox="0 0 24 24"
         fill="none"
+        aria-hidden="true"
       >
         <g clipPath="url(#clip0_2099_4247)">
           <path
@@ -28,7 +29,7 @@ const SearchIcon = ({ className = "", onClick, ariaLabel = "Open search" }) => {
           </clipPath>
         </defs>
       </svg>
-    </div>
+    </button>
   );
 };
 

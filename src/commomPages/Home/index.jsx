@@ -4,8 +4,9 @@ import HeroSection from "@/components/common/HeroSection";
 import FeaturedCollections from "@/components/common/FeaturedCollections";
 import FeaturesList from "@/components/common/FeaturesList/FeaturesList";
 import WhyChoose from "./WhyChoose";
+import DiscoverStyles from "./DiscoverStyles";
 import JewelryCTA from "@/components/common/JewelryCTA";
-import LovedByElova from "./LovedByElova";
+import LovedByRJHouse from "./LovedByRJHouse";
 import Newsletter from "./Newsletter";
 import SignUpPopUp from "@/components/ui/PopUp/SignUpPopUp";
 import FindYourDiomond from "../Customize/FindYourDiomond";
@@ -41,7 +42,7 @@ const HomepageLayout = () => {
   }, []);
 
   return (
-    <div className="xl:space-y-[80px] space-y-[40px] relative">
+    <div className="xl:space-y-20 space-y-10 relative">
       {/* === Scroll Triggered SignUp Popup === */}
       {showPopup && (
         <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center px-4 h-screen">
@@ -56,7 +57,7 @@ const HomepageLayout = () => {
         pagination={{
           clickable: true,
           renderBullet: (index, className) => {
-            return `<span class="${className}" style="background-color: #2F6F7A"></span>`;
+            return `<span class="${className}" style="background-color: var(--teal-1)"></span>`;
           },
         }}
         autoplay={{ delay: 5000 }}
@@ -69,9 +70,9 @@ const HomepageLayout = () => {
               title={item?.title}
               description={item?.subtitle}
               backgroundUrl={item?.file}
+              posterUrl={item?.poster}
               backgroundIsVideo
-              containerClass="xl:h-[601px]"
-              imageClass="xl:h-[601px]"
+              fullViewport
               textClass="xl:text-[46px]"
               buttons={item.buttons}
               mobileFile={item.mobile_file}
@@ -80,15 +81,16 @@ const HomepageLayout = () => {
         ))}
       </Swiper>
 
-      {/* Featured Collections */}
+      {/* Featured Collections — grid of 4; becomes an arrow-navigable
+          carousel automatically when the CMS has more than 4 collections. */}
       <FeaturedCollections
-        collections={homeData?.collection_section?.[0]?.items.slice(0, 4) ?? []}
+        collections={homeData?.collection_section?.[0]?.items ?? []}
         title={homeData?.collection_section?.[0]?.section_title}
         imageStyle="2xl:h-[595px] xl:h-[450px] lg:h-[308px] !w-full h-[224px]"
         onClick={(product) => {
-          router.push(`/product?category_id=${product.category_id}`);
+          router.push(product.link || `/product?category_id=${product.category_id}`);
         }}
-        isGrid
+        isGrid={(homeData?.collection_section?.[0]?.items?.length ?? 0) <= 4}
       />
 
       {/* Diamond Finder */}
@@ -110,6 +112,13 @@ const HomepageLayout = () => {
             ? homeData?.why_choose_section[0]
             : null
         }
+      />
+
+      {/* Discover Styles — coverflow carousel of ring styles */}
+      <DiscoverStyles
+        heading={homeData?.discover_styles?.heading}
+        subHeading={homeData?.discover_styles?.subHeading}
+        styles={homeData?.discover_styles?.styles ?? []}
       />
 
       {/* Features Icons */}
@@ -141,7 +150,7 @@ const HomepageLayout = () => {
         buttons={homeData?.banner_section?.[0]?.buttons}
       />
 
-      <LovedByElova items={homeData?.loved_by_section?.[1] ?? null} />
+      <LovedByRJHouse items={homeData?.loved_by_section?.[1] ?? null} />
       <Newsletter />
     </div>
   );

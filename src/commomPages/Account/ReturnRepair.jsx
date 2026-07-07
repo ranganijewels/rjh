@@ -2,6 +2,7 @@
 
 import Button from "@/components/ui/Button/Button";
 import Input from "@/components/ui/Input/Input";
+import Checkbox from "@/components/ui/Checkbox/Checkbox";
 import Typography from "@/components/ui/Typography/Typography";
 import { useState } from "react";
 import { useCrudApi } from "@/hooks/useCrudApi";
@@ -130,10 +131,10 @@ export function ReturnRepair() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl">
+    <form onSubmit={handleSubmit}>
       {submitted ? (
-        <div className="p-10 text-center bg-white rounded-2xl shadow-md">
-          <Typography variant="h3" className="mb-4 text-amber-600">
+        <div className="p-10 text-center bg-white shadow-md">
+          <Typography variant="h3" className="mb-4 text-[var(--teal-1)]">
             Thank You!
           </Typography>
           <Typography variant="h5" className="mb-2">
@@ -162,7 +163,7 @@ export function ReturnRepair() {
                   type="text"
                   value={formData.fullName}
                   onChange={handleChange("fullName")}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                   placeholder="Enter your full name"
                   required
                 />
@@ -177,7 +178,7 @@ export function ReturnRepair() {
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={handleChange("phoneNumber")}
-                    className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                    className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                     placeholder="+1 (555) 000-0000"
                     required
                   />
@@ -191,7 +192,7 @@ export function ReturnRepair() {
                     type="email"
                     value={formData.emailAddress}
                     onChange={handleChange("emailAddress")}
-                    className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                    className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                     placeholder="your.email@example.com"
                     required
                   />
@@ -201,7 +202,7 @@ export function ReturnRepair() {
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent mb-10"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[var(--teal-3)] to-transparent mb-10"></div>
 
           {/* ------------------------
                Section 2: Product Details
@@ -228,7 +229,7 @@ export function ReturnRepair() {
                   ].map((type) => (
                     <label
                       key={type}
-                      className="flex items-center justify-center gap-2 p-4 border-2 border-stone-200 rounded-lg cursor-pointer hover:border-amber-300 hover:bg-amber-50/50"
+                      className="flex items-center justify-center gap-2 p-4 border-2 border-[var(--teal-3)] cursor-pointer hover:border-[var(--teal-1)] hover:bg-[var(--product-bg)]"
                     >
                       <input
                         type="radio"
@@ -252,7 +253,7 @@ export function ReturnRepair() {
                   type="text"
                   value={formData.jewelryName}
                   onChange={handleChange("jewelryName")}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                   placeholder="e.g., Eternal Love Diamond Ring"
                   required
                 />
@@ -266,7 +267,7 @@ export function ReturnRepair() {
                   value={formData.issueDescription}
                   onChange={handleChange("issueDescription")}
                   rows={4}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg resize-none bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] resize-none bg-white"
                   placeholder="Describe the issue..."
                   required
                 />
@@ -277,7 +278,7 @@ export function ReturnRepair() {
                   Upload Clear Photos
                 </Typography>
 
-                <div className="border-2 border-dashed border-stone-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-[var(--teal-3)] p-6 text-center">
                   <input
                     type="file"
                     multiple
@@ -297,10 +298,10 @@ export function ReturnRepair() {
                       className="w-12 h-12 mx-auto mb-3 opacity-70"
                     />
 
-                    <p className="text-sm text-stone-600 mb-1">
+                    <p className="text-sm text-[var(--grey-2)] mb-1">
                       Click to upload photos
                     </p>
-                    <p className="text-xs text-stone-500">JPG, PNG (max 5MB)</p>
+                    <p className="text-xs text-[var(--grey-2)]">JPG, PNG (max 5MB)</p>
                   </label>
                 </div>
 
@@ -309,14 +310,15 @@ export function ReturnRepair() {
                     {formData.uploadedPhotos.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-amber-50 border border-amber-200 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-[var(--product-bg)] border border-[var(--teal-3)]"
                       >
-                        <span className="text-sm text-stone-700 truncate flex-1">
+                        <span className="text-sm text-[var(--grey-2)] truncate flex-1">
                           {file.name}
                         </span>
                         <button
                           type="button"
                           onClick={() => removePhoto(index)}
+                          aria-label={`Remove ${file.name}`}
                           className="text-xs text-red-600 hover:text-red-800 ml-3"
                         >
                           Remove
@@ -330,7 +332,7 @@ export function ReturnRepair() {
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent mb-10"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[var(--teal-3)] to-transparent mb-10"></div>
 
           {/* ------------------------
                Section 3: Repair Details
@@ -350,10 +352,10 @@ export function ReturnRepair() {
                   {["Yes", "No", "Not sure"].map((option) => (
                     <label
                       key={option}
-                      className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer ${
+                      className={`flex items-center gap-3 p-4 border-2 cursor-pointer ${
                         formData.previouslyRepaired === option
-                          ? "border-amber-600 bg-amber-50"
-                          : "border-stone-200"
+                          ? "border-[var(--teal-1)] bg-[var(--product-bg)]"
+                          : "border-[var(--teal-3)]"
                       }`}
                     >
                       <input
@@ -364,7 +366,7 @@ export function ReturnRepair() {
                           handleRadio("previouslyRepaired", option)
                         }
                       />
-                      <span className="text-stone-700">{option}</span>
+                      <span className="text-[var(--grey-2)]">{option}</span>
                     </label>
                   ))}
                 </div>
@@ -383,10 +385,10 @@ export function ReturnRepair() {
                   ].map((option) => (
                     <label
                       key={option}
-                      className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer ${
+                      className={`flex items-center gap-3 p-4 border-2 cursor-pointer ${
                         formData.preferredAction === option
-                          ? "border-amber-600 bg-amber-50"
-                          : "border-stone-200"
+                          ? "border-[var(--teal-1)] bg-[var(--product-bg)]"
+                          : "border-[var(--teal-3)]"
                       }`}
                     >
                       <input
@@ -395,7 +397,7 @@ export function ReturnRepair() {
                         checked={formData.preferredAction === option}
                         onChange={() => handleRadio("preferredAction", option)}
                       />
-                      <span className="text-stone-700">{option}</span>
+                      <span className="text-[var(--grey-2)]">{option}</span>
                     </label>
                   ))}
                 </div>
@@ -404,7 +406,7 @@ export function ReturnRepair() {
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent mb-10"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[var(--teal-3)] to-transparent mb-10"></div>
 
           {/* ------------------------
                Section 4: Shipping Address
@@ -423,7 +425,7 @@ export function ReturnRepair() {
                   type="text"
                   value={formData.shippingAddress}
                   onChange={handleChange("shippingAddress")}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                   placeholder="Enter full address"
                 />
               </div>
@@ -437,7 +439,7 @@ export function ReturnRepair() {
                     type="text"
                     value={formData.city}
                     onChange={handleChange("city")}
-                    className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                    className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                     placeholder="City"
                   />
                 </div>
@@ -450,7 +452,7 @@ export function ReturnRepair() {
                     type="text"
                     value={formData.postalCode}
                     onChange={handleChange("postalCode")}
-                    className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                    className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                     placeholder="Postal Code"
                   />
                 </div>
@@ -464,7 +466,7 @@ export function ReturnRepair() {
                   type="text"
                   value={formData.country}
                   onChange={handleChange("country")}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                   placeholder="Country"
                 />
               </div>
@@ -472,7 +474,7 @@ export function ReturnRepair() {
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent mb-10"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[var(--teal-3)] to-transparent mb-10"></div>
 
           {/* ------------------------
                Section 5: Repair Policy
@@ -482,45 +484,35 @@ export function ReturnRepair() {
               Repair Policy Acknowledgement
             </Typography>
 
-            <div className="space-y-4 bg-stone-50 p-6 rounded-xl border border-stone-200">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Input
-                  type="checkbox"
-                  checked={formData.policyAgreement}
-                  onChange={handleCheckbox("policyAgreement")}
-                />
-                <Typography variant="h6">
-                  I understand that repair assessment depends on inspection.
-                </Typography>
-              </label>
+            <div className="space-y-4 bg-[var(--product-bg)] p-6 border border-[var(--teal-3)]">
+              <Checkbox
+                name="policyAgreement"
+                checked={formData.policyAgreement}
+                onChange={handleCheckbox("policyAgreement")}
+                label="I understand that repair assessment depends on inspection."
+                className="items-start"
+              />
 
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Input
-                  type="checkbox"
-                  checked={formData.shippingCostAgreement}
-                  onChange={handleCheckbox("shippingCostAgreement")}
-                />
-                <Typography variant="h6">
-                  I agree that shipping for out-of-warranty repairs is paid by
-                  customer.
-                </Typography>
-              </label>
+              <Checkbox
+                name="shippingCostAgreement"
+                checked={formData.shippingCostAgreement}
+                onChange={handleCheckbox("shippingCostAgreement")}
+                label="I agree that shipping for out-of-warranty repairs is paid by customer."
+                className="items-start"
+              />
 
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Input
-                  type="checkbox"
-                  checked={formData.turnaroundAgreement}
-                  onChange={handleCheckbox("turnaroundAgreement")}
-                />
-                <Typography variant="h6">
-                  I understand repair turnaround may take 10–21 business days.
-                </Typography>
-              </label>
+              <Checkbox
+                name="turnaroundAgreement"
+                checked={formData.turnaroundAgreement}
+                onChange={handleCheckbox("turnaroundAgreement")}
+                label="I understand repair turnaround may take 10–21 business days."
+                className="items-start"
+              />
             </div>
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent mb-10"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-[var(--teal-3)] to-transparent mb-10"></div>
 
           {/* ------------------------
                Section 6: Final Confirmation
@@ -539,7 +531,7 @@ export function ReturnRepair() {
                   value={formData.additionalComments}
                   onChange={handleChange("additionalComments")}
                   rows={4}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg resize-none bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] resize-none bg-white"
                   placeholder="Any additional details or instructions..."
                 />
               </div>
@@ -555,7 +547,7 @@ export function ReturnRepair() {
                   type="text"
                   value={formData.signature}
                   onChange={handleChange("signature")}
-                  className="w-full px-4 py-3 border-2 border-stone-200 rounded-lg bg-white"
+                  className="w-full px-4 py-3 border-2 border-[var(--teal-3)] bg-white"
                   placeholder="Your full name"
                 />
               </div>

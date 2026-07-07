@@ -1,5 +1,4 @@
 import { MinusIcon, PlusIcon } from "@/components/Icons/common";
-import Button from "@/components/ui/Button/Button";
 import { useState } from "react";
 
 const QuantitySelector = ({ item, handleQuantities }) => {
@@ -23,22 +22,25 @@ const QuantitySelector = ({ item, handleQuantities }) => {
   };
 
   return (
-    <div className="p-[4px_8px] w-[100px] flex gap-[13px] justify-between items-center border rounded-[4px] border-[var(--grey-1)]">
-      <Button
-        icon={<MinusIcon />}
-        iconOnly
-        className="w-[16px] h-[16px] !p-0"
-        noBackground
+    <div className="w-[120px] flex justify-between items-center border rounded-[4px] border-[var(--grey-1)]">
+      {/* 40px tap targets (icon stays 16px) for comfortable touch use */}
+      <button
+        type="button"
+        aria-label="Decrease quantity"
         onClick={decrement}
-      />
-      <label>{quantity}</label>
-      <Button
-        icon={<PlusIcon />}
-        iconOnly
-        className="w-[16px] h-[16px] !p-0"
-        noBackground
+        className="w-[40px] h-[40px] flex items-center justify-center text-[var(--grey-2)] hover:text-[var(--teal-1)]"
+      >
+        <MinusIcon />
+      </button>
+      <output className="min-w-[20px] text-center" aria-live="polite" aria-atomic="true">{quantity}</output>
+      <button
+        type="button"
+        aria-label="Increase quantity"
         onClick={increment}
-      />
+        className="w-[40px] h-[40px] flex items-center justify-center text-[var(--grey-2)] hover:text-[var(--teal-1)]"
+      >
+        <PlusIcon />
+      </button>
     </div>
   );
 };

@@ -9,7 +9,7 @@ export const ExploreSignatureDetails = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    Elova jewelry is defined by its subtle, intentional signature details—elements that elevate form into art.
+                    RJ House jewelry is defined by its subtle, intentional signature details—elements that elevate form into art.
                 </Typography>
                 <Typography variant="h4"><b>Our Hallmarks Include:</b></Typography>
                 <Typography variant="h5">

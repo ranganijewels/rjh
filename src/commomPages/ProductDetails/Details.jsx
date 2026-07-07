@@ -8,22 +8,29 @@ import MetalSelector from "./MetalSelector";
 import DiamondOptions from "./DiamondOptions";
 import RingSizeSelector from "./RingSizeSelector";
 import FeaturesSpecs from "./FeaturesSpecs";
+import TrustStrip from "./TrustStrip";
+import { addRecentlyViewed } from "@/utils/recentlyViewed";
+import { trackViewItem, trackAddToCart } from "@/lib/analytics";
+import toast from "react-hot-toast";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import { cleanCarat, toTitleCase } from "@/utils/string";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import HeartIcon from "@/components/Icons/HeartIcon";
 import { usePreferences } from "@/context/PreferencesContext";
-import { getCurrencySymbol } from "@/utils/currencySymbol";
+import { formatMoney, PRICE_ON_REQUEST_LABEL } from "@/utils/money";
+import { getDiscount } from "@/utils/discount";
 import { useSelector } from "react-redux";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import ShareModal from "@/components/ui/Modal/ShareModal";
 import ReviewSummary from "@/components/ui/ReviewSummary";
+import { usePdpContent } from "./usePdpContent";
 
 const Details = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { productId } = useParams();
+  const pdp = usePdpContent(); // CMS-managed trust/financing/why-choose/accordion copy
   const [selectedVariantId, setSelectedVariantId] = useState(productId);
   const [designNo, setDesignNo] = useState("");
   const { create: getAmount } = useCrudApi("/api/productDetail/get-amount");
@@ -32,6 +39,8 @@ const Details = () => {
   const [filtersData, setFiltersData] = useState([]);
   const { create: createWishlist } = useCrudApi(`/api/wishlist`);
   const [openShareModal, setOpenShareModal] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -66,7 +75,7 @@ const Details = () => {
   const DEFAULT_COLOR = "YELLOW";
   const selectedColor = searchParams.get("selectedMetalColor");
   const [activeColor, setActiveColor] = useState(
-    selectedColor?.toUpperCase() ? selectedColor : DEFAULT_COLOR
+    selectedColor ? selectedColor.toUpperCase() : DEFAULT_COLOR
   );
   const [selectDiamondWeightId, setSelectDiamondWeightId] = useState();
   const { selectedCountry } = usePreferences();
@@ -82,6 +91,56 @@ const Details = () => {
 
   const pricingEnabledRef = useRef(false);
 
+  // Restore selections carried across a design-sibling shape switch
+  // (?karat=18K&ct=2.00&size=7 — written by onShapeClick before navigating).
+  // Runs once per product load; user interactions afterwards are untouched.
+  useEffect(() => {
+    if (!productInfo?.id) return;
+    const karatParam = searchParams.get("karat");
+    const ctParam = searchParams.get("ct");
+    const sizeParam = searchParams.get("size");
+    if (!karatParam && !ctParam && !sizeParam) return;
+
+    let metal = selectedMetal;
+    if (karatParam) {
+      const k = karatParam.toUpperCase();
+      metal = { karat: { value: k, karat: k, label: k }, color: activeColor };
+      setSelectedMetal(metal);
+    }
+    if (ctParam) {
+      setSelectedCarat(ctParam);
+      setSelectedWeight(ctParam);
+    }
+    if (sizeParam) setSelectedRingSize(sizeParam);
+
+    // Reprice with the restored configuration (don't wait for a user click).
+    pricingEnabledRef.current = true;
+    updatePricing(
+      productInfo.id,
+      productInfo.design_no,
+      metal,
+      sizeParam || selectedRingSize,
+      ctParam || selectedWeight
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productInfo?.id]);
+
+  // Real review summary (approved reviews only) — replaces the old hardcoded stub.
+  const [reviewSummary, setReviewSummary] = useState(null);
+  useEffect(() => {
+    if (!productInfo?.id) return;
+    let alive = true;
+    fetch(`/api/reviews/summary?productId=${productInfo.id}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (alive) setReviewSummary(j?.data || null);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [productInfo?.id]);
+
   useEffect(() => {
     const activeId = selectDiamondWeightId || selectedVariantId;
     if (!activeId) return;
@@ -92,10 +151,10 @@ const Details = () => {
     const currency =
       typeof selectedCountry?.currency === "string"
         ? selectedCountry.currency
-        : selectedCountry?.currency?.code || "CAD";
+        : selectedCountry?.currency?.code || "USD";
 
     fetch(
-      `https://api.jewellabel.in/api/store-web/customer/product-detail/${activeId}`,
+      `/api/productDetail/${activeId}`,
       {
         method: "GET",
         headers: {
@@ -114,6 +173,13 @@ const Details = () => {
           const data = json?.data ?? {};
           setProductInfo(data);
           setGalleryMedia(data?.media || []);
+          addRecentlyViewed(data);
+          trackViewItem({
+            id: data.id,
+            name: data.name || data.title,
+            category: data.category?.name,
+            price: data.price,
+          });
         }
       })
       .catch(console.error)
@@ -139,6 +205,9 @@ const Details = () => {
           product_id: id || productInfo.id,
           design_no: designNo || productInfo.design_no,
           quality: metal.karat.value,
+          // Metal family for the pricing engine (Gold / Silver / Platinum) —
+          // set by the MetalSelector chips; defaults to Gold for old links.
+          metal_type: metal.karat.metalType || "Gold",
           size: size || "0",
           center_diamond_weight: weight
             ? String(weight).replace(/[^0-9.]/g, "")
@@ -215,11 +284,23 @@ const Details = () => {
   };
 
   const handleAddToCart = async () => {
-    const token = localStorage.getItem("authTokenElova");
+    if (isAddingToCart) return;
+
+    const token = localStorage.getItem("authTokenRJHouse");
+
+    // Bring the shopper right back to this product after they sign in.
+    const returnTo =
+      typeof window !== "undefined"
+        ? encodeURIComponent(window.location.pathname + window.location.search)
+        : "";
+    const loginUrl = returnTo ? `/login?redirect=${returnTo}` : "/login";
 
     try {
-      if (!token) return router.push("/login");
-      if (!selectedRingSize && productInfo?.sizes.length > 0) {
+      if (!token) {
+        toast("Please sign in to add items to your bag.", { icon: "🔐" });
+        return router.push(loginUrl);
+      }
+      if (!selectedRingSize && productInfo?.sizes?.length > 0) {
         setErrorMessage(
           `Please select a ${toTitleCase(productInfo?.category?.name)} Size.`
         );
@@ -227,6 +308,7 @@ const Details = () => {
       }
 
       setErrorMessage("");
+      setIsAddingToCart(true);
 
       const payload = {
         product_id: String(productInfo?.id),
@@ -243,9 +325,28 @@ const Details = () => {
         is_wishlist: isWishlisted,
       };
       const response = await create(payload);
-      if (response.status) router.push("/cart");
+      if (response.status) {
+        trackAddToCart({
+          id: productInfo?.id,
+          name: productInfo?.name || productInfo?.title,
+          price: pricing,
+          quantity: 1,
+        });
+        router.push("/cart");
+      } else if (response.code === 401) {
+        // Stale/expired session — clear it and send the shopper to sign in,
+        // returning them to this product afterwards.
+        localStorage.removeItem("authTokenRJHouse");
+        toast.error("Your session expired — please sign in again.");
+        router.push(loginUrl);
+      } else {
+        toast.error(response.message || "Could not add to bag. Please try again.");
+      }
     } catch (err) {
       console.error("Error adding to cart:", err);
+      toast.error("Could not add to bag. Please try again.");
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -305,6 +406,11 @@ const Details = () => {
     if (!productInfo) return;
 
     const shapeParam = searchParams.get("shape");
+    // Default the active shape to THIS product's own diamond shape, so the
+    // shape selector highlights the correct option on load (design-group model).
+    if (!shapeParam && !selectedShape && productInfo.shape) {
+      setSelectedShape(productInfo.shape);
+    }
     if (!shapeParam) return;
 
     // find the variant for the shape
@@ -386,6 +492,19 @@ const Details = () => {
     return Math.floor(num);
   }, [pricing]);
 
+  // Promo "was/now" display — same deterministic per-product discount used on the
+  // product cards (no real compare-at price exists in the data). Null when the
+  // item is price-on-request or has no sellable price.
+  const effectivePrice =
+    displayPrice > 0
+      ? displayPrice
+      : productInfo?.product_price > 0
+      ? Math.floor(productInfo.product_price)
+      : null;
+  const discount = productInfo?.price_on_request
+    ? null
+    : getDiscount(productInfo?.id || productInfo?.product_id, effectivePrice);
+
   const dynamicDescription = useMemo(() => {
     if (!productInfo) return "";
 
@@ -394,8 +513,10 @@ const Details = () => {
     const metalStr =
       karat || color ? `${karat} ${color} Gold` : "premium metal";
 
-    const shape = selectedShape ? toTitleCase(selectedShape) : "";
-    const cleanWeight = selectedWeight
+    const isBlank = (v) =>
+      !v || v === "undefined" || v === "null" || v === "NaN";
+    const shape = !isBlank(selectedShape) ? toTitleCase(selectedShape) : "";
+    const cleanWeight = !isBlank(selectedWeight)
       ? String(selectedWeight).replace(/[^\d.]/g, "")
       : "";
     const weight = cleanWeight ? `${cleanWeight} ct` : "";
@@ -406,9 +527,10 @@ const Details = () => {
   }, [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight]);
 
   return (
-    <section className="xl:px-[172px] lg:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
-      {/* Gallery */}
-      <div className="relative lg:w-[71%] w-full">
+    <>
+    <section className="md:px-[30px] px-[18px] flex lg:flex-row items-start flex-col xl:gap-[66px] gap-[26px] w-full">
+      {/* Gallery — pinned while the details column scrolls (sticky on desktop) */}
+      <div className="relative lg:w-[60%] w-full lg:sticky lg:top-[20px] lg:self-start">
         <ProductsGallery
           allImagesAndVideos={galleryMedia}
           selectedMetal={selectedMetal}
@@ -416,37 +538,67 @@ const Details = () => {
           loadingProductInfo={loadingGallery}
           activeColor={activeColor}
           setActiveColor={setActiveColor}
+          productName={productInfo?.title || productInfo?.name}
         />
       </div>
 
-      {/* Product details */}
-      <div className="lg:w-[29%] w-full space-y-[18px] lg:sticky lg:top-[20px]">
-        <div>
-          <p className="xl:text-[20px] text-[20px] font-[500] mb-[10px]">
-            {productInfo?.title && toTitleCase(productInfo.title)}
-          </p>
-          <p className="text-[14px] font-[300] mb-[18px] text-[var(--grey-2)] leading-relaxed">
-            {dynamicDescription}
-          </p>
-          <ReviewSummary rating={1} totalReviews={10} />
-        </div>
+      {/* Product details — scrolls while the gallery stays pinned */}
+      <div className="lg:w-[40%] w-full space-y-[18px]">
+        {/* Collection eyebrow → title → price → reviews → description (Ecksand hierarchy) */}
+        <div className="space-y-[14px]">
+          <div className="space-y-[6px]">
+            {productInfo?.category?.name && (
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--teal-2)]">
+                {toTitleCase(productInfo.category.name)} · RJ House Collection
+              </p>
+            )}
+            <h1
+              className="font-[var(--font-cormorant)] text-[26px] md:text-[30px] leading-[1.15] tracking-[-0.01em] text-[var(--grey-2)] font-medium"
+            >
+              {productInfo?.title && toTitleCase(productInfo.title)}
+            </h1>
+          </div>
 
-        <div className="space-y-[12px]">
-          <label className="xl:text-[24px] lg:text-[20px] text-[18px] font-[500] text-[var(--teal-1)]">
-            {getCurrencySymbol(selectedCountry?.currency) +
-              " " +
-              Math.floor(Number(displayPrice))}
-          </label>
-          {/* <div
-            className="flex gap-2 items-center"
-            onClick={() => handleScrollTo("priceBreakupId")}
-          >
-            <p className="text-[12px] font-[400]">View Price Breakup</p>
-            <img
-              src="/icons/price-breakup.svg"
-              className="cursor-pointer w-[14px] h-[14px]"
+          <div className="space-y-[8px]">
+            {effectivePrice > 0 ? (
+              <div className="flex flex-wrap items-center gap-[10px]">
+                <p className="xl:text-[22px] lg:text-[20px] text-[19px] font-[500] text-[var(--teal-1)]">
+                  {formatMoney(effectivePrice, selectedCountry, { decimals: 0 })}
+                </p>
+                {discount && (
+                  <>
+                    <span className="xl:text-[16px] text-[14px] font-[400] text-[var(--placeholder)] line-through">
+                      {formatMoney(discount.originalPrice, selectedCountry, { decimals: 0 })}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-[var(--color-error)] px-[10px] py-[3px] text-[11px] font-[600] uppercase tracking-[0.02em] text-white">
+                      Save {discount.percent}%
+                    </span>
+                    {discount.endsSoon && (
+                      <span className="inline-flex items-center gap-[5px] rounded-full border border-[var(--color-error)] px-[10px] py-[3px] text-[11px] font-[500] uppercase tracking-[0.02em] text-[var(--color-error)]">
+                        <span className="h-[6px] w-[6px] rounded-full bg-[var(--color-error)]" />
+                        Ends Soon
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : (
+              <p className="xl:text-[22px] lg:text-[20px] text-[19px] font-[500] text-[var(--teal-1)]">
+                {PRICE_ON_REQUEST_LABEL}
+              </p>
+            )}
+            {/* Financing strip removed per design review (installments not live
+                yet). Re-enable by restoring <Financing config={pdp?.financing}
+                price={effectivePrice} …/> here. */}
+          </div>
+
+          {reviewSummary?.count > 0 && (
+            <ReviewSummary
+              rating={Number(reviewSummary.average) || 0}
+              totalReviews={reviewSummary.count}
             />
-          </div> */}
+          )}
+
         </div>
         {productInfo && (
           <MetalSelector
@@ -457,6 +609,7 @@ const Details = () => {
               ) || []
             }
             colorType={productInfo.metal_colors || []}
+            metalOptions={productInfo.metal_options || []}
             value={selectedMetal}
             onChange={(metal) => {
               pricingEnabledRef.current = true;
@@ -469,15 +622,16 @@ const Details = () => {
               const color =
                 metal?.color?.toUpperCase?.() ||
                 metal?.metal_color?.toUpperCase?.() ||
+                activeColor || // preserve the color the user clicked through with
                 "";
 
               const params = new URLSearchParams(
                 Array.from(searchParams.entries())
               );
 
-              // update both params
+              // update karat always; only set color when we actually have one
               params.set("carat", cleanCarat);
-              params.set("selectedMetalColor", color);
+              if (color) params.set("selectedMetalColor", color);
 
               router.replace(`/product/${productId}?${params.toString()}`, {
                 scroll: false,
@@ -503,7 +657,7 @@ const Details = () => {
             diamodShapeTitle="Diamond Shape :"
             caretTitle={"title"}
             variantList={
-              productInfo?.variants.filter((e) => e.shape !== null) || []
+              (productInfo?.variants || []).filter((e) => e.shape !== null)
             }
             dimondShapeWithNavigation
             diamondWeightArray={diamondWeightArray}
@@ -517,6 +671,30 @@ const Details = () => {
               variantProductId
             ) => {
               pricingEnabledRef.current = true;
+
+              // Design-group model: each shape is its OWN product. Clicking a
+              // sibling shape navigates to that product (keeping the metal color).
+              const clicked = (productInfo?.variants || []).find(
+                (v) => v.id === id
+              );
+              if (
+                clicked?.is_design_sibling &&
+                clicked.product_id &&
+                clicked.product_id !== productInfo?.id
+              ) {
+                const params = new URLSearchParams();
+                if (activeColor) params.set("selectedMetalColor", activeColor);
+                params.set("shape", shapeName || clicked.shape || "");
+                // Preserve the shopper's full configuration across the product switch
+                if (selectedMetal?.karat?.value)
+                  params.set("karat", selectedMetal.karat.value);
+                const carriedCt = selectedCarat || selectedWeight;
+                if (carriedCt)
+                  params.set("ct", String(carriedCt).replace(/[^0-9.]/g, ""));
+                if (selectedRingSize) params.set("size", String(selectedRingSize));
+                router.push(`/product/${clicked.product_id}?${params.toString()}`);
+                return;
+              }
 
               setSelectDiamondWeightId(null);
               if (variantProductId) {
@@ -546,6 +724,13 @@ const Details = () => {
                 );
               } else {
                 setGalleryMedia(productInfo?.media);
+                const params = new URLSearchParams(
+                  Array.from(searchParams.entries())
+                );
+                params.set("shape", shapeName);
+                router.replace(`/product/${productId}?${params.toString()}`, {
+                  scroll: false,
+                });
               }
               setSelectedShape(shapeName);
             }}
@@ -641,9 +826,10 @@ const Details = () => {
         <div className="space-y-[12px] ">
           <div className="flex gap-[6px]">
             <Button
-              title="add to bag"
+              title={isAddingToCart ? "adding..." : "add to bag"}
               className="w-full h-[42px]"
               onClick={handleAddToCart}
+              disabled={isAddingToCart}
             />
             <Button
               variant="ghost"
@@ -668,6 +854,28 @@ const Details = () => {
               }}
             />
           </div>
+          {/* Description under the CTAs (Ecksand order) with read more/less */}
+          <div className="pt-[4px]">
+            <p
+              className={`text-[14px] font-[300] text-[var(--grey-2)] leading-relaxed ${
+                descExpanded ? "" : "line-clamp-2"
+              }`}
+            >
+              {[productInfo?.description, dynamicDescription]
+                .filter(Boolean)
+                .join(" ")}
+            </p>
+            {(productInfo?.description || "").length > 90 && (
+              <button
+                type="button"
+                onClick={() => setDescExpanded((v) => !v)}
+                className="mt-[4px] text-[12px] uppercase tracking-[0.08em] underline underline-offset-4 text-[var(--teal-1)] hover:text-[var(--teal-2)]"
+              >
+                {descExpanded ? "Read less" : "Read more"}
+              </button>
+            )}
+          </div>
+
           <div className="xl:text-[14px] font-[400] text-[12px] pb-[16px]">
             Need Help?{" "}
             <span
@@ -680,11 +888,12 @@ const Details = () => {
           </div>
           <hr className="hr-teal-3" />
         </div>
+        <TrustStrip badges={pdp?.trust_badges} />
         <FeaturesList
-          items={WHY_CHOOSE_ICON}
-          containerClass="!grid !grid-cols-2 !gap-x-2 !gap-y-3"
+          items={pdp?.why_choose?.length ? pdp.why_choose : WHY_CHOOSE_ICON}
+          containerClass="!grid !grid-cols-1 min-[400px]:!grid-cols-2 !gap-x-2 !gap-y-3"
           itemClass="!m-0 !p-1"
-          iconClass="!w-[24px] !h-[24px]"
+          iconClass="!w-[24px] !h-[24px] shrink-0"
         />
         {productInfo && (
           <FeaturesSpecs
@@ -695,14 +904,20 @@ const Details = () => {
             selectedCarat={selectedCarat}
             selectedColor={activeColor}
             pricingDetails={pricingDetails}
+            shippingReturns={pdp?.shipping_returns}
+            certificationCare={pdp?.certification_care}
             id="priceBreakupId"
           />
         )}
+        {/* ProductInfoAccordion removed — its Description/Specifications/
+            Shipping/Certification group duplicated the accordions above; the
+            CMS-editable shipping & certification copy now feeds FeaturesSpecs. */}
       </div>
       {openShareModal && (
         <ShareModal onClose={() => setOpenShareModal(false)} />
       )}
     </section>
+    </>
   );
 };
 

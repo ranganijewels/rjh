@@ -33,7 +33,7 @@ const AccountLayout = ({ children }) => {
   useEffect(() => {
     if (!isMounted) return;
 
-    const token = localStorage.getItem("authTokenElova");
+    const token = localStorage.getItem("authTokenRJHouse");
     if (!token) {
       router.push(`/login?redirect=${pathname}`);
     }
@@ -48,16 +48,18 @@ const AccountLayout = ({ children }) => {
         <aside className="flex flex-col xl:gap-[40px] md:gap-[30px] gap-[20px] lg:w-[20%] w-full lg:sticky top-[120px] self-start">
           {ACCOUNT_MENUS.map(({ label, path, action }) =>
             action === "logout" ? (
-              <Typography
+              <button
                 key={label}
-                variant="p"
+                type="button"
                 onClick={() => setShowLogoutModal(true)}
-                className={`cursor-pointer hover:text-[var(--teal-1)] ${
+                className={`bg-transparent border-0 p-0 w-full text-left cursor-pointer hover:text-[var(--teal-1)] ${
                   pathname === path ? "text-[var(--teal-1)] font-semibold" : ""
                 }`}
               >
-                {label}
-              </Typography>
+                <Typography variant="p" className="cursor-pointer">
+                  {label}
+                </Typography>
+              </button>
             ) : (
               <Link key={path} href={path}>
                 <Typography

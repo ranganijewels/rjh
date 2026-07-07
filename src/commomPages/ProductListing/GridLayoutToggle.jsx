@@ -1,7 +1,6 @@
 import React from "react";
 import Dropdown from "@/components/ui/Dropdown/Dropdown";
 import { useRouter, useSearchParams } from "next/navigation";
-import { store } from "@/store/store";
 
 const GridLayoutToggle = ({
   setGridLayout,
@@ -13,10 +12,10 @@ const GridLayoutToggle = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const state = store.getState();
-  const isLoggedIn = !!state.auth?.token;
+  // "Recent Viewed" was removed as a sort option — there is no server-side
+  // view-history field to sort by (it silently broke the grid). Recently-viewed
+  // products already have their own dedicated surface (Account / RecentlyViewed).
   const options = [
-    ...(isLoggedIn ? [{ label: "Recent Viewed", value: "recent_viewed" }] : []),
     { label: "New Arrival", value: "new_arrival" },
     { label: "Price high to low", value: "price_high_to_low" },
     { label: "Price low to high", value: "price_low_to_high" },
@@ -45,6 +44,7 @@ const GridLayoutToggle = ({
       <button
         onClick={() => setGridLayout("grid-cols-2")}
         className="flex flex-col items-center"
+        aria-label="2 column grid"
       >
         <div
           className={`lg:w-6 lg:h-6 w-[18px] h-[18px] md:mb-[10px] mb-1  rounded border ${
@@ -62,6 +62,7 @@ const GridLayoutToggle = ({
       <button
         onClick={() => setGridLayout("grid-cols-4")}
         className="flex flex-col items-center"
+        aria-label="4 column grid"
       >
         <div className="grid grid-cols-2 lg:gap-[3px] gap-[2px] md:mb-[10px] mb-1 ">
           {[...Array(2)].map((_, i) => (
@@ -85,6 +86,7 @@ const GridLayoutToggle = ({
         <button
           onClick={() => setGridLayout("grid-cols-5")}
           className="flex flex-col items-center"
+          aria-label="5 column grid"
         >
           <div className="grid grid-cols-2 gap-[3px] md:mb-[10px] mb-1 ">
             {Array.from({ length: 4 }).map((_, idx) => (

@@ -52,9 +52,11 @@ const CountryCurrencyModal = ({ setIsModalOpen, isModalOpen }) => {
 
       if (response && response.status !== false) {
         setSelectedCountry({
-          value: localCountry.iso_alpha2,
+          value: (localCountry.iso_alpha2 || "").toLowerCase(),
           label: localCountry.name,
           currency: localCountry.currency_code || localCountry.currency || "",
+          symbol: localCountry.currency_symbol || "",
+          rate: Number(localCountry.rate) || 1,
         });
         toast.success("Country saved successfully!");
         setIsModalOpen(false);
@@ -98,8 +100,8 @@ const CountryCurrencyModal = ({ setIsModalOpen, isModalOpen }) => {
       )}
     >
       <img
-        src="/icons/elova-logo.svg"
-        alt="Elova Logo"
+        src="/icons/rj-house-logo.svg"
+        alt="RJ House Logo"
         className="md:w-auto w-[100px] h-[28px]"
       />
       <img

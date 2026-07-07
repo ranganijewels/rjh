@@ -29,7 +29,10 @@ const RadioButton = ({
           value={value}
           checked={checked}
           onChange={onChange}
-          className={clsx("accent-[var(--teal-1)] w-4 h-4", className)}
+          className={clsx(
+            "accent-[var(--teal-1)] w-4 h-4 focus-visible:ring-2 focus-visible:ring-[var(--teal-2)] focus-visible:ring-offset-2",
+            className
+          )}
           {...rest}
         />
         {children ? (

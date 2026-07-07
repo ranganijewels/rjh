@@ -2,6 +2,7 @@ import ProductCard from "@/components/ui/Cards/ProductCard";
 import ProductCardSkeleton from "@/components/ui/Cards/ProductCardSkeleton";
 import SearchInput from "@/components/ui/Input/SearchInput";
 import { useCrudApi } from "@/hooks/useCrudApi";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 const SearchPanel = ({ showSearchbar, closeSearchBar }) => {
@@ -14,8 +15,8 @@ const SearchPanel = ({ showSearchbar, closeSearchBar }) => {
   const tabClasses = (tab) =>
     `text-[16px] font-[500] cursor-pointer ${
       activeTab === tab
-        ? "text-GREY-2 border-b-2 border-black pb-[20px]"
-        : "text-Placeholder"
+        ? "text-[var(--grey-2)] border-b-2 border-[var(--teal-1)] pb-[20px]"
+        : "text-[var(--grey-2)] opacity-60"
     }`;
 
   const filteredSuggestions = inputValue
@@ -159,7 +160,17 @@ const SearchPanel = ({ showSearchbar, closeSearchBar }) => {
                             />
                           ))
                       ) : (
-                        <p>No Products Found</p>
+                        <div className="col-span-full text-center py-8">
+                          <p className="text-[var(--grey-2)] mb-4">
+                            No products found for &quot;{inputValue}&quot;
+                          </p>
+                          <Link
+                            href="/product"
+                            className="text-[var(--teal-1)] underline"
+                          >
+                            Browse all products
+                          </Link>
+                        </div>
                       )}
                     </div>
                   )}

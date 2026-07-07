@@ -128,7 +128,7 @@ export const buildMenus = (apiData, options) => {
             "New Arrivals",
             "Bestsellers",
             "Limited Editions",
-            "Curated by ELOVA",
+            "Curated by RJ HOUSE",
             "Jewelry Under $1000",
           ],
         },
@@ -232,7 +232,7 @@ export const buildMenus = (apiData, options) => {
         {
           title: "Our Story",
           items: [
-            "The ELOVA Journey",
+            "The RJ HOUSE Journey",
             "Our Mission & Values",
             "The Meaning Behind the Name",
             "What Makes Us Different",
@@ -241,7 +241,7 @@ export const buildMenus = (apiData, options) => {
         {
           title: "Craftsmanship",
           items: [
-            "Craft of an ELOVA Piece",
+            "Craft of an RJ HOUSE Piece",
             "Our Design Philosophy",
             "Behind the Atelier",
             "Materials & Sourcing",

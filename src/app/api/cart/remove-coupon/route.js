@@ -1,17 +1,20 @@
-import { handlePOST } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 
 export async function POST(req) {
-  const token = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Authorization: token || "",
-  };
-
-  // Force empty JSON so req.json() does not throw
-  req.json = async () => ({});
-
-  return handlePOST(req, "/api/store-web/customer/remove-coupon", headers);
+  try {
+    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const result = await rjApi("DELETE", "/storefront/cart/coupon", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!result.ok) {
+      return NextResponse.json(
+        { status: false, message: result.raw?.message || "Failed to remove coupon" },
+        { status: result.status || 400 }
+      );
+    }
+    return NextResponse.json({ status: true, message: "Coupon removed" });
+  } catch {
+    return NextResponse.json({ status: false, message: "Failed to remove coupon" }, { status: 500 });
+  }
 }

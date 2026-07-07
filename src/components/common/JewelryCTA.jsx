@@ -1,9 +1,11 @@
 "use client";
 import React from "react";
+import DOMPurify from "dompurify";
 import Button from "../ui/Button/Button";
 import clsx from "clsx";
 import Typography from "../ui/Typography/Typography";
 import { useFileType } from "@/hooks/useFileType";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const JewelryCTA = ({
   title,
@@ -20,6 +22,7 @@ const JewelryCTA = ({
 }) => {
   const { isVideo } = useFileType(backgroundUrl);
   const { isVideo: bannerVideo } = useFileType(imageSrc);
+  const reducedMotion = usePrefersReducedMotion();
 
   return (
     <section
@@ -35,9 +38,11 @@ const JewelryCTA = ({
         <video
           className="absolute inset-0 w-full h-full object-cover -z-10"
           src={backgroundUrl}
-          autoPlay
+          autoPlay={!reducedMotion}
+          loop={!reducedMotion}
           muted
           playsInline
+          preload="metadata"
         />
       ) : (
         <img
@@ -59,14 +64,14 @@ const JewelryCTA = ({
           </Typography>
           <p
             className="tracking-wide font-normal xl:text-[24px] lg:text-[14px] text-[12px]"
-            dangerouslySetInnerHTML={{ __html: description }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description || "") }}
           />
           <div className={`flex gap-7 ${btnContainerclass}`}>
             {buttons?.map((btn, i) => (
               <Button
                 key={i}
                 variant={
-                  btn.button_color ? undefined : i === 0 ? "primary" : "outline"
+                  btn.button_color ? undefined : i === 0 ? "primary" : "outlineWhite"
                 }
                 title={btn.button_text}
                 background={btn.button_color}
@@ -85,9 +90,11 @@ const JewelryCTA = ({
           <video
             className="h-auto xl:w-[775px] lg:w-[413px] sm:w-[214px] w-[126px]"
             src={imageSrc}
-            autoPlay
+            autoPlay={!reducedMotion}
+            loop={!reducedMotion}
             muted
             playsInline
+            preload="metadata"
           />
         </div>
       ) : imageSrc ? (

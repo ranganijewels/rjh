@@ -1,21 +1,16 @@
-import { handlePOST } from "@/lib/apiHandler";
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 
-export async function POST(req, context) {
-  const { id } = await context.params;
-
-  const rawAuth = req.headers.get("authorization") || "";
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const token = rawAuth.replace(/^Bearer\s+/i, "");
-
-  const headers = {
-    "x-tenant-id": tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return handlePOST(
-    req,
-    `/api/store-web/customer/remove-cart-item/${id}`,
-    headers
-  );
+async function removeItem(req, params) {
+  try {
+    const { id } = await params;
+    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    await rjApi("DELETE", `/storefront/cart/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    return NextResponse.json({ status: true, message: "Item removed" });
+  } catch (e) {
+    return NextResponse.json({ status: false, message: e.message });
+  }
 }
+
+export async function DELETE(req, { params }) { return removeItem(req, params); }
+export async function POST(req, { params }) { return removeItem(req, params); }

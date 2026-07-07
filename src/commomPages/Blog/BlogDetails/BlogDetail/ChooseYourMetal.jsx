@@ -9,7 +9,7 @@ const ChooseYourMetal = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    The foundation of every Elova piece begins with a thoughtful decision—your metal. Whether you seek warm hues, enduring durability, or cool sophistication, our metals are chosen for their purity, beauty, and ethical origins.
+                    The foundation of every RJ House piece begins with a thoughtful decision—your metal. Whether you seek warm hues, enduring durability, or cool sophistication, our metals are chosen for their purity, beauty, and ethical origins.
                 </Typography>
                 <Typography variant="h4">Explore Our Metal Palette:</Typography>
                 <Typography variant="h5">
@@ -19,7 +19,7 @@ const ChooseYourMetal = () => {
                 <Typography variant="h5">
                     We also provide a printable Ring Size Guide and a complimentary sizer upon
                     request to help you get the most accurate measurement. Still unsure? Our
-                    jewelry consultants are available for virtual sizing support. With Elova,
+                    jewelry consultants are available for virtual sizing support. With RJ House,
                     comfort and beauty go hand in hand.
                 </Typography>
             </div>

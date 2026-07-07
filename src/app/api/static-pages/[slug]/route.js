@@ -1,18 +1,10 @@
-import { handleGET } from "@/lib/apiHandler";
-
+import { NextResponse } from "next/server";
+import { rjApi } from "@/lib/apiHandler";
 export async function GET(req, { params }) {
-  const { slug } = params;
-  const token = req.headers.get("authorization");
-  const tenantId = req.headers.get("x-tenant-id");
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-tenant-id": tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return handleGET(
-    `/api/cms/common/get-static-pages/${tenantId}/${slug}`,
-    headers
-  );
+  try {
+    const { slug } = await params;
+    const result = await rjApi("GET", `/cms/pages/${slug}`);
+    const page = result.raw?.data || {};
+    return NextResponse.json({ data: { title: page.title || slug, content: page.content || "", slug } });
+  } catch { return NextResponse.json({ data: { title: "", content: "" } }); }
 }

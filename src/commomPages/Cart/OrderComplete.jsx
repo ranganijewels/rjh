@@ -2,6 +2,7 @@
 import Button from "@/components/ui/Button/Button";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import React from "react";
 import { useSelector } from "react-redux";
 import FailedOrder from "./FailedOrder";
@@ -24,12 +25,15 @@ const OrderComplete = () => {
   return (
     <section className="lg:py-[80px] py-[40px] lg:px-[95px] px-0 flex flex-col items-center gap-[40px] container mx-auto max-w-[738px] text-center border border-[var(--teal-3)]">
       <div className="space-y-[16px]">
-        <h2 className="font-[500] lg:text-[34px] text-[24px] text-[var(--placeholder)]">
+        <Typography
+          variant="h2"
+          className="font-[500] text-[var(--placeholder)]"
+        >
           Thank you!
-        </h2>
-        <h1 className="lg:text-[40px] text-[28px] font-[500] max-w-[492px]">
+        </Typography>
+        <Typography variant="h1" className="font-[500] max-w-[492px]">
           Your order has been received
-        </h1>
+        </Typography>
       </div>
 
       {/* Items list */}
@@ -41,10 +45,12 @@ const OrderComplete = () => {
               className="w-[105px] h-[115px] p-[18px_13px] bg-[var(--product-bg)] relative"
               key={item.id}
             >
-              <img
+              <Image
                 className="w-[78px] h-[78px] object-cover"
                 src={item.product?.image}
-                alt="product"
+                alt={item.product?.name || "Ordered item"}
+                width={78}
+                height={78}
               />
               <div className="p-[4px_11px] rounded-full bg-[var(--teal-1)] w-[32px] h-[32px] absolute -top-[11px] -right-[4px]">
                 <Typography
@@ -60,6 +66,9 @@ const OrderComplete = () => {
       </div>
 
       {/* Order Summary */}
+      <Typography variant="h3" as="h2" className="font-[500] mb-4">
+        Order Details
+      </Typography>
       <div className="mx-auto space-x-[32px] flex justify-center">
         <div className="inline-flex flex-col justify-start items-start gap-5 text-left">
           <Typography

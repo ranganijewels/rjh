@@ -14,27 +14,17 @@ export default function StaticPage() {
 
     setLoading(true);
 
-    fetch(
-      `https://api.jewellabel.in/api/cms/common/get-static-pages/${storeId}/${slug}`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "x-tenant-id": process.env.NEXT_PUBLIC_TENANT_ID,
-        },
-        credentials: "include",
-      }
-    )
+    // CMS pages come from our own backend via the local proxy
+    fetch(`/api/static-pages/${slug}`, {
+      headers: { Accept: "application/json" },
+    })
       .then((res) => res.json())
       .then((json) => {
-        const page =
-          Array.isArray(json?.data) && json.data.length > 0
-            ? json.data[0]
-            : null;
-
-        setPageData(page);
+        const page = json?.data;
+        // Treat pages with no content as missing
+        setPageData(page?.content ? page : null);
       })
-      .catch((err) => {
+      .catch(() => {
         setPageData(null);
       })
       .finally(() => setLoading(false));
@@ -50,7 +40,7 @@ export default function StaticPage() {
 
   return (
     <section>
-      <PageHeading title={pageData.page_title || ""} />
+      <PageHeading title={pageData.title || pageData.page_title || ""} />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div

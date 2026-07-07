@@ -20,6 +20,11 @@ const AppointmentCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
+  const today = new Date();
+  const isCurrentMonth =
+    currentDate.getFullYear() === today.getFullYear() &&
+    currentDate.getMonth() === today.getMonth();
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
@@ -45,17 +50,25 @@ const AppointmentCalendar = () => {
     <div className="bg-white rounded-md p-[28px_30px] w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-[32px]">
-        <button onClick={handlePrevMonth} className="text-xl">
+        <button
+          onClick={handlePrevMonth}
+          aria-label="Previous month"
+          className="text-xl"
+        >
           <PreviousIcon />
         </button>
         <p className="font-medium text-[16px]">{monthLabel}</p>
-        <button onClick={handleNextMonth} className="text-xl">
+        <button
+          onClick={handleNextMonth}
+          aria-label="Next month"
+          className="text-xl"
+        >
           <NextIcon />
         </button>
       </div>
 
       {/* Days */}
-      <div className="grid grid-cols-7 text-center text-[12px] text-gray-400 mb-2">
+      <div className="grid grid-cols-7 text-center text-[10px] md:text-[12px] text-[var(--grey-1)] mb-2">
         {DAYS.map((day) => (
           <div key={day}>{day}</div>
         ))}
@@ -71,16 +84,25 @@ const AppointmentCalendar = () => {
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const date = i + 1;
           const isSelected = selectedDate === date;
+          const isToday = isCurrentMonth && today.getDate() === date;
+          const isPast =
+            isCurrentMonth &&
+            new Date(year, month, date) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
           return (
             <button
               key={date}
               onClick={() => setSelectedDate(date)}
+              disabled={isPast}
               className={clsx(
-                "w-9 h-9 rounded-md",
+                "w-11 h-11 sm:w-9 sm:h-9 rounded-md relative",
                 isSelected
                   ? "bg-[var(--teal-1)] text-white"
-                  : "hover:bg-gray-100"
+                  : "hover:bg-gray-100",
+                isToday && !isSelected && "ring-1 ring-[var(--teal-1)]",
+                isPast
+                  ? "opacity-40 pointer-events-none cursor-not-allowed"
+                  : ""
               )}
             >
               {date}
@@ -103,7 +125,7 @@ const AppointmentCalendar = () => {
                 disabled={!slot.available}
                 onClick={() => setSelectedSlot(slot.label)}
                 className={clsx(
-                  "px-[20px] py-[10px] border rounded-[4px] text-[12px]",
+                  "px-[20px] py-[10px] border rounded-[4px] text-[12px] disabled:opacity-40 disabled:cursor-not-allowed",
 
                   selectedSlot === slot.label
                     ? "bg-[var(--grey-1)] border-[var(--grey-1)] text-[var(--grey-2)]"

@@ -39,6 +39,11 @@ const FeaturedCollections = ({
         canScrollRight={canScrollRight}
       />
 
+      {!collections?.length ? (
+        <Typography variant="p" textColor="grey" className="py-[24px]">
+          No collections available
+        </Typography>
+      ) : (
       <div
         ref={containerRef}
         // className="flex xl:gap-[20px] lg:gap-[10px] gap-[14px] overflow-x-auto hide-scrollbar no-scrollbar scroll-smooth"
@@ -52,7 +57,12 @@ const FeaturedCollections = ({
           return (
             <div
               key={index}
-              className="shrink-0 cursor-pointer"
+              className={clsx(
+                "slide-card shrink-0 cursor-pointer",
+                // In carousel mode, size cards so ~4 show per view (2 on mobile).
+                !isGrid &&
+                  "w-[calc(50%-7px)] md:w-[calc(25%-15px)] xl:w-[calc(25%-15px)]"
+              )}
               onClick={() => {
                 if (onClick) {
                   onClick(product);
@@ -72,6 +82,7 @@ const FeaturedCollections = ({
           );
         })}
       </div>
+      )}
     </section>
   );
 };

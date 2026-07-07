@@ -13,20 +13,26 @@ const ShareModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
-      <div className="relative w-[420px] bg-white rounded-[12px] shadow-lg p-6">
+      <div className="relative w-[420px] bg-[var(--grey-00)] rounded-[12px] shadow-lg p-6">
         {/* Close */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-black"
+          aria-label="Close"
+          className="absolute top-4 right-4"
         >
-          ✕
+          <img
+            src="/icons/close.svg"
+            className="w-[12px] h-[12px] cursor-pointer"
+            alt=""
+          />
         </button>
 
         {/* Title */}
         <h3 className="text-[18px] font-[500] mb-4">Let’s share this!</h3>
 
         {/* Copy Link */}
-        <div className="flex items-center gap-2 bg-gray-100 rounded-md p-2 mb-3">
+        <div className="flex items-center gap-2 bg-[var(--grey-0)] rounded-md p-2 mb-3">
           <input
             readOnly
             value={url}
@@ -40,7 +46,7 @@ const ShareModal = ({ onClose }) => {
           </button>
         </div>
 
-        <p className="text-[12px] text-gray-500 pb-[20px] mb-[20px] border-b border-b-[var(--grey-1)]">
+        <p className="text-[12px] text-[var(--placeholder)] pb-[20px] mb-[20px] border-b border-b-[var(--grey-1)]">
           Anyone with the link can view this page.
         </p>
 
@@ -72,9 +78,9 @@ const ShareIcon = ({ href, icon, label }) => (
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="flex flex-col items-center gap-2 text-[12px] text-gray-600 hover:text-black"
+    className="flex flex-col items-center gap-2 text-[12px] text-[var(--placeholder)] hover:text-[var(--grey-2)]"
   >
-    <div className="w-[44px] h-[44px] rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+    <div className="w-[44px] h-[44px] rounded-full bg-[var(--grey-0)] flex items-center justify-center hover:bg-[var(--grey-1)]">
       <img src={icon} alt={label} className="w-[20px] h-[20px]" />
     </div>
     {label}

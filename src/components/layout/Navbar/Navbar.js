@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import MenuOptionsPanel from "./MenuOptionsPanel";
 import { MENUS_OPTIONS, NAV_MENUS } from "./constant";
 import MobileNav from "./MobileNav";
 import Link from "next/link";
 import SearchPanel from "./SearchPanel";
 import SearchIcon from "@/components/Icons/SearchIcon";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import clsx from "clsx";
 import TopBar from "./TopBar";
 import { useNavbarScroll } from "@/hooks/useNavbarScroll";
@@ -21,14 +21,51 @@ import WishlistPopUp from "@/components/ui/PopUp/WishlistPopUp";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import useIsMobile from "@/utils/useIsMobile";
 import { toTitleCase } from "@/utils/string";
+import Badge from "@/components/ui/Badge/Badge";
 
 const Navbar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const cartCount = useSelector((state) => state.cart.cartCount);
   const [activeMenu, setActiveMenu] = useState(null);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const { isTopBarHidden, isNavbarHidden } = useNavbarScroll();
+  const { isNavbarHidden, isAtTop } = useNavbarScroll();
+
+  // Hero pages (home + every page whose first element is a full-bleed hero
+  // banner): the hero flows UNDER the nav (negative margin equal to the nav
+  // height — constant per page, never scroll-dependent, so no layout jumps),
+  // and while the shopper is at the very top the nav is transparent with
+  // white text/logo/icons. Any open panel forces the solid style back.
+  // Explicit allow-list so pages WITHOUT a hero (PDP /product/[id], cart,
+  // account, blog-detail, /customize/form/*) keep the solid nav in normal flow
+  // and never overlay page content with white-on-white text.
+  const HERO_ROUTES = new Set([
+    "/", "/about-us", "/blog", "/gallery", "/reviews", "/product", "/customize",
+    "/craftsmanship", "/sustainability", "/customer-love",
+  ]);
+  const isHeroPage = HERO_ROUTES.has(pathname) || pathname.startsWith("/collections/");
+  const headerRef = useRef(null);
+  const [navHeight, setNavHeight] = useState(0);
+  useLayoutEffect(() => {
+    if (!isHeroPage || !headerRef.current) return;
+    const el = headerRef.current;
+    const measure = () => setNavHeight(el.offsetHeight);
+    measure();
+    // Re-measure whenever the header's height actually changes. The logo SVG and
+    // web fonts finish loading AFTER the first layout pass and grow the nav from
+    // ~69px to its final ~93px; a one-time measure leaves the overlay margin too
+    // small, so the body background peeks through as a thin strip under the topbar.
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [isHeroPage]);
+  const transparent =
+    isHeroPage && isAtTop && !activeMenu && !showSearchBar && !openMobileMenu;
   const [menuOptions, setMenuOptions] = useState(MENUS_OPTIONS);
   const { fetchAll } = useCrudApi("/api/nav-menu");
   const wishlistCount = useSelector((s) => s.wishlist.count);
@@ -79,135 +116,203 @@ const Navbar = () => {
   }, [openMobileMenu]);
 
   return (
-    <header className="z-[1000]">
-      <TopBar isTopBarHidden={isTopBarHidden} />
+    <>
+      {/* Top bar scrolls away naturally with the page — no transform, no jump */}
+      <TopBar />
 
-      {/* Main Navbar */}
+      {/* Main Navbar — sticky at the page level keeps it permanently in the
+          document flow (space always reserved), so hiding/revealing is a pure
+          GPU transform and the hero never shifts or flickers. */}
+      <header
+        ref={headerRef}
+        className={clsx(
+          "sticky top-0 z-[1000] w-full will-change-transform",
+          "transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]",
+          isNavbarHidden ? "-translate-y-[110%]" : "translate-y-0"
+        )}
+        style={isHeroPage && navHeight ? { marginBottom: -navHeight } : undefined}
+      >
       <nav
         className={clsx(
-          "bg-[var(--grey-0)] w-full transition-all duration-300 ease-in-out shadow-[0px_3px_4px_0px_rgba(0,0,0,0.08)]",
-
-          isNavbarHidden
-            ? "-translate-y-full"
-            : "translate-y-0 shadow-[0px_3px_6px_rgba(0,0,0,0.1)]",
-          isTopBarHidden ? "top-0 fixed" : "top-[32px]"
+          "w-full transition-colors duration-300",
+          transparent
+            ? "bg-transparent"
+            : "bg-[var(--grey-0)]",
+          !isNavbarHidden && !transparent && "shadow-[0px_3px_6px_rgba(0,0,0,0.08)]"
         )}
       >
         <div className="flex items-center justify-between p-[24px_30px] nav-padding relative z-50">
           {/* Mobile Left Icons */}
           <div className="flex items-center gap-[15px] lg:hidden w-[90px]">
-            <img
-              src="/icons/hamburger.svg"
-              alt="menu"
-              className="w-[20px] h-[20px] cursor-pointer shrink-0"
+            <button
+              type="button"
+              aria-label="Open menu"
+              aria-expanded={openMobileMenu}
               onClick={() => setOpenMobileMenu(!openMobileMenu)}
-            />
+              className="shrink-0"
+            >
+              <img
+                src="/icons/hamburger.svg"
+                alt=""
+                aria-hidden="true"
+                className={clsx(
+                  "w-[20px] h-[20px] shrink-0",
+                  transparent && "[filter:brightness(0)_invert(1)]"
+                )}
+              />
+            </button>
             <SearchIcon
               onClick={() => setShowSearchBar(!showSearchBar)}
-              className="shrink-0"
+              className={clsx(
+                "shrink-0",
+                transparent && "[filter:brightness(0)_invert(1)]"
+              )}
+              ariaLabel="Search products"
             />
           </div>
 
-          {/* Centered Logo */}
+          {/* Centered Logo — white wordmark while the nav overlays the hero */}
           <div className="flex justify-center flex-1 lg:flex-none lg:order-1">
             <Link href="/">
               <img
-                src="/logo/elova-jewel.png"
-                alt="Elova Logo"
-                className="md:w-[130px] w-[105px]"
+                src={transparent ? "/logo/rj-house-footer.svg" : "/logo/rj-house.svg"}
+                alt="RJ House Logo"
+                width={636}
+                height={219}
+                // Reserve the logo's height (636:219 aspect → 45px at 130w, 36px at
+                // 105w) so the header is its final size on the FIRST layout pass. The
+                // nav-overlay margin is measured from the header height; without this
+                // the logo loads late, grows the nav, and a body-bg strip shows under
+                // the topbar until re-measure.
+                className="md:w-[130px] w-[105px] md:h-[45px] h-[36px] object-contain"
               />
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex xl:gap-[60px] lg:gap-[30px] flex-1 justify-center lg:order-1 text-[14px] font-[400]">
+          <nav
+            aria-label="Primary"
+            className="hidden lg:flex xl:gap-[60px] lg:gap-[30px] flex-1 justify-center lg:order-1 text-[14px] font-[400]"
+          >
             {NAV_MENUS.map((item) => {
               const isActive = activeMenu === item.label;
               return (
-                <div
+                <button
+                  type="button"
                   key={item.label}
+                  aria-haspopup="true"
+                  aria-expanded={isActive}
                   onClick={() => {
                     router.push(item.link);
                     setActiveMenu(null);
                   }}
                   onMouseEnter={() => setActiveMenu(item.label)}
+                  onFocus={() => setActiveMenu(item.label)}
                   className={clsx(
-                    "relative cursor-pointer transition-colors duration-300 uppercase",
-                    "after:absolute after:left-0 after:bottom-[-2px] after:h-[2px] after:bg-[var(--teal-1)] after:transition-all after:duration-300 after:ease-in-out after:w-0",
+                    "relative cursor-pointer transition-colors duration-300 uppercase bg-transparent",
+                    "after:absolute after:left-0 after:bottom-[-2px] after:h-[2px] after:transition-all after:duration-300 after:ease-in-out after:w-0",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2",
+                    transparent ? "after:bg-white" : "after:bg-[var(--teal-1)]",
+                    transparent ? "focus-visible:outline-white" : "focus-visible:outline-[var(--teal-1)]",
                     {
-                      "text-[var(--teal-1)] after:w-full": isActive,
-                      "text-[var(--grey-2)] hover:after:w-full": !isActive,
+                      "after:w-full": isActive,
+                      "hover:after:w-full focus-visible:after:w-full": !isActive,
+                      "text-white": transparent,
+                      "text-[var(--teal-1)]": isActive && !transparent,
+                      "text-[var(--grey-2)]": !isActive && !transparent,
                     }
                   )}
                 >
                   {item.label}
-                </div>
+                </button>
               );
             })}
-          </div>
+          </nav>
 
           {/* Right Icons */}
           <div className="flex items-center lg:gap-[20px] gap-[15px] lg:order-3 lg:w-auto w-[90px] justify-end">
             <SearchIcon
               onClick={() => setShowSearchBar(!showSearchBar)}
-              className="hidden lg:block cursor-pointer"
+              className={clsx(
+                "hidden lg:block cursor-pointer",
+                transparent && "[filter:brightness(0)_invert(1)]"
+              )}
               ariaLabel="Search products"
             />
 
             {/* User Profile */}
             <div className="flex items-center">
               {customer && !MobileSize && (
-                <span className="text-[var(--teal-1)] text-[14px] font-[500] mr-2 whitespace-nowrap hidden sm:block">
+                <span
+                  className={clsx(
+                    "text-[14px] font-[500] mr-2 whitespace-nowrap hidden sm:block",
+                    transparent ? "text-white" : "text-[var(--teal-1)]"
+                  )}
+                >
                   Hi, {toTitleCase(customer.first_name)}
                 </span>
               )}
-              <div className="relative h-[20px] w-[20px]">
+              <button
+                type="button"
+                aria-label="My account"
+                onClick={() => router.push("/account")}
+                className="relative h-[20px] w-[20px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] hover:opacity-70 transition-opacity"
+              >
                 <img
                   src="/icons/user.svg"
-                  onClick={() => router.push("/account")}
-                  className="w-full h-full cursor-pointer"
-                  alt="User Account"
+                  aria-hidden="true"
+                  className={clsx(
+                    "w-full h-full cursor-pointer",
+                    transparent && "[filter:brightness(0)_invert(1)]"
+                  )}
+                  alt=""
                 />
                 {customer && MobileSize && (
-                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
-                    {customer.first_name?.charAt(0).toUpperCase()}
-                  </span>
+                  <Badge count={customer.first_name?.charAt(0).toUpperCase()} />
                 )}
-              </div>
+              </button>
             </div>
 
             {/* Wishlist */}
             <div className="relative" onMouseEnter={open} onMouseLeave={close}>
-              <div className="relative h-[20px] w-[20px]">
+              <button
+                type="button"
+                aria-label={`Wishlist${wishlistCount > 0 ? ` (${wishlistCount} items)` : ""}`}
+                onClick={() => router.push("/wishlist")}
+                className="relative h-[20px] w-[20px] block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] hover:opacity-70 transition-opacity"
+              >
                 <img
                   src="/icons/heart.svg"
-                  onClick={() => router.push("/wishlist")}
-                  className="w-full h-full cursor-pointer"
-                  alt="Wishlist"
+                  aria-hidden="true"
+                  className={clsx(
+                    "w-full h-full cursor-pointer",
+                    transparent && "[filter:brightness(0)_invert(1)]"
+                  )}
+                  alt=""
                 />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
-                    {wishlistCount}
-                  </span>
-                )}
-              </div>
+                {wishlistCount > 0 && <Badge count={wishlistCount} />}
+              </button>
               {!isMobile && (
                 <WishlistPopUp onMouseEnter={open} onMouseLeave={close} />
               )}
             </div>
 
             {/* Cart */}
-            <Link href="/cart" className="relative block h-[20px] w-[20px]">
+            <Link
+              href="/cart"
+              aria-label={`Shopping bag${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
+              className="relative block h-[20px] w-[20px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] hover:opacity-70 transition-opacity"
+            >
               <img
                 src="/icons/basket-shopping.svg"
-                alt="cart"
-                className="w-full h-full cursor-pointer"
+                alt=""
+                aria-hidden="true"
+                className={clsx(
+                  "w-full h-full cursor-pointer",
+                  transparent && "[filter:brightness(0)_invert(1)]"
+                )}
               />
-              {cartCount > 0 && (
-                <span className="absolute -top-[8px] -right-[11px] min-w-[18px] h-[18px] px-[5px] bg-[#2F6F7A] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none border border-white">
-                  {cartCount}
-                </span>
-              )}
+              {cartCount > 0 && <Badge count={cartCount} />}
             </Link>
           </div>
         </div>
@@ -230,12 +335,13 @@ const Navbar = () => {
           )}
         </div>
       </nav>
+      </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (fixed overlay — outside the translated header) */}
       {openMobileMenu && (
         <MobileNav closeMobile={setOpenMobileMenu} menus={menuOptions} />
       )}
-    </header>
+    </>
   );
 };
 

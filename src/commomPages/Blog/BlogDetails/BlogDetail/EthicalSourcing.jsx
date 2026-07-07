@@ -9,7 +9,7 @@ export const EthicalSourcing = () => {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
                 <Typography variant="h5">
-                    Luxury, in our eyes, means more than aesthetics—it means integrity. Elova is committed to sourcing materials that respect both people and the planet, without compromise.
+                    Luxury, in our eyes, means more than aesthetics—it means integrity. RJ House is committed to sourcing materials that respect both people and the planet, without compromise.
                 </Typography>
                 <Typography variant="h4"><b>Responsibly Sourced Diamonds</b></Typography>
                 <Typography variant="h5">
@@ -33,7 +33,7 @@ export const EthicalSourcing = () => {
 
                 <Typography variant="h4"><b>A Transparent Supply Chain</b></Typography>
                 <Typography variant="h5">
-                  We believe our customers deserve to know the story behind their jewelry. From mine to masterpiece, we aim for full transparency—so you can wear your Elova piece with pride and peace of mind.
+                  We believe our customers deserve to know the story behind their jewelry. From mine to masterpiece, we aim for full transparency—so you can wear your RJ House piece with pride and peace of mind.
                 </Typography>
             </div>
         </section>

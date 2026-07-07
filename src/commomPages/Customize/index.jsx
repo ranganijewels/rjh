@@ -9,6 +9,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCustomizeData } from "./useCustomizeData";
 import TwoColGrid from "@/components/common/TwoColGrid";
+import Button from "@/components/ui/Button/Button";
 
 const Customize = () => {
   const router = useRouter();
@@ -63,12 +64,21 @@ const Customize = () => {
           description={selectedHero.subtitle}
           backgroundUrl={selectedHero.file}
           backgroundIsVideo
-          containerClass="xl:h-[601px]"
-          imageClass="xl:h-[601px]"
+          containerClass="!h-[475px]"
+          imageClass="!h-[475px]"
           buttons={selectedHero.buttons}
-          buttonClick={() =>
-            router.push(`/customize/form/reference?size=${currentCategory}`)
-          }
+          // Fallback only — Button prefers each button's own button_url (which
+          // the /api/customize heroes set with category_id + size). This covers
+          // CMS-authored buttons saved without a URL.
+          buttonClick={() => {
+            const CATEGORY_IDS = { ring: 10, band: 1, bracelet: 3, necklace: 6, earring: 4 };
+            const id = CATEGORY_IDS[currentCategory];
+            router.push(
+              currentCategory && id
+                ? `/customize/form/reference?category_id=${id}&size=${currentCategory}`
+                : "/customize/form/reference"
+            );
+          }}
         />
       )}
 
@@ -139,15 +149,25 @@ const Customize = () => {
         />
       </div> */}
 
-      <ImageWithContent
-        heading={customizeData?.cms_page?.custom_creation_head?.[0]?.title}
-        headingDescription={
-          customizeData?.cms_page?.custom_creation_head?.[0]?.description
-        }
-        data={customizeData?.cms_page?.custom_creation}
-        showNavigation
-        // data={testimonial}
-      />
+      {/* Custom creations — a preview of the full gallery; "View Gallery" opens /gallery */}
+      <div>
+        <ImageWithContent
+          heading={customizeData?.cms_page?.custom_creation_head?.[0]?.title}
+          headingDescription={
+            customizeData?.cms_page?.custom_creation_head?.[0]?.description
+          }
+          data={(customizeData?.cms_page?.custom_creation || []).slice(0, 6)}
+          showNavigation
+        />
+        {(customizeData?.cms_page?.custom_creation || []).length > 0 && (
+          <div className="flex justify-center xl:mt-[30px] mt-[18px]">
+            <Button
+              title="View Gallery"
+              onClick={() => router.push("/gallery")}
+            />
+          </div>
+        )}
+      </div>
 
       {/* <FindYourDiomond
         title="Personalized Shopping Experience"

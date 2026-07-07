@@ -9,13 +9,21 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Font variable */
+  /* Font variables */
   --font-montserrat: var(--font-montserrat);
   --font-source-serif: var(--font-source-serif);
-  /* Color variables from Figma */
-  --teal-1: #2f6f7a;
-  --teal-2: #7fa9ae;
-  --teal-3: #d4dbdc;
+  --font-cormorant: var(--font-cormorant);
+
+  /* Rangani Brand Colors */
+  --brand-deep: #091930;
+  --brand-navy: #162640;
+  --brand-steel: #465e84;
+
+  /* UI color aliases (navy palette replaces teal) */
+  --teal-1: #162640;
+  --teal-2: #465e84;
+  --teal-3: #d4dce8;
+  --teal-light: #c4cee0;
 
   --grey-0: #f2f1f0;
   --grey-00: #f7f7f7;
@@ -28,23 +36,81 @@
   --white-gold: #ced0d0;
   --platinum: #e2e2e2;
 
+  /* Metal swatch colors (used for gradient color-picker chips) */
+  --metal-white: #ffffff;
+  --metal-yellow: #ffd700;
+  --metal-rose: #e75480;
+
   --product-bg: #fcfcfc;
-  --placeholder: #767676;
+  --placeholder: #595959;
+
+  /* Semantic status colors */
+  --color-error: #dc2626;
+}
+
+/* Scroll on the viewport (html), not the body — keeps position:sticky working
+   while still showing a persistent scrollbar to avoid layout shift.
+   scroll-behavior: smooth gives buttery anchor/programmatic scrolling site-wide;
+   scroll-padding-top keeps targets clear of the sticky navbar. */
+html {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
   background: var(--grey-00);
   color: var(--foreground);
   font-family: var(--font-montserrat);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 button {
   cursor: pointer;
 }
 
+/* Global keyboard focus indicator for every interactive element (WCAG 2.4.7).
+   Uses :focus-visible so it only shows for keyboard/AT users, not mouse clicks. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--teal-1);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Soft crossfade when a product card's image changes (hover rollover / slider). */
+@keyframes cardImgFade {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+.card-img-fade {
+  animation: cardImgFade 0.4s ease-out;
+}
+
+/* Horizontal-only scroll rails (product carousels, shape/size chip rows).
+   overflow-x-auto alone lets the browser's overflow computed-value rule
+   promote overflow-y from visible to auto too, so any 1px vertical overflow
+   (uneven card heights, a hover badge, etc.) opened a real — just visually
+   masked — vertical scrollbar inside the row. overflow-y: hidden closes that
+   off at the source instead of merely hiding the (still-present) scrollbar. */
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overflow-y: hidden;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -61,7 +127,8 @@ button {
 
 .line-clamp-3 {
   display: -webkit-box;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -108,7 +175,7 @@ button {
 /* ============================= */
 
 .cms-content {
-  font-family: "Montserrat", sans-serif;
+  font-family: var(--font-montserrat), sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
