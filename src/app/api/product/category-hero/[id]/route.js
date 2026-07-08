@@ -8,7 +8,7 @@ import { heroFromCms } from "@/lib/cmsHero";
 // video set in the CMS were silently dropped.
 export async function GET(req, { params }) {
   const { id } = await params;
-  const FALLBACK = "http://localhost:4000/images/products/ring-diamond-solitaire.svg";
+  const FALLBACK = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/images/products/ring-diamond-solitaire.svg`;
   try {
     const result = await rjApi("GET", `/cms/sections?pageSlug=product-listing`);
     const sections = result.raw?.data || [];

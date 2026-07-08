@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
 import { heroFromCms, heroHasContent } from "@/lib/cmsHero";
 
-const BASE = "http://localhost:4000/images/products";
+const BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/images/products`;
 
 // Per-collection defaults, shown until a Product-Listing hero is set in the CMS.
 const DEFAULTS = [
