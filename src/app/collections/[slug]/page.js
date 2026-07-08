@@ -66,6 +66,23 @@ async function resolvePage(slug) {
   return null;
 }
 
+// Admin-managed Collection (Dashboard → Product Management → Collections):
+// name/description/banner + explicitly assigned products, resolved by slug.
+// Takes priority over the generic SEO-page flow below.
+async function fetchCollection(slug) {
+  try {
+    const res = await fetch(
+      `${NEST}/api/v1/collections/slug/${encodeURIComponent(slug)}`,
+      { cache: "no-store", headers: { "x-tenant-id": TENANT } }
+    );
+    if (!res.ok) return null;
+    const j = await res.json();
+    return j?.data ?? j ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // Parse simple shape / carat hints out of the slug for the product search.
 function hintsFromSlug(slug) {
   const s = String(slug || "").toLowerCase();
@@ -126,6 +143,13 @@ function productCardFields(p) {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+  const collection = await fetchCollection(slug);
+  if (collection?.name) {
+    return {
+      title: `${collection.name} — Rangani Jewelry House`,
+      description: collection.description || undefined,
+    };
+  }
   const page = await resolvePage(slug);
   if (!page) {
     return { title: "Collection not found", robots: { index: false } };
@@ -142,7 +166,11 @@ export async function generateMetadata({ params }) {
 
 export default async function CollectionPage({ params }) {
   const { slug } = await params;
-  const page = await resolvePage(slug);
+  // Real admin-managed collection first; generic SEO page as fallback.
+  const collection = await fetchCollection(slug);
+  const page = collection
+    ? { h1: collection.name, introMd: collection.description || "" }
+    : await resolvePage(slug);
 
   if (!page) {
     return (
@@ -160,8 +188,13 @@ export default async function CollectionPage({ params }) {
     );
   }
 
-  const products = await fetchProducts(slug);
-  const hero = await fetchCollectionHero();
+  const products = collection?.products?.length
+    ? collection.products
+    : await fetchProducts(slug);
+  // The collection's own banner wins; the CMS "Collections" hero is the fallback.
+  const hero = collection?.heroImage
+    ? { title: collection.name, description: collection.description, file: collection.heroImage }
+    : await fetchCollectionHero();
 
   return (
     <>

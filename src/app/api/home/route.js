@@ -134,7 +134,7 @@ export async function GET(req) {
       loved_by_section: [
         null,
         {
-          title: "Loved by Our Customers",
+          title: "As Seen on Instagram",
           loved_by_items: (reviews.reviews || [])
             .filter(r => r.imageUrl)
             .map((r, i) => ({

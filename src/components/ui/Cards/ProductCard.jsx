@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import { SHAPE_CODES_IMAGE, shapeToCode } from "@/constants/constant";
+import { useMetalColorMap, swatchCss } from "@/hooks/useMetalColorMap";
 
 const SHAPES = SHAPE_CODES_IMAGE[0] || {};
 const shapeIconOf = (name) => SHAPES[shapeToCode(name)]?.icon || null;
@@ -61,6 +62,8 @@ const ProductCard = ({
 }) => {
   const router = useRouter();
   const { selectedCountry } = usePreferences();
+  // Admin-managed swatch colors (hex + hex2 two-tone); hardcoded map is fallback.
+  const colorMasterMap = useMetalColorMap();
 
   // A card is either a design group (multiple shape siblings) or a single product.
   const variants = useMemo(() => {
@@ -242,14 +245,14 @@ const ProductCard = ({
                 const isSel = activeColor === key || toSwatchKey(activeColor) === key;
                 return (
                   <span key={palette} className="group/sw relative inline-flex">
-                    <button type="button" aria-label={COLOR_LABEL[key] || toTitleCase(palette)} aria-pressed={isSel}
+                    <button type="button" aria-label={colorMasterMap[key]?.name || COLOR_LABEL[key] || toTitleCase(palette)} aria-pressed={isSel}
                       onMouseEnter={() => previewColor(key)}
                       onFocus={() => previewColor(key)}
                       onClick={(e) => { e.stopPropagation(); previewColor(key); }}
-                      style={{ background: swatchBackground(key) }}
+                      style={{ background: colorMasterMap[key]?.hex ? swatchCss(colorMasterMap[key]) : swatchBackground(key) }}
                       className={`relative w-[18px] h-[18px] rounded-full transition-[box-shadow] before:content-[''] before:absolute before:inset-[-6px] ${isSel ? "ring-2 ring-[var(--teal-1)] ring-offset-2" : "ring-1 ring-[var(--grey-1)] hover:ring-[var(--teal-2)]"}`} />
                     <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--grey-2)] px-2 py-1 text-[11px] text-white opacity-0 group-hover/sw:opacity-100 transition-opacity z-20">
-                      {COLOR_LABEL[key] || toTitleCase(palette)}
+                      {colorMasterMap[key]?.name || COLOR_LABEL[key] || toTitleCase(palette)}
                     </span>
                   </span>
                 );

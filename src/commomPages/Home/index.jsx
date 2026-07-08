@@ -7,6 +7,7 @@ import WhyChoose from "./WhyChoose";
 import DiscoverStyles from "./DiscoverStyles";
 import JewelryCTA from "@/components/common/JewelryCTA";
 import LovedByRJHouse from "./LovedByRJHouse";
+import CustomerReview from "./CustomerReview";
 import Newsletter from "./Newsletter";
 import SignUpPopUp from "@/components/ui/PopUp/SignUpPopUp";
 import FindYourDiomond from "../Customize/FindYourDiomond";
@@ -137,7 +138,21 @@ const HomepageLayout = () => {
         title="Best Sellers"
         id="best-seller"
       />
-      {/* <CustomerReview reviewdata={homeData?.testimonial_section?.[0] ?? null} /> */}
+      {/* Customer testimonials — text reviews from CMS (Homepage → Customer Reviews) */}
+      {(homeData?.testimonial_section?.[0]?.reviews?.length ?? 0) > 0 && (
+        <CustomerReview
+          reviewdata={{
+            title: homeData?.testimonial_section?.[0]?.section_title || "Loved by Our Customers",
+            testimonialitems: (homeData?.testimonial_section?.[0]?.reviews || []).map((r) => ({
+              id: r.id,
+              author_name: r.name,
+              author_position: "",
+              review: r.review,
+              image: r.image,
+            })),
+          }}
+        />
+      )}
 
       {/* Jewelry CTA */}
       <JewelryCTA

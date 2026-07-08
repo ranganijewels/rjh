@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Button from "@/components/ui/Button/Button";
 import clsx from "clsx";
 import { toTitleCase } from "@/utils/string";
+import { useMetalColorMap, swatchCss } from "@/hooks/useMetalColorMap";
 
 const colorMap = {
   WHITE: "var(--white-gold)",
@@ -47,6 +48,8 @@ const MetalSelector = ({
 }) => {
   const { karat, color } = value || {};
   const [metalType, setMetalType] = useState("Gold");
+  // Admin-managed swatch colors (hex + hex2 two-tone); colorMap is the fallback.
+  const colorMasterMap = useMetalColorMap();
 
   // Normalized metal families: [{type, purities[], colors[]}]
   const metals = useMemo(() => {
@@ -112,12 +115,16 @@ const MetalSelector = ({
     }
   }, [metal, chips, karat, color, onChange]);
 
-  const getBackground = (value) =>
-    value.includes("/")
+  const getBackground = (value) => {
+    // Master-defined color (incl. two-tone hex pairs) wins.
+    const entry = colorMasterMap[String(value || "").toUpperCase().trim()];
+    if (entry?.hex) return swatchCss(entry);
+    return value.includes("/")
       ? `linear-gradient(135deg, ${colorMap[value.split("/")[0]]} 50%, ${
           colorMap[value.split("/")[1]]
         } 50%)`
       : colorMap[value] || "#ccc";
+  };
 
   const selectChip = (chip) => {
     setMetalType(chip.type);
