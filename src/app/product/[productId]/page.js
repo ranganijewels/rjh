@@ -44,28 +44,39 @@ export async function generateMetadata({ params }) {
     return { title: "Product", robots: { index: false } };
   }
   const name = p.productName || p.name || "Fine Jewelry";
+  // Admin overrides from the product form's "SEO & Google Shopping" section win.
+  const title = p.seoTitle || name;
   const rawDesc =
-    p.shortDescription || p.description || p.longDescription || "";
+    p.seoDescription || p.shortDescription || p.description || p.longDescription || "";
   const description = rawDesc
     ? rawDesc.replace(/\s+/g, " ").trim().slice(0, 160)
     : `${name} — certified lab grown diamond jewelry, ethically crafted by Rangani Jewelry House. Free insured shipping & lifetime warranty.`;
-  const image = p.mainImageUrl || p.media?.[0]?.fileUrl || "/logo/rj-house.svg";
+  const keywords = (p.shopifyTags || "")
+    .split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+  const image =
+    p.metadata?.seo?.ogImage ||
+    p.mainImageUrl ||
+    p.media?.[0]?.fileUrl ||
+    "/logo/rj-house.svg";
   const canonical = `/product/${productId}`;
 
   return {
-    title: name,
+    title,
     description,
+    ...(keywords.length ? { keywords } : {}),
     alternates: { canonical },
     openGraph: {
       type: "website",
-      title: name,
+      title,
       description,
       url: canonical,
-      images: [{ url: image, alt: name }],
+      images: [{ url: image, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
-      title: name,
+      title,
       description,
       images: [image],
     },
