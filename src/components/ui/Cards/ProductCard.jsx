@@ -158,6 +158,8 @@ const ProductCard = ({
           alt={productName}
           width={400}
           height={400}
+          loading="lazy"
+          decoding="async"
           onContextMenu={(e) => e.preventDefault()}
           onDragStart={(e) => e.preventDefault()}
           style={{ userSelect: "none" }}
