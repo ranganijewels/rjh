@@ -58,7 +58,7 @@ const ProductCard = ({
   productId, metalColor, wishlistStatus, categoryId, shape, metalType,
   centerDiamondWeight, ringSize, size, isWishlistCard, designNo, category,
   disableWishlistPopup = false, id, imagesByColor, allImages,
-  shapeVariants, isDesignGroupCard,
+  shapeVariants, isDesignGroupCard, displayDiscountPercent,
 }) => {
   const router = useRouter();
   const { selectedCountry } = usePreferences();
@@ -99,7 +99,8 @@ const ProductCard = ({
   const hasSlider = sliderImages.length > 1;
   const metalSwatches = (current?.metal_color?.length ? current.metal_color : (colorsPalettes?.length ? colorsPalettes : ["YELLOW", "WHITE", "ROSE"]));
   const displayPrice = current?.product_price ?? price;
-  const discount = current?.price_on_request ? null : getDiscount(current?.product_id || productId, displayPrice);
+  const discountPct = current?.display_discount_percent ?? displayDiscountPercent ?? 0;
+  const discount = current?.price_on_request ? null : getDiscount(displayPrice, discountPct);
 
   useEffect(() => { if (wishlistStatus !== undefined) setIsWishlisted(wishlistStatus); }, []);
   useEffect(() => { setSliderIndex(0); }, [activeShapeIdx, activeColor]);

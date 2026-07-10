@@ -124,6 +124,7 @@ export function transformProduct(p) {
     available_colors: availableColors,
     shape: p.diamondShape || "",
     design_group: p.metadata?.designGroup || p.designGroup || null,
+    display_discount_percent: Number(p.metadata?.displayDiscountPercent) || 0,
     description: p.description || "",
     sku: p.productCode || p.sku || "",
     slug: p.slug || p.id,
@@ -172,6 +173,7 @@ export function consolidateDesignGroups(items) {
       if (!sh || seen.has(key)) continue;
       seen.add(key);
       shape_variants.push({
+        display_discount_percent: prod.display_discount_percent || 0,
         shape: sh,
         product_id: m.product_id,
         product_image: m.product_image,

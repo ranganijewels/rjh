@@ -20,6 +20,8 @@ import HeartIcon from "@/components/Icons/HeartIcon";
 import { usePreferences } from "@/context/PreferencesContext";
 import { formatMoney, PRICE_ON_REQUEST_LABEL } from "@/utils/money";
 import { getDiscount } from "@/utils/discount";
+import BookAppointment from "./BookAppointment";
+import PairItWith from "./PairItWith";
 import { useSelector } from "react-redux";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import ShareModal from "@/components/ui/Modal/ShareModal";
@@ -34,6 +36,17 @@ const Details = () => {
   const [selectedVariantId, setSelectedVariantId] = useState(productId);
   const [designNo, setDesignNo] = useState("");
   const { create: getAmount } = useCrudApi("/api/productDetail/get-amount");
+  // Buy-box spec additions: clarity chips (re-price), free engraving, booking.
+  const [clarityOptions, setClarityOptions] = useState([]);
+  const [selectedClarity, setSelectedClarity] = useState("");
+  const [engraving, setEngraving] = useState("");
+  const [bookingOpen, setBookingOpen] = useState(false);
+  useEffect(() => {
+    fetch("/api/diamond-clarity")
+      .then((r) => r.json())
+      .then((j) => setClarityOptions(j?.data || []))
+      .catch(() => {});
+  }, []);
   const { create } = useCrudApi(`/api/cart/add-to-cart`);
   const { create: filters } = useCrudApi("/api/product/filters");
   const [filtersData, setFiltersData] = useState([]);
@@ -212,6 +225,8 @@ const Details = () => {
           center_diamond_weight: weight
             ? String(weight).replace(/[^0-9.]/g, "")
             : null,
+          // Clarity re-prices via the engine's diamond-rate lookup.
+          diamond_quality: selectedClarity || undefined,
         },
         {
           headers: {
@@ -283,6 +298,28 @@ const Details = () => {
     setIsWishlisted(wishlisted);
   };
 
+  const updatePricingWithClarity = async (clarity) => {
+    if (!selectedMetal?.karat || !productInfo) return;
+    try {
+      const res = await getAmount(
+        {
+          product_id: productInfo.id,
+          design_no: designNo || productInfo.design_no,
+          quality: selectedMetal.karat.value,
+          metal_type: selectedMetal.karat.metalType || "Gold",
+          size: selectedRingSize || "0",
+          center_diamond_weight: selectedWeight
+            ? String(selectedWeight).replace(/[^0-9.]/g, "")
+            : null,
+          diamond_quality: clarity,
+        },
+        { headers: { currency: selectedCountry?.currency } }
+      );
+      setPricingDetails(res?.data);
+      if (res?.status && res?.data?.total_price) setPricing(res.data.total_price);
+    } catch {}
+  };
+
   const handleAddToCart = async () => {
     if (isAddingToCart) return;
 
@@ -323,6 +360,8 @@ const Details = () => {
         metal_color: activeColor,
         size: selectedWidth,
         is_wishlist: isWishlisted,
+        diamond_clarity: selectedClarity || "",
+        engraving: engraving.trim() || "",
       };
       const response = await create(payload);
       if (response.status) {
@@ -503,7 +542,7 @@ const Details = () => {
       : null;
   const discount = productInfo?.price_on_request
     ? null
-    : getDiscount(productInfo?.id || productInfo?.product_id, effectivePrice);
+    : getDiscount(effectivePrice, productInfo?.display_discount_percent);
 
   const dynamicDescription = useMemo(() => {
     if (!productInfo) return "";
@@ -547,9 +586,18 @@ const Details = () => {
         {/* Collection eyebrow → title → price → reviews → description (Ecksand hierarchy) */}
         <div className="space-y-[14px]">
           <div className="space-y-[6px]">
-            {productInfo?.category?.name && (
+            {(productInfo?.category?.name || productInfo?.collection_name) && (
               <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--teal-2)]">
-                {toTitleCase(productInfo.category.name)} · RJ House Collection
+                {productInfo?.category?.name ? toTitleCase(productInfo.category.name) : ""}
+                {productInfo?.category?.name && productInfo?.collection_name ? " · " : ""}
+                {productInfo?.collection_name && (
+                  <a
+                    href={`/collections/${String(productInfo.collection_name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`}
+                    className="hover:underline underline-offset-4"
+                  >
+                    {productInfo.collection_name.toUpperCase()} COLLECTION
+                  </a>
+                )}
               </p>
             )}
             <h1
@@ -558,6 +606,19 @@ const Details = () => {
               {productInfo?.title && toTitleCase(productInfo.title)}
             </h1>
           </div>
+
+          {reviewSummary?.count > 0 && (
+            <ReviewSummary
+              rating={Number(reviewSummary.average) || 0}
+              totalReviews={reviewSummary.count}
+            />
+          )}
+
+          {productInfo?.short_description && (
+            <p className="text-[13.5px] font-[300] text-[var(--grey-2)] leading-relaxed">
+              {productInfo.short_description}
+            </p>
+          )}
 
           <div className="space-y-[8px]">
             {effectivePrice > 0 ? (
@@ -591,13 +652,6 @@ const Details = () => {
                 yet). Re-enable by restoring <Financing config={pdp?.financing}
                 price={effectivePrice} …/> here. */}
           </div>
-
-          {reviewSummary?.count > 0 && (
-            <ReviewSummary
-              rating={Number(reviewSummary.average) || 0}
-              totalReviews={reviewSummary.count}
-            />
-          )}
 
         </div>
         {productInfo && (
@@ -820,6 +874,57 @@ const Details = () => {
           />
         )}
 
+        {clarityOptions.length > 0 && (
+          <div className="space-y-[8px]">
+            <p className="text-[14px] font-[500] text-[var(--grey-2)]">
+              Clarity :{" "}
+              <span className="text-sm font-normal text-[var(--teal-1)]">
+                {selectedClarity || "Select"}
+              </span>
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {clarityOptions.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    pricingEnabledRef.current = true;
+                    setSelectedClarity(c.code);
+                    updatePricingWithClarity(c.code);
+                  }}
+                  className={`min-w-[54px] px-3 py-[7px] text-[12px] border transition-colors ${
+                    selectedClarity === c.code
+                      ? "border-[var(--teal-1)] text-[var(--teal-1)]"
+                      : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
+                  }`}
+                  title={c.name}
+                >
+                  {c.code}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Free engraving — max 20 characters, saved with the order */}
+        <div className="space-y-[6px]">
+          <p className="text-[14px] font-[500] text-[var(--grey-2)]">
+            Engraving <span className="text-[12px] font-normal text-[var(--placeholder)]">(optional · free)</span>
+          </p>
+          <div className="relative max-w-[320px]">
+            <input
+              value={engraving}
+              maxLength={20}
+              onChange={(e) => setEngraving(e.target.value)}
+              placeholder="e.g. Forever & Always"
+              className="w-full border border-[var(--teal-3)] px-3 py-2 text-[13px] italic focus:outline-none focus:border-[var(--teal-1)]"
+            />
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-[var(--placeholder)]">
+              {engraving.length}/20
+            </span>
+          </div>
+        </div>
+
         {errorMessage && (
           <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
         )}
@@ -880,7 +985,7 @@ const Details = () => {
             Need Help?{" "}
             <span
               className="underline cursor-pointer"
-              onClick={() => router.push("/book-consultancy")}
+              onClick={() => setBookingOpen(true)}
             >
               {" "}
               Speak to an Expert
@@ -909,13 +1014,19 @@ const Details = () => {
             id="priceBreakupId"
           />
         )}
-        {/* ProductInfoAccordion removed — its Description/Specifications/
-            Shipping/Certification group duplicated the accordions above; the
-            CMS-editable shipping & certification copy now feeds FeaturesSpecs. */}
+        {/* Pair It With — small cards under the FAQs (Ecksand "Pairs Well With") */}
+        {productInfo && (
+          <PairItWith pairsWith={productInfo?.pairs_with} excludeId={productInfo?.id} />
+        )}
       </div>
       {openShareModal && (
         <ShareModal onClose={() => setOpenShareModal(false)} />
       )}
+      <BookAppointment
+        open={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+        product={{ id: productInfo?.id, title: productInfo?.title || productInfo?.name }}
+      />
     </section>
     </>
   );

@@ -271,6 +271,18 @@ export async function GET(req, { params }) {
       // Enterprise configurator data — multi-metal offering + carat→weight matrix
       // (from product.metadata). When present, the storefront renders the live
       // Configurator (metal type → purity → color, carat) and prices via the engine.
+      // Buy-box additions (spec Jul 2026): eyebrow, short desc, admin promo %,
+      // manual pairing, and accordion fields.
+      collection_name: p.collectionName || null,
+      short_description: p.shortDescription || null,
+      display_discount_percent: Number(p.metadata?.displayDiscountPercent) || 0,
+      pairs_with: Array.isArray(p.metadata?.pairsWith) ? p.metadata.pairsWith : [],
+      gender: p.metadata?.gender || null,
+      sku: p.productCode || null,
+      setting: (Array.isArray(p.metadata?.materials)
+        ? p.metadata.materials.find((m) => m?.setting)?.setting
+        : null) || null,
+      center_diamond_weight_ct: p.centerStoneWeightCt || null,
       metal_options: Array.isArray(p.metadata?.metalOptions) ? p.metadata.metalOptions : [],
       weight_matrix: Array.isArray(p.metadata?.weightMatrix) ? p.metadata.weightMatrix : [],
       is_configurable:

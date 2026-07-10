@@ -35,6 +35,8 @@ export async function POST(req) {
           centerDiamondWeight: body.center_diamond_weight,
           ringSize: body.ring_size,
           size: body.size,
+          clarity: body.diamond_clarity || undefined,
+          engraving: body.engraving || undefined,
           image: mediaImage,
         },
       },

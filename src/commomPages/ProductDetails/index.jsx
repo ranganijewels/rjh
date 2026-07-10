@@ -40,12 +40,8 @@ const ProductDetails = () => {
       {/* Gallery + sticky buy box */}
       <Details />
 
-      {/* Pair-with recommendations, right under the buy box (Ecksand: "Complete the set") */}
-      <Collection
-        title="Complete the Look"
-        apiPath="/api/product/complete-the-look"
-        itemId={productId}
-      />
+      {/* Big "Complete the Look" removed (spec Jul 2026) — replaced by the small
+          "Pair It With" cards inside the buy box, below the FAQs. */}
 
       {/* "The RJ House Difference" — Ecksand-style story + accordion band */}
       <BrandDifference config={pdp?.difference} />

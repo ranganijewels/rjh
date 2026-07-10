@@ -37,6 +37,7 @@ const ProductGrid = ({ gridLayout, collections, loading, clearFilters }) => {
                   productId={item?.product_id}
                   productName={item?.title}
                   price={item?.product_price}
+                  displayDiscountPercent={item?.display_discount_percent}
                   productImg={item?.product_image}
                   colorsPalettes={item?.metal_color}
                   gridLayout={gridLayout}

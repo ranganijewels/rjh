@@ -77,97 +77,62 @@ const FeaturesSpecs = ({
     }
   }, [items.length, dispatch]);
 
+  // Accordion content per spec (Jul 2026):
+  //   Product Details  → SKU · Setting · Gender · Occasion
+  //   Diamond Details  → Center weight · Total weight · Clarity · Color
+  const centerStone = (productDetail?.diamonds || []).find((d) => d.center === 1);
+  const totalDiamondCt = (() => {
+    const fromPricing = pricingDetails?.diamonds_details?.reduce(
+      (sum, d) => sum + parseFloat(d.wt || 0),
+      0
+    );
+    if (fromPricing > 0) return parseFloat(fromPricing.toFixed(3));
+    const fromProduct = (productDetail?.diamonds || []).reduce(
+      (sum, d) => sum + parseFloat(d.wt || 0),
+      0
+    );
+    return fromProduct > 0 ? parseFloat(fromProduct.toFixed(3)) : null;
+  })();
+  const centerWeight =
+    selectedCarat ||
+    productDetail?.center_diamond_weight_ct ||
+    centerStone?.wt ||
+    null;
   const features = [
     {
       title: "",
-      // Label ma j hover muki daiye
-      labels: ["SKU", "Product Name", "Product Type", "Length", "Width", "finding type", "Gender"],
+      labels: ["SKU", "Setting", "Gender", "Occasion"],
       values: [
-        productDetail?.sku_no || productDetail?.design_no,
-        productDetail?.title || "-",
-        productDetail?.category?.name || "-",
-        productDetail?.pricing_details?.[0]?.length || "-",
-        productDetail?.pricing_details?.[0]?.width || "-",
-        productDetail?.category?.finding_types?.[0]?.finding_type || "-",
-        productDetail?.gender || "-",
+        productDetail?.sku || productDetail?.sku_no || productDetail?.design_no || "-",
+        toTitleCase(productDetail?.setting || centerStone?.setting || "") || "-",
+        toTitleCase(productDetail?.gender || "") || "-",
+        toTitleCase(productDetail?.occasion || "") || "-",
       ],
     },
-    // Dynamic Diamond Information
-    ...(() => {
-      if (!productDetail?.diamonds) return [];
-
-      const centerStones = [];
-      const sideStonesMap = new Map();
-
-      productDetail.diamonds.forEach((d) => {
-        if (d.center === 1) {
-          centerStones.push(d);
-        } else {
-          // Normalize shape name for grouping key
-          const shapeKey = (
-            d.occasion?.custom_title ||
-            d.shape ||
-            "Diamond"
-          ).toLowerCase();
-
-          if (sideStonesMap.has(shapeKey)) {
-            const existing = sideStonesMap.get(shapeKey);
-            existing.pcs = (Number(existing.pcs) || 0) + (Number(d.pcs) || 0);
-            existing.wt = (
-              parseFloat(existing.wt || 0) + parseFloat(d.wt || 0)
-            ).toFixed(2);
-          } else {
-            // Store as new object to avoid mutating original reference issues in strict mode
-            sideStonesMap.set(shapeKey, {
-              ...d,
-              wt: parseFloat(d.wt || 0), // Base weight
-              pcs: Number(d.pcs) || 0,
-            });
-          }
-        }
-      });
-
-      const sideStones = Array.from(sideStonesMap.values());
-      // Center stones first, then side stones
-      const allStones = [...centerStones, ...sideStones];
-
-      return allStones.map((d, index) => {
-        const isCenter = d.center === 1;
-        const shapeName = toTitleCase(
-          d.occasion?.custom_title || d.shape || "Diamond"
-        );
-
-        // For center stone, use selectedCarat if available. 
-        // For side stones (or center if no selectedCarat), use accumulator wt.
-        const weight = isCenter && selectedCarat ? selectedCarat : d.wt;
-
-        return {
-          // Title only for the first item
-          title: index === 0 ? "Diamond Details" : "",
-          labels: [`${shapeName} Weight`, "Quantity", "Diamond Shape"],
-          values: [
-            formatCarat(weight) || "-",
-            d.pcs || "-",
-            shapeName,
-          ],
-        };
-      });
-    })(),
     {
-      title: "",
-      labels: ["Total Diamond Ct.", "Color - Clarity", "Setting Style"],
+      title: "Diamond Details",
+      labels: [
+        "Center Diamond Weight",
+        "Total Diamond Weight",
+        "Clarity",
+        "Color",
+      ],
       values: [
-        parseFloat(
-          pricingDetails?.diamonds_details
-            ?.reduce((sum, d) => sum + parseFloat(d.wt || 0), 0)
-            .toFixed(3)
-        ) + " CT",
-        `${productDetail?.diamonds[0]?.color || ""}`.trim() || "-",
-        toTitleCase(productDetail?.diamonds[0]?.setting || "-"),
+        centerWeight ? `${formatCarat(centerWeight)}` : "-",
+        totalDiamondCt ? `${totalDiamondCt} CT` : "-",
+        productDetail?.diamond_clarity ||
+          centerStone?.clarity ||
+          (String(productDetail?.diamonds?.[0]?.color || "").includes("-")
+            ? String(productDetail.diamonds[0].color).split("-")[1]?.trim()
+            : "") ||
+          "-",
+        productDetail?.diamond_color ||
+          (String(productDetail?.diamonds?.[0]?.color || "").includes("-")
+            ? String(productDetail.diamonds[0].color).split("-")[0]?.trim()
+            : productDetail?.diamonds?.[0]?.color) ||
+          "-",
       ],
     },
-    // Metal details intentionally omitted — Product Details covers diamond
-    // specs + overall info only; the metal choice lives in the selector above.
   ];
   const [conversionRate, setConversionRate] = useState(null);
   const [convertedDetail, setConvertedDetail] = useState(null);
