@@ -1,8 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import FeaturesList from "@/components/common/FeaturesList/FeaturesList";
 import Button from "@/components/ui/Button/Button";
-import { WHY_CHOOSE_ICON } from "@/constants/constant";
 import ProductsGallery from "./ProductsGallery";
 import MetalSelector from "./MetalSelector";
 import DiamondOptions from "./DiamondOptions";
@@ -614,11 +612,20 @@ const Details = () => {
             />
           )}
 
-          {productInfo?.short_description && (
-            <p className="text-[13.5px] font-[300] text-[var(--grey-2)] leading-relaxed">
-              {productInfo.short_description}
-            </p>
-          )}
+          {(() => {
+            // Short description with graceful fallback to the opening of the
+            // long description, so this slot is never empty (spec item 4).
+            const sd =
+              productInfo?.short_description ||
+              (productInfo?.description
+                ? String(productInfo.description).replace(/\s+/g, " ").slice(0, 140).replace(/\s\S*$/, "") + "…"
+                : "");
+            return sd ? (
+              <p className="text-[13.5px] font-[300] text-[var(--grey-2)] leading-relaxed">
+                {sd}
+              </p>
+            ) : null;
+          })()}
 
           <div className="space-y-[8px]">
             {effectivePrice > 0 ? (
@@ -833,6 +840,38 @@ const Details = () => {
             setSelectedCarat={setSelectedCarat}
           />
         )}
+        {clarityOptions.length > 0 && (
+          <div className="space-y-[8px]">
+            <p className="text-[14px] font-[500] text-[var(--grey-2)]">
+              Clarity :{" "}
+              <span className="text-sm font-normal text-[var(--teal-1)]">
+                {selectedClarity || "Select"}
+              </span>
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {clarityOptions.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    pricingEnabledRef.current = true;
+                    setSelectedClarity(c.code);
+                    updatePricingWithClarity(c.code);
+                  }}
+                  className={`min-w-[54px] px-3 py-[7px] text-[12px] border transition-colors ${
+                    selectedClarity === c.code
+                      ? "border-[var(--teal-1)] text-[var(--teal-1)]"
+                      : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
+                  }`}
+                  title={c.name}
+                >
+                  {c.code}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {productInfo?.sizes?.length > 0 && (
           <RingSizeSelector
             label={productInfo?.category?.name}
@@ -872,38 +911,6 @@ const Details = () => {
             }}
             isInvalid={!!errorMessage}
           />
-        )}
-
-        {clarityOptions.length > 0 && (
-          <div className="space-y-[8px]">
-            <p className="text-[14px] font-[500] text-[var(--grey-2)]">
-              Clarity :{" "}
-              <span className="text-sm font-normal text-[var(--teal-1)]">
-                {selectedClarity || "Select"}
-              </span>
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              {clarityOptions.map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => {
-                    pricingEnabledRef.current = true;
-                    setSelectedClarity(c.code);
-                    updatePricingWithClarity(c.code);
-                  }}
-                  className={`min-w-[54px] px-3 py-[7px] text-[12px] border transition-colors ${
-                    selectedClarity === c.code
-                      ? "border-[var(--teal-1)] text-[var(--teal-1)]"
-                      : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
-                  }`}
-                  title={c.name}
-                >
-                  {c.code}
-                </button>
-              ))}
-            </div>
-          </div>
         )}
 
         {/* Free engraving — max 20 characters, saved with the order */}
@@ -994,12 +1001,7 @@ const Details = () => {
           <hr className="hr-teal-3" />
         </div>
         <TrustStrip badges={pdp?.trust_badges} />
-        <FeaturesList
-          items={pdp?.why_choose?.length ? pdp.why_choose : WHY_CHOOSE_ICON}
-          containerClass="!grid !grid-cols-1 min-[400px]:!grid-cols-2 !gap-x-2 !gap-y-3"
-          itemClass="!m-0 !p-1"
-          iconClass="!w-[24px] !h-[24px] shrink-0"
-        />
+        {/* Second feature strip removed per feedback — TrustStrip above covers it. */}
         {productInfo && (
           <FeaturesSpecs
             selectedWeight={selectedWeight}

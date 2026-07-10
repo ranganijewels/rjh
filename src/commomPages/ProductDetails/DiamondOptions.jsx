@@ -149,11 +149,23 @@ const DiamondOptions = ({
   }, [variantList, shapeFromUrl, designNo]);
 
   useEffect(() => {
-    if (activeVariant) {
-      setSelectedShapeLabel(toTitleCase(getDisplayShape(activeVariant)));
-    }
-    setSelectedShapeLabel(occasion?.custom_title || "");
-  }, []);
+    // Default the selected shape to the current product's own variant so the
+    // active underline is visible on first load (not only after a click).
+    if (selectedShapeLabel) return;
+    const ownShape = String(productInfo?.shape || "").toLowerCase();
+    const current =
+      activeVariant ||
+      (variantList || []).find(
+        (v) =>
+          String(getDisplayShape(v)).toLowerCase() === ownShape ||
+          v?.shape === productInfo?.occasion?.name
+      ) ||
+      null;
+    const label = current
+      ? toTitleCase(getDisplayShape(current))
+      : occasion?.custom_title || "";
+    if (label) setSelectedShapeLabel(label);
+  }, [activeVariant, variantList, productInfo?.shape]);
 
   /** ---------------- AUTO SELECT DEFAULT CARAT ---------------- */
 
@@ -256,6 +268,8 @@ const DiamondOptions = ({
               if (!IconComponent) return null;
 
               const isActive =
+                String(selectedShapeLabel || "").toLowerCase() ===
+                  String(getDisplayShape(variant) || "").toLowerCase() ||
                 String(shapeFromUrl)?.toLowerCase() ===
                   String(getDisplayShape(variant))?.toLowerCase() ||
                 designNo === variant.designno ||
@@ -285,7 +299,7 @@ const DiamondOptions = ({
                   }}
                   className={clsx(
                     "slide-card cursor-pointer flex items-center justify-center shrink-0",
-                    isActive && "border-b border-[var(--teal-1)]"
+                    isActive && "border-b-2 border-[var(--teal-1)] pb-[3px]"
                   )}
                 >
                   <IconComponent

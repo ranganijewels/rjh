@@ -183,13 +183,8 @@ const ReviewsSection = ({ productId }) => {
             {summary.count === 1 ? "1 review" : `${summary.count} reviews`}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowForm((v) => !v)}
-          className="mt-[20px] inline-flex items-center border border-[var(--teal-1)] px-[26px] py-[10px] text-[12px] uppercase tracking-[0.1em] text-[var(--teal-1)] transition-colors hover:bg-[var(--teal-1)] hover:text-white"
-        >
-          {showForm ? "Close" : "Write a Review"}
-        </button>
+        {/* "Write a Review" button removed per feedback (reviews arrive via
+            post-purchase email instead). */}
       </div>
 
       {/* Reviews list */}

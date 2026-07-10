@@ -15,6 +15,20 @@ const colorMap = {
     "linear-gradient(135deg, var(--metal-white) 50%, var(--metal-rose) 50%)",
 };
 
+// Short labels shown under the colour swatches (feedback: WG / YG / RG / Silver).
+const shortColorName = (c) => {
+  const u = String(c || "").toUpperCase();
+  if (u.includes("WHITE") && u.includes("YELLOW")) return "WY";
+  if (u.includes("WHITE") && u.includes("ROSE")) return "WR";
+  if (u.includes("TWO")) return "2T";
+  if (u.includes("WHITE")) return "WG";
+  if (u.includes("YELLOW")) return "YG";
+  if (u.includes("ROSE")) return "RG";
+  if (u.includes("SILVER")) return "Silver";
+  if (u.includes("PLATINUM")) return "PT";
+  return u.slice(0, 2);
+};
+
 const colorPriority = {
   WHITE: 1,
   YELLOW: 2,
@@ -187,22 +201,33 @@ const MetalSelector = ({
           {[...availableColors]
             .sort((a, b) => (colorPriority[a] || 99) - (colorPriority[b] || 99))
             .map((c, idx) => (
-              <Button
-                key={`${c}-${idx}`}
-                ariaLabel={`${toTitleCase(c)} ${metalType}`}
-                background={getBackground(c)}
-                variant="colorPalette"
-                onClick={() => {
-                  if (setActiveColor) setActiveColor(c);
-                  onChange?.({ karat, color: c });
-                }}
-                className={clsx(
-                  "!w-10 !h-10 !p-[6px] !bg-clip-content box-border !rounded-[5px] lg:!w-7 lg:!h-7 lg:!p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)]",
-                  (useActiveSource === "activeColor"
-                    ? activeColor === c
-                    : color === c) && "ring-2 ring-[var(--teal-1)]"
-                )}
-              />
+              <div key={`${c}-${idx}`} className="flex flex-col items-center gap-[3px]">
+                <Button
+                  ariaLabel={`${toTitleCase(c)} ${metalType}`}
+                  background={getBackground(c)}
+                  variant="colorPalette"
+                  onClick={() => {
+                    if (setActiveColor) setActiveColor(c);
+                    onChange?.({ karat, color: c });
+                  }}
+                  className={clsx(
+                    "!w-10 !h-10 !p-[6px] !bg-clip-content box-border !rounded-[5px] lg:!w-7 lg:!h-7 lg:!p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)]",
+                    (useActiveSource === "activeColor"
+                      ? activeColor === c
+                      : color === c) && "ring-2 ring-[var(--teal-1)]"
+                  )}
+                />
+                <span
+                  className={clsx(
+                    "text-[10px] leading-none",
+                    (useActiveSource === "activeColor" ? activeColor === c : color === c)
+                      ? "text-[var(--teal-1)] font-medium"
+                      : "text-[var(--grey-2)]"
+                  )}
+                >
+                  {shortColorName(c)}
+                </span>
+              </div>
             ))}
         </div>
       )}
