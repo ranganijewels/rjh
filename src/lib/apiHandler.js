@@ -173,7 +173,7 @@ export function consolidateDesignGroups(items) {
       if (!sh || seen.has(key)) continue;
       seen.add(key);
       shape_variants.push({
-        display_discount_percent: prod.display_discount_percent || 0,
+        display_discount_percent: m.display_discount_percent || 0,
         shape: sh,
         product_id: m.product_id,
         product_image: m.product_image,
