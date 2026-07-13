@@ -247,7 +247,12 @@ export async function GET(req, { params }) {
       name: p.productName || p.name || "Jewelry",
       title: p.productName || p.name || "Jewelry",
       design_no: p.productCode || p.sku || p.id,
-      description: p.longDescription || p.shortDescription || p.description || "",
+      // p.description is the real, admin-editable long-description column.
+      // p.longDescription is a legacy field that's never actually populated —
+      // it was checked FIRST before, so shortDescription (checked second)
+      // always won whenever a product had one, silently duplicating the
+      // short description here instead of showing the real long description.
+      description: p.description || p.longDescription || "",
       sku: p.productCode || p.sku || "",
       slug: p.slug || p.id,
 
