@@ -39,12 +39,6 @@ const Details = () => {
   const [selectedClarity, setSelectedClarity] = useState("");
   const [engraving, setEngraving] = useState("");
   const [bookingOpen, setBookingOpen] = useState(false);
-  useEffect(() => {
-    fetch("/api/diamond-clarity")
-      .then((r) => r.json())
-      .then((j) => setClarityOptions(j?.data || []))
-      .catch(() => {});
-  }, []);
   const { create } = useCrudApi(`/api/cart/add-to-cart`);
   const { create: filters } = useCrudApi("/api/product/filters");
   const [filtersData, setFiltersData] = useState([]);
@@ -69,6 +63,19 @@ const Details = () => {
   }, []);
 
   const [productInfo, setProductInfo] = useState(null);
+  // Clarity re-pricing only makes sense when the product has a center stone
+  // (see productDetail route's hasCenterStone gate) — a plain metal piece has
+  // no diamond clarity to choose.
+  useEffect(() => {
+    if (!productInfo?.center_diamond_weight_ct) {
+      setClarityOptions([]);
+      return;
+    }
+    fetch("/api/diamond-clarity")
+      .then((r) => r.json())
+      .then((j) => setClarityOptions(j?.data || []))
+      .catch(() => {});
+  }, [productInfo?.center_diamond_weight_ct]);
   const [galleryMedia, setGalleryMedia] = useState([]);
   const [selectedShape, setSelectedShape] = useState(
     productInfo?.occasion?.custom_title

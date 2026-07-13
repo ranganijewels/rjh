@@ -112,6 +112,13 @@ export async function GET(req, { params }) {
       RING_SIZES.push({ size: `${size} US`, size_value: size });
     }
 
+    // A product only gets the center-stone customizer (shape picker, carat
+    // picker) when admin has actually flagged a center stone in its Materials
+    // BOM — set via product.centerStoneWeightCt in the admin product form.
+    // Without one (plain bands, chains, earrings with no center diamond),
+    // none of this synthetic configurator data should be generated at all.
+    const hasCenterStone = Number(p.centerStoneWeightCt) > 0;
+
     // Build shape variants: real variant products from NestJS, else synthetic fallback
     const rawVariants = Array.isArray(variantsResult?.raw)
       ? variantsResult.raw
@@ -186,7 +193,9 @@ export async function GET(req, { params }) {
       const syntheticFallbacks = SYNTHETIC_SHAPES.filter((s) => !coveredCodes.has(s.shape));
       shapeVariants = [...shapeVariants, ...syntheticFallbacks];
     } else {
-      shapeVariants = SYNTHETIC_SHAPES;
+      // No real shape-sibling data — only synthesize a shape picker when this
+      // product actually has a center stone to customize.
+      shapeVariants = hasCenterStone ? SYNTHETIC_SHAPES : [];
     }
 
     // Initial price from the Pricing Engine (authoritative, USD base).
@@ -202,30 +211,35 @@ export async function GET(req, { params }) {
     // Center stone carat configurator — standard carat weights for the selector.
     // When the shopper picks a different carat, the page calls /get-amount with
     // center_diamond_weight=<chosen> and the price recalculates from the engine.
+    // Only built when the product actually has a center stone (hasCenterStone) —
+    // otherwise both arrays stay empty and the storefront shows no carat/shape
+    // customizer at all (see showSizeSection / variantList gates on the PDP).
     const CARAT_OPTIONS = ["0.50", "0.75", "1.00", "1.25", "1.50", "2.00", "2.50", "3.00"];
-    const defaultCarat = String(
-      Number(p.centerStoneWeightCt || p.diamondWeightCt || 1).toFixed(2)
-    );
+    const defaultCarat = String(Number(p.centerStoneWeightCt || 1).toFixed(2));
     // Snap defaultCarat to the nearest option, or use "1.00" as fallback
     const snapCarat = CARAT_OPTIONS.includes(defaultCarat) ? defaultCarat : "1.00";
 
-    const caratVariants = CARAT_OPTIONS.map((ct) => ({
-      id: `synth-carat-${ct.replace(".", "")}`,
-      carat: ct,
-      variant_product_id: null,
-      designno: null,
-      size: null,
-    }));
+    const caratVariants = hasCenterStone
+      ? CARAT_OPTIONS.map((ct) => ({
+          id: `synth-carat-${ct.replace(".", "")}`,
+          carat: ct,
+          variant_product_id: null,
+          designno: null,
+          size: null,
+        }))
+      : [];
 
-    const centerDiamonds = [
-      {
-        wt: snapCarat,
-        center: 1,
-        cut: p.diamondCut || "Excellent",
-        color: p.diamondColor || "",
-        clarity: p.diamondClarity || "",
-      },
-    ];
+    const centerDiamonds = hasCenterStone
+      ? [
+          {
+            wt: snapCarat,
+            center: 1,
+            cut: p.diamondCut || "Excellent",
+            color: p.diamondColor || "",
+            clarity: p.diamondClarity || "",
+          },
+        ]
+      : [];
 
     const data = {
       id: p.id,
