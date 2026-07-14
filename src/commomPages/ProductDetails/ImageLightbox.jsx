@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 
 const isVideo = (src) =>
   typeof src === "string" &&
@@ -8,6 +9,12 @@ const isVideo = (src) =>
 const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
   const total = media.length;
   const current = media[index];
+  // Rendered via a portal straight onto <body> — the gallery column is
+  // `position: sticky`, and Safari clips `position: fixed` descendants to
+  // the bounds of a sticky/positioned ancestor instead of the viewport, so
+  // staying in the normal tree left the overlay visually cut off mid-page.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const goPrev = useCallback(
     () => onNavigate((index - 1 + total) % total),
@@ -32,9 +39,9 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
     };
   }, [onClose, goPrev, goNext]);
 
-  if (!current) return null;
+  if (!current || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -116,7 +123,8 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
           </svg>
         </button>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
 

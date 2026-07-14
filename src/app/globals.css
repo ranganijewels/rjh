@@ -103,14 +103,17 @@ summary:focus-visible,
 
 /* Horizontal-only scroll rails (product carousels, shape/size chip rows).
    overflow-x-auto alone lets the browser's overflow computed-value rule
-   promote overflow-y from visible to auto too, so any 1px vertical overflow
-   (uneven card heights, a hover badge, etc.) opened a real — just visually
-   masked — vertical scrollbar inside the row. overflow-y: hidden closes that
-   off at the source instead of merely hiding the (still-present) scrollbar. */
+   promote overflow-y from visible to auto too, so any vertical overflow
+   (uneven card heights, a hover badge, etc.) opened a vertical scrollbar
+   inside the row. overflow-y: hidden previously closed that off, but it
+   also silently clipped the bottom of any card taller than its siblings
+   (e.g. a 2-line title next to 1-line ones) — overflow-y: auto lets that
+   content render in full; the scrollbar itself stays invisible via the
+   scrollbar-width/::-webkit-scrollbar rules below, same as the x-axis. */
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
