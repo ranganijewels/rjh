@@ -21,19 +21,6 @@ const SHAPE_MAP = {
   RAD: { code: "RAD", title: "Radiant" },
 };
 
-// Fallback synthetic shapes when no real shape-variant products exist in NestJS
-const SYNTHETIC_SHAPES = Object.values(SHAPE_MAP).map((s) => ({
-  id: `shape-${s.code.toLowerCase()}`,
-  shape: s.code,
-  label: s.title,
-  name: s.title,
-  custom_shape_title: null,
-  designno: null,
-  media: [],
-  variant_product_id: null,
-  occasion: null,
-}));
-
 export async function GET(req, { params }) {
   const { id } = await params;
   try {
@@ -126,6 +113,11 @@ export async function GET(req, { params }) {
         ? variantsResult.raw.data
         : null;
 
+    // Diamond Shape options must ONLY reflect shapes that actually exist as
+    // purchasable products in this design family (metadata.designGroup —
+    // e.g. "LR-001" links LR-001-RND / LR-001-OVL / LR-001-PRI) — never a
+    // synthetic list of all 11 catalog shapes padded in for products that
+    // don't really offer them.
     let shapeVariants;
     if (designSiblings.length >= 2) {
       // Preferred model: one product per diamond shape, linked by designGroup.
@@ -187,15 +179,33 @@ export async function GET(req, { params }) {
             occasion: null,
           };
         });
-
-      // For any shape NOT covered by a real variant, add a synthetic fallback
-      const coveredCodes = new Set(shapeVariants.map((v) => v.shape));
-      const syntheticFallbacks = SYNTHETIC_SHAPES.filter((s) => !coveredCodes.has(s.shape));
-      shapeVariants = [...shapeVariants, ...syntheticFallbacks];
+    } else if (hasCenterStone) {
+      // No real siblings/variants — this product's own shape is the only
+      // real option, so show just that one (never a padded fake list).
+      const raw = (p.diamondShape || "").trim();
+      const info =
+        SHAPE_MAP[raw.toUpperCase()] ||
+        Object.values(SHAPE_MAP).find((m) => m.title.toLowerCase() === raw.toLowerCase()) ||
+        (raw ? { code: raw, title: raw } : null);
+      shapeVariants = info
+        ? [
+            {
+              id: `self-${p.id}`,
+              shape: info.code,
+              label: info.title,
+              name: info.title,
+              custom_shape_title: raw,
+              designno: p.productCode || p.id,
+              media: [],
+              variant_product_id: p.id,
+              product_id: p.id,
+              is_design_sibling: true,
+              occasion: null,
+            },
+          ]
+        : [];
     } else {
-      // No real shape-sibling data — only synthesize a shape picker when this
-      // product actually has a center stone to customize.
-      shapeVariants = hasCenterStone ? SYNTHETIC_SHAPES : [];
+      shapeVariants = [];
     }
 
     // Initial price from the Pricing Engine (authoritative, USD base).
@@ -208,16 +218,36 @@ export async function GET(req, { params }) {
     } catch { /* engine unavailable */ }
     const priceOnRequest = !(initPrice > 0);
 
-    // Center stone carat configurator — standard carat weights for the selector.
-    // When the shopper picks a different carat, the page calls /get-amount with
-    // center_diamond_weight=<chosen> and the price recalculates from the engine.
-    // Only built when the product actually has a center stone (hasCenterStone) —
-    // otherwise both arrays stay empty and the storefront shows no carat/shape
-    // customizer at all (see showSizeSection / variantList gates on the PDP).
-    const CARAT_OPTIONS = ["0.50", "0.75", "1.00", "1.25", "1.50", "2.00", "2.50", "3.00"];
-    const defaultCarat = String(Number(p.centerStoneWeightCt || 1).toFixed(2));
-    // Snap defaultCarat to the nearest option, or use "1.00" as fallback
-    const snapCarat = CARAT_OPTIONS.includes(defaultCarat) ? defaultCarat : "1.00";
+    // Center stone carat configurator. When the shopper picks a different
+    // carat, the page calls /get-amount with center_diamond_weight=<chosen>
+    // and the price recalculates from the engine. Only built when the
+    // product actually has a center stone (hasCenterStone) — otherwise both
+    // arrays stay empty and the storefront shows no carat/shape customizer
+    // at all (see showSizeSection / variantList gates on the PDP).
+    //
+    // Carat OPTIONS only come from the admin's own "Diamond Carat → Metal
+    // Weight" table for this product — never a generic static list, since
+    // selecting an un-priced carat wouldn't have a real weight/price behind
+    // it. If the admin hasn't priced any carats yet, the product's own
+    // center-stone carat is the only option (not a fake full range).
+    const weightMatrixRows = Array.isArray(p.metadata?.weightMatrix) ? p.metadata.weightMatrix : [];
+    const matrixCarats = [
+      ...new Set(
+        weightMatrixRows
+          .map((r) => Number(r.carat))
+          .filter((n) => Number.isFinite(n) && n > 0)
+          .map((n) => n.toFixed(2))
+      ),
+    ].sort((a, b) => Number(a) - Number(b));
+    const CARAT_OPTIONS =
+      matrixCarats.length > 0
+        ? matrixCarats
+        : Number(p.centerStoneWeightCt) > 0
+          ? [Number(p.centerStoneWeightCt).toFixed(2)]
+          : [];
+    const defaultCarat = String(Number(p.centerStoneWeightCt || CARAT_OPTIONS[0] || 1).toFixed(2));
+    // Snap defaultCarat to the nearest option, or use the first real option
+    const snapCarat = CARAT_OPTIONS.includes(defaultCarat) ? defaultCarat : (CARAT_OPTIONS[0] || "1.00");
 
     const caratVariants = hasCenterStone
       ? CARAT_OPTIONS.map((ct) => ({
