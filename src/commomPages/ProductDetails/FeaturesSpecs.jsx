@@ -81,15 +81,31 @@ const FeaturesSpecs = ({
   //   Product Details  → SKU · Setting · Gender · Occasion
   //   Diamond Details  → Center weight · Total weight · Clarity · Color
   const centerStone = (productDetail?.diamonds || []).find((d) => d.center === 1);
-  // Total = every diamond on the piece (center + side stones), which the
-  // admin form already aggregates from the full Materials BOM into
-  // diamond_weight_ct — productDetail.diamonds only ever carries a single
-  // synthetic center-stone entry, so summing THAT silently dropped every
-  // side stone (e.g. a pavé/halo band showed the center weight as the
-  // "total"). Fall back to the old computations only if that's unset.
+  const centerWeight =
+    selectedCarat ||
+    productDetail?.center_diamond_weight_ct ||
+    centerStone?.wt ||
+    null;
+  // Side-stone weight is fixed (accent diamonds don't change when the
+  // shopper picks a different center-stone carat) — derived by subtracting
+  // the BASE product's own center weight from its BOM-aggregated total
+  // (diamond_weight_ct), since productDetail.diamonds only ever carries a
+  // single synthetic center-stone entry and never exposes side stones on
+  // their own.
+  const sideStoneOnlyCt = (() => {
+    const total = parseFloat(productDetail?.diamond_weight_ct || productDetail?.diamondWeightCt || 0);
+    const baseCenter = parseFloat(productDetail?.center_diamond_weight_ct || 0);
+    const diff = total - baseCenter;
+    return diff > 0 ? diff : 0;
+  })();
+  // Total = the shopper's SELECTED center carat + the fixed side-stone
+  // weight — so picking a bigger/smaller center stone updates this figure,
+  // instead of always showing the base product's original static total.
   const totalDiamondCt = (() => {
-    const fromTotalField = parseFloat(productDetail?.diamond_weight_ct || productDetail?.diamondWeightCt || 0);
-    if (fromTotalField > 0) return parseFloat(fromTotalField.toFixed(3));
+    const cw = parseFloat(centerWeight || 0);
+    if (cw > 0 || sideStoneOnlyCt > 0) {
+      return parseFloat((cw + sideStoneOnlyCt).toFixed(3));
+    }
     const fromPricing = pricingDetails?.diamonds_details?.reduce(
       (sum, d) => sum + parseFloat(d.wt || 0),
       0
@@ -101,11 +117,6 @@ const FeaturesSpecs = ({
     );
     return fromProduct > 0 ? parseFloat(fromProduct.toFixed(3)) : null;
   })();
-  const centerWeight =
-    selectedCarat ||
-    productDetail?.center_diamond_weight_ct ||
-    centerStone?.wt ||
-    null;
   const features = [
     {
       title: "",
