@@ -81,7 +81,15 @@ const FeaturesSpecs = ({
   //   Product Details  → SKU · Setting · Gender · Occasion
   //   Diamond Details  → Center weight · Total weight · Clarity · Color
   const centerStone = (productDetail?.diamonds || []).find((d) => d.center === 1);
+  // Total = every diamond on the piece (center + side stones), which the
+  // admin form already aggregates from the full Materials BOM into
+  // diamond_weight_ct — productDetail.diamonds only ever carries a single
+  // synthetic center-stone entry, so summing THAT silently dropped every
+  // side stone (e.g. a pavé/halo band showed the center weight as the
+  // "total"). Fall back to the old computations only if that's unset.
   const totalDiamondCt = (() => {
+    const fromTotalField = parseFloat(productDetail?.diamond_weight_ct || productDetail?.diamondWeightCt || 0);
+    if (fromTotalField > 0) return parseFloat(fromTotalField.toFixed(3));
     const fromPricing = pricingDetails?.diamonds_details?.reduce(
       (sum, d) => sum + parseFloat(d.wt || 0),
       0
