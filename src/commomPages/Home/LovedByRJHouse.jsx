@@ -214,11 +214,14 @@ const LovedByRJHouse = ({ items }) => {
   const showPlaceholder = !loading && reelItems.length === 0;
 
   useEffect(() => {
-    if (reelItems.length > 0) {
+    // Re-check after loading settles either way — real items AND the
+    // placeholder row both need this, since the container's children
+    // (and therefore its scrollWidth) don't exist yet at mount time.
+    if (!loading) {
       const timer = setTimeout(() => updateScrollState(), 100);
       return () => clearTimeout(timer);
     }
-  }, [reelItems, updateScrollState]);
+  }, [loading, reelItems, updateScrollState]);
 
   return (
     <section className="md:px-[30px] px-[18px]">
@@ -313,7 +316,7 @@ const LovedByRJHouse = ({ items }) => {
         </div>
       ) : (
         /* Placeholder — shown when no token set and no CMS data */
-        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        <div ref={containerRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <Link
               key={i}
