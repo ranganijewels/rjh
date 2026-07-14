@@ -4,6 +4,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import { useSearchParams } from "next/navigation";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import ImageLightbox from "./ImageLightbox";
 
 const isVideo = (src) =>
   typeof src === "string" &&
@@ -49,6 +50,7 @@ const ProductsGallery = ({
   const urlColor =
     searchParams.get("selectedMetalColor") || searchParams.get("color");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   useEffect(() => {
     const urlColor = searchParams.get("selectedMetalColor");
@@ -128,7 +130,10 @@ const ProductsGallery = ({
     <>
       {/* Mobile Main Preview */}
       {activeMedia && (
-        <div className="md:hidden bg-white aspect-square flex items-center justify-center">
+        <div
+          className="md:hidden bg-white aspect-square flex items-center justify-center cursor-zoom-in"
+          onClick={() => setLightboxIndex(activeIndex)}
+        >
           {isVideo(activeMedia.image) ? (
             <video
               src={activeMedia.image}
@@ -225,7 +230,7 @@ const ProductsGallery = ({
               key={index}
               className={clsx(
                 index === 0 && "col-span-2",
-                "bg-[var(--product-bg)] inline-flex items-center",
+                "bg-[var(--product-bg)] inline-flex items-center overflow-hidden cursor-zoom-in group",
                 heightClass.container
               )}
               onMouseEnter={
@@ -238,6 +243,7 @@ const ProductsGallery = ({
                   ? (e) => handleMouseLeave(e.currentTarget)
                   : undefined
               }
+              onClick={() => setLightboxIndex(index)}
             >
               {isMediaVideo ? (
                 <video
@@ -248,7 +254,7 @@ const ProductsGallery = ({
                   playsInline
                   preload="metadata"
                   className={clsx(
-                    "w-full object-contain bg-white",
+                    "w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-[1.04]",
                     heightClass.media
                   )}
                 />
@@ -267,13 +273,26 @@ const ProductsGallery = ({
                   width={800}
                   height={800}
                   loading={index === 0 ? "eager" : "lazy"}
-                  className={clsx("w-full object-contain", heightClass.media)}
+                  className={clsx(
+                    "w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.04]",
+                    heightClass.media
+                  )}
                 />
               )}
             </div>
           );
         })}
       </div>
+
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          media={orderedMedia}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+          productName={productName}
+        />
+      )}
     </>
   );
 };
