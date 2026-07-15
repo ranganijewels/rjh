@@ -17,9 +17,14 @@ export async function POST(req) {
     // silently return a wrong price (missing rate → metal value 0).
     if (body.metal_type) overrides.metalType = body.metal_type;
     if (body.metal_color) overrides.metalColor = body.metal_color;
-    if (body.center_diamond_weight)
-      overrides.diamondWeightCt =
+    // The chosen carat is the CENTRE stone weight — it re-prices only the
+    // centre diamond line (side stones keep their own weight) and drives the
+    // metal-weight matrix. Sent as centerCaratCt, not the total diamondWeightCt.
+    if (body.center_diamond_weight) {
+      const ct =
         Number(String(body.center_diamond_weight).replace(/[^0-9.]/g, "")) || undefined;
+      if (ct) overrides.centerCaratCt = ct;
+    }
     if (body.diamond_quality) overrides.diamondQuality = body.diamond_quality;
 
     // Ask the engine for the live price (loads product attributes + overrides).

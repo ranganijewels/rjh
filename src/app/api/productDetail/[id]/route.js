@@ -209,13 +209,25 @@ export async function GET(req, { params }) {
     }
 
     // Initial price from the Pricing Engine (authoritative, USD base).
-    // If the engine has no rates for this product it returns 0 — we then mark the
-    // product "price on request" rather than inventing a wrong number.
+    // IMPORTANT: price at the SAME default config the buy box shows on load —
+    // MetalSelector always defaults to 14K Gold (QUALITY_OPTIONS) — so the first
+    // paint already equals the price the client recomputes via /get-amount.
+    // Previously this priced at the product's STORED purity (e.g. 18K), so the
+    // number visibly jumped (18K price → 14K price) a few seconds after load.
+    // Falls back to the stored-attributes price if the preview call fails.
     let initPrice = 0;
     try {
-      const eng = await rjApi("GET", `/pricing/product/${id}`);
+      const eng = await rjApi("POST", "/price-preview", {
+        body: { productId: id, metalType: "Gold", metalPurity: "14K" },
+      });
       initPrice = Number((eng.raw?.data || eng.raw)?.finalPrice) || 0;
     } catch { /* engine unavailable */ }
+    if (!(initPrice > 0)) {
+      try {
+        const eng = await rjApi("GET", `/pricing/product/${id}`);
+        initPrice = Number((eng.raw?.data || eng.raw)?.finalPrice) || 0;
+      } catch { /* engine unavailable */ }
+    }
     const priceOnRequest = !(initPrice > 0);
 
     // Center stone carat configurator. When the shopper picks a different
