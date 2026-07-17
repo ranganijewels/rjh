@@ -23,7 +23,10 @@ export async function POST(req) {
 
     // Category filter
     if (body.category) params.set("category", body.category);
-    if (body.sub_category) params.set("category", body.sub_category);
+    // Style/sub-category is its own DB column — this used to overload the
+    // same "category" param, silently sending style links (e.g. "Halo") in
+    // as a category filter that could never match.
+    if (body.sub_category) params.set("subCategory", body.sub_category);
 
     // Sort: only DB-sortable fields go to NestJS. The old `split("_")` produced
     // garbage (e.g. "price_high_to_low" → sortBy=price/sortDir=high → 400) which

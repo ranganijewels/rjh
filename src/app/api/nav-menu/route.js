@@ -6,7 +6,8 @@ export async function GET() {
     const result = await rjApi("GET", "/cms/navigation");
     const nav = result.raw?.data || [];
     const mapItem = (item) => ({
-      id: item.id, title: item.title, link: item.url || item.link || "#",
+      id: item.id, title: item.label, link: item.url || item.link || "#",
+      target: item.target || "_self",
       children: (item.children || []).map(mapItem),
     });
     return NextResponse.json({ data: nav.map(mapItem) });

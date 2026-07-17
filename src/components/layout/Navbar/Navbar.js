@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import MenuOptionsPanel from "./MenuOptionsPanel";
+import SimpleNavDropdown from "./SimpleNavDropdown";
 import { MENUS_OPTIONS, NAV_MENUS } from "./constant";
 import MobileNav from "./MobileNav";
 import Link from "next/link";
@@ -15,7 +16,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { mapApiMenuToOptions } from "@/utils/mapMenuData";
 import { useSelector } from "react-redux";
 import WishlistPopUp from "@/components/ui/PopUp/WishlistPopUp";
 import { useWishlistPopup } from "@/context/WishlistPopupContext";
@@ -66,7 +66,9 @@ const Navbar = () => {
   }, [isHeroPage]);
   const transparent =
     isHeroPage && isAtTop && !activeMenu && !showSearchBar && !openMobileMenu;
-  const [menuOptions, setMenuOptions] = useState(MENUS_OPTIONS);
+  // Admin-managed nav items (CMS > Navigation). Empty until the fetch below
+  // resolves, so the hardcoded NAV_MENUS renders first-paint with no flash.
+  const [adminNavItems, setAdminNavItems] = useState([]);
   const { fetchAll } = useCrudApi("/api/nav-menu");
   const wishlistCount = useSelector((s) => s.wishlist.count);
   const { open, close } = useWishlistPopup();
@@ -77,14 +79,62 @@ const Navbar = () => {
 
   useEffect(() => {
     const loadMenus = async () => {
-      const response = await fetchAll();
-      if (response?.status && response.data) {
-        const mergedMenus = mapApiMenuToOptions(response.data, MENUS_OPTIONS);
-        setMenuOptions(mergedMenus);
+      try {
+        const response = await fetchAll();
+        if (response?.data?.length) {
+          setAdminNavItems(response.data);
+        }
+      } catch {
+        // Fall back to the hardcoded NAV_MENUS below — nothing to do here.
       }
     };
     loadMenus();
   }, [fetchAll]);
+
+  // Top-level bar items: the 5 hardcoded NAV_MENUS ALWAYS render (this is
+  // the "layer on top, don't replace" rule) plus any admin-added item whose
+  // label doesn't already match one of them — so a from-launch, never-wired
+  // CmsNavigation row (e.g. a generic "Home"/"Collections" set seeded before
+  // this feature existed) can't silently blank out the rich mega-menu the
+  // moment it becomes reachable. Only genuinely new admin items append.
+  const topNavItems = useMemo(() => {
+    const base = NAV_MENUS.map((item) => ({ ...item, children: [] }));
+    const extra = adminNavItems
+      .filter(
+        (item) =>
+          !NAV_MENUS.some((m) => m.label.toLowerCase() === item.title.toLowerCase())
+      )
+      .map((item) => ({
+        label: item.title,
+        link: item.link,
+        children: item.children || [],
+      }));
+    return [...base, ...extra];
+  }, [adminNavItems]);
+
+  // Admin-added top-level items with no rich-menu match get folded into the
+  // mobile menu too, as a single-category accordion of their child links —
+  // reuses MobileNav's existing category rendering with no changes there.
+  const menuOptions = useMemo(() => {
+    const extra = topNavItems
+      .filter(
+        (item) =>
+          !MENUS_OPTIONS.some(
+            (m) => m.title.toLowerCase() === item.label.toLowerCase()
+          )
+      )
+      .filter((item) => item.children.length)
+      .map((item) => ({
+        title: item.label,
+        categories: [
+          {
+            title: item.label,
+            items: item.children.map((c) => ({ label: c.title, link: c.link })),
+          },
+        ],
+      }));
+    return [...MENUS_OPTIONS, ...extra];
+  }, [topNavItems]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -194,7 +244,7 @@ const Navbar = () => {
             aria-label="Primary"
             className="hidden lg:flex xl:gap-[60px] lg:gap-[30px] flex-1 justify-center lg:order-1 text-[14px] font-[400]"
           >
-            {NAV_MENUS.map((item) => {
+            {topNavItems.map((item) => {
               const isActive = activeMenu === item.label;
               return (
                 <button
@@ -320,11 +370,23 @@ const Navbar = () => {
         {/* Dropdown Panels */}
         <div className="relative z-40">
           {activeMenu && (
-            <MenuOptionsPanel
-              activeMenu={activeMenu}
-              setActiveMenu={setActiveMenu}
-              menus={menuOptions}
-            />
+            <>
+              {MENUS_OPTIONS.some(
+                (m) => m.title.toLowerCase() === activeMenu.toLowerCase()
+              ) ? (
+                <MenuOptionsPanel
+                  activeMenu={activeMenu}
+                  setActiveMenu={setActiveMenu}
+                  menus={MENUS_OPTIONS}
+                />
+              ) : (
+                <SimpleNavDropdown
+                  activeMenu={activeMenu}
+                  setActiveMenu={setActiveMenu}
+                  item={topNavItems.find((i) => i.label === activeMenu)}
+                />
+              )}
+            </>
           )}
 
           {showSearchBar && (
