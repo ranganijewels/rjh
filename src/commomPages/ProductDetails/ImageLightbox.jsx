@@ -53,7 +53,7 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
         type="button"
         aria-label="Close preview"
         onClick={onClose}
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M1 1l16 16M17 1L1 17" stroke="currentColor" strokeWidth="1.5" />
@@ -61,7 +61,7 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
       </button>
 
       {total > 1 && (
-        <span className="absolute top-5 left-1/2 -translate-x-1/2 sm:top-6 text-white/70 text-xs sm:text-sm tracking-wide">
+        <span className="absolute top-5 left-1/2 -translate-x-1/2 sm:top-6 z-10 text-white/70 text-xs sm:text-sm tracking-wide">
           {index + 1} / {total}
         </span>
       )}
@@ -74,7 +74,7 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
             e.stopPropagation();
             goPrev();
           }}
-          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
         >
           <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
             <path d="M9 1L1 8l8 7" stroke="currentColor" strokeWidth="1.5" fill="none" />
@@ -116,7 +116,7 @@ const ImageLightbox = ({ media, index, onClose, onNavigate, productName }) => {
             e.stopPropagation();
             goNext();
           }}
-          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
         >
           <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
             <path d="M1 1l8 7-8 7" stroke="currentColor" strokeWidth="1.5" fill="none" />
