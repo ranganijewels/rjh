@@ -23,6 +23,16 @@ import useIsMobile from "@/utils/useIsMobile";
 import { toTitleCase } from "@/utils/string";
 import Badge from "@/components/ui/Badge/Badge";
 
+// sectionKey -> MENUS_OPTIONS[].title, explicit (not fuzzy-matched) since
+// this decides what content actually renders in a critical nav path.
+const MEGA_MENU_KEY_TO_TITLE = {
+  engagement: "Engagement",
+  wedding: "Wedding",
+  jewelry: "Jewelry",
+  customize: "Customize",
+  "about-us": "About us",
+};
+
 const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -70,6 +80,10 @@ const Navbar = () => {
   // resolves, so the hardcoded NAV_MENUS renders first-paint with no flash.
   const [adminNavItems, setAdminNavItems] = useState([]);
   const { fetchAll } = useCrudApi("/api/nav-menu");
+  // Admin-edited content (images/columns/CTA) for the 5 rich menus, keyed by
+  // CmsSection sectionKey. Empty until the fetch below resolves, so the
+  // hardcoded MENUS_OPTIONS renders first-paint with no flash.
+  const [cmsMegaMenus, setCmsMegaMenus] = useState({});
   const wishlistCount = useSelector((s) => s.wishlist.count);
   const { open, close } = useWishlistPopup();
   const { isMobile } = useIsMobile(1024);
@@ -90,6 +104,34 @@ const Navbar = () => {
     };
     loadMenus();
   }, [fetchAll]);
+
+  useEffect(() => {
+    const loadMegaMenus = async () => {
+      try {
+        const res = await fetch("/api/mega-menu");
+        const json = await res.json();
+        if (json?.data && Object.keys(json.data).length) {
+          setCmsMegaMenus(json.data);
+        }
+      } catch {
+        // Fall back to the hardcoded MENUS_OPTIONS below — nothing to do here.
+      }
+    };
+    loadMegaMenus();
+  }, []);
+
+  // The 5 rich menus, each individually overridden by its CMS content when
+  // present — a menu with no saved CmsSection row (never edited, or the
+  // fetch failed) falls back to its hardcoded MENUS_OPTIONS entry untouched.
+  const effectiveMenusOptions = useMemo(() => {
+    return MENUS_OPTIONS.map((m) => {
+      const key = Object.keys(MEGA_MENU_KEY_TO_TITLE).find(
+        (k) => MEGA_MENU_KEY_TO_TITLE[k] === m.title
+      );
+      const cms = key && cmsMegaMenus[key];
+      return cms || m;
+    });
+  }, [cmsMegaMenus]);
 
   // Top-level bar items: the 5 hardcoded NAV_MENUS ALWAYS render (this is
   // the "layer on top, don't replace" rule) plus any admin-added item whose
@@ -119,7 +161,7 @@ const Navbar = () => {
     const extra = topNavItems
       .filter(
         (item) =>
-          !MENUS_OPTIONS.some(
+          !effectiveMenusOptions.some(
             (m) => m.title.toLowerCase() === item.label.toLowerCase()
           )
       )
@@ -133,8 +175,8 @@ const Navbar = () => {
           },
         ],
       }));
-    return [...MENUS_OPTIONS, ...extra];
-  }, [topNavItems]);
+    return [...effectiveMenusOptions, ...extra];
+  }, [topNavItems, effectiveMenusOptions]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -371,13 +413,13 @@ const Navbar = () => {
         <div className="relative z-40">
           {activeMenu && (
             <>
-              {MENUS_OPTIONS.some(
+              {effectiveMenusOptions.some(
                 (m) => m.title.toLowerCase() === activeMenu.toLowerCase()
               ) ? (
                 <MenuOptionsPanel
                   activeMenu={activeMenu}
                   setActiveMenu={setActiveMenu}
-                  menus={MENUS_OPTIONS}
+                  menus={effectiveMenusOptions}
                 />
               ) : (
                 <SimpleNavDropdown
