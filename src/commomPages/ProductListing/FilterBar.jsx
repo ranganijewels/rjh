@@ -45,7 +45,7 @@ const CATEGORIES_ITEMS = [
 const FilterBar = ({ filtersData }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category_id");
+  const categoryId = searchParams.get("category_id") || searchParams.get("category");
   const style = searchParams.get("subcat");
   const metal = searchParams.get("metal");
   const shape = searchParams.get("shape");
@@ -86,6 +86,7 @@ const FilterBar = ({ filtersData }) => {
 
     if (key === "category_id") {
       params.delete("subcat");
+      params.delete("category");
     }
 
     router.replace(`?${params.toString()}`);

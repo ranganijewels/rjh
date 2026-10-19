@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { getGuestId } from "@/lib/guestId";
 
 // Expired session: clear the stale token and bounce to login (returning the
 // shopper to the current page). Only fires when a token was present — a 401
@@ -16,7 +17,8 @@ const handleSessionExpiry = (res, token) => {
 
 export const createCrudClient = (baseUrl) => {
   // const token = useSelector((state) => state.auth.token);
-  const token = localStorage.getItem("authTokenRJHouse");
+  // Server-safe: pages are server-rendered too, where localStorage does not exist.
+  const token = typeof window !== "undefined" ? localStorage.getItem("authTokenRJHouse") : null;
   const storeId = process.env.NEXT_PUBLIC_TENANT_ID;
   const customerId = useSelector((state) => state.auth?.customer?.id);
 
@@ -25,6 +27,9 @@ export const createCrudClient = (baseUrl) => {
     ...(storeId && { "x-tenant-id": storeId }),
     Accept: "application/json",
     ...(customerId && { "x-customer-id": customerId }),
+    // No logged-in token → identify this shopper's cart with a persistent
+    // guest id so cart/checkout work without forcing a login.
+    ...(!token && getGuestId() && { "x-guest-id": getGuestId() }),
   });
 
   return {

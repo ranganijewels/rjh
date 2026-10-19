@@ -10,6 +10,10 @@ const Accordion = ({
   btnStyle,
   icon,
   id,
+  // Opt-out for callers whose title text shouldn't be force-uppercased
+  // (e.g. admin-typed mega-menu column titles) — every other caller keeps
+  // the existing uppercase default untouched.
+  titleCase = "uppercase",
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const openIcon = caretIcons?.open || "/icons/up-caret.svg";
@@ -21,7 +25,7 @@ const Accordion = ({
       id={id}
     >
       <button
-        className={`w-full flex justify-between items-start text-left text-[14px] font-[500] transition uppercase gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--teal-1)] ${btnStyle}`}
+        className={`w-full flex justify-between items-start text-left text-[14px] font-[500] transition ${titleCase} gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--teal-1)] ${btnStyle}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-controls={`${id}-panel`}

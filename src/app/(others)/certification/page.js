@@ -1,10 +1,7 @@
-import Certification from '@/commomPages/PrivacyPolicy/Certification'
-import React from 'react'
+import PolicyPage, { policyMetadata } from "@/components/common/PolicyPage";
 
-export const page = () => {
-  return (
-    <Certification/>
-  )
+export const generateMetadata = () => policyMetadata("certification");
+
+export default function Page() {
+  return <PolicyPage slug="certification" />;
 }
-
-export default page;

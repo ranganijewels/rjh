@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Button from "../ui/Button/Button";
 import Typography from "../ui/Typography/Typography";
@@ -27,7 +27,29 @@ const HeroSection = ({
 }) => {
   const { isMobile } = useIsMobile(425);
   const reducedMotion = usePrefersReducedMotion();
+  // Uploaded CMS videos get a "-poster.jpg" still generated beside them; use it
+  // when the page didn't pass a poster explicitly.
+  const effectivePoster =
+    posterUrl ||
+    (/\/uploads\/cms-media\/.+\.(mp4|webm|mov)$/i.test(backgroundUrl || "")
+      ? backgroundUrl.replace(/\.(mp4|webm|mov)$/i, "-poster.jpg")
+      : "");
+  // Hero videos are several MB: start them only after the page has finished
+  // loading (the poster, if any, paints first and is the LCP element). On
+  // phones a hero with a poster stays a still image — no video download.
+  const [videoReady, setVideoReady] = useState(false);
+  useEffect(() => {
+    if (videoReady) return;
+    const hasOwnMobileVideo = mobileFile && mobileFile !== backgroundUrl;
+    if (effectivePoster && !hasOwnMobileVideo && window.matchMedia("(max-width: 767px)").matches) return;
+    const start = () =>
+      (window.requestIdleCallback || ((cb) => setTimeout(cb, 300)))(() => setVideoReady(true));
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => window.removeEventListener("load", start);
+  }, [videoReady, effectivePoster, mobileFile, backgroundUrl]);
   const displaySource = isMobile && mobileFile ? mobileFile : backgroundUrl;
+
   const { isVideo: isDisplayVideo } = useFileType(displaySource);
   const heightClasses = fullViewport
     ? "h-[calc(100svh-37px)] min-h-[560px]"
@@ -41,14 +63,14 @@ const HeroSection = ({
           (isDisplayVideo ? (
             <video
               className={`absolute inset-0 w-full h-full object-cover ${imageClass}`}
-              src={displaySource}
-              poster={posterUrl || undefined}
+              src={videoReady ? displaySource : undefined}
+              poster={effectivePoster || undefined}
               // Respect the OS "reduce motion" setting — hold the first frame.
-              autoPlay={!reducedMotion}
+              autoPlay={videoReady && !reducedMotion}
               loop={!reducedMotion}
               muted
               playsInline
-              preload="metadata"
+              preload={videoReady ? "metadata" : "none"}
             />
           ) : (
             <Image

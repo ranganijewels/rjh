@@ -1,7 +1,9 @@
 "use client";
+import LazyVideo from "@/components/common/LazyVideo";
 import React from "react";
 import Button from "../ui/Button/Button";
 import { useFileType } from "@/hooks/useFileType";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const TwoColGrid = ({
   index,
@@ -28,7 +30,7 @@ const TwoColGrid = ({
     >
       <div className={`md:w-1/2 w-full ${isReverse && "md:order-2"}`}>
         {isVideo ? (
-          <video
+          <LazyVideo
             src={file}
             autoPlay
             loop
@@ -37,7 +39,8 @@ const TwoColGrid = ({
             className="w-full xl:h-[548px] lg:h-[292px] h-[225px] object-cover"
           />
         ) : (
-          <img
+          <img loading="lazy" decoding="async"
+            {...responsiveImg(file, "(min-width: 1024px) 50vw, 100vw")}
             src={file}
             alt={alt || "explore-ring-size"}
             width={920}
@@ -74,7 +77,7 @@ const TwoColGrid = ({
 
           {reviewText && (
             <div>
-              <img
+              <img loading="lazy" decoding="async"
                 src="/icons/quotes.svg"
                 width={24}
                 height={24}

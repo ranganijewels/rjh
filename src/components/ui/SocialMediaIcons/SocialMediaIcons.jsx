@@ -18,7 +18,7 @@ const SocialMediaIcons = ({
           aria-label={iconObj.label || iconObj.name}
           className="!cursor-pointer"
         >
-          <img
+          <img loading="lazy" decoding="async"
             src={`/icons/${iconObj.name}-${iconColor}.svg`}
             alt={iconObj.label || iconObj.name}
             className={`w-auto xl:h-[16px] h-[14px] ${imageSize} transition-transform duration-300 transform hover:scale-110`}

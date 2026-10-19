@@ -144,7 +144,7 @@ export const NecklaceLengthGuide = () => {
                 <div className="flex flex-col lg:flex-row items-center md:items-start gap-10">
                     {/* Image Section */}
                     <div className="lg:w-1/2 w-full">
-                        <img
+                        <img loading="lazy" decoding="async"
                             src="/images/category/standardnecklacelengths1.jpg"
                             alt="Standard Necklace Lengths"
                             className="w-full h-auto"
@@ -169,7 +169,7 @@ export const NecklaceLengthGuide = () => {
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
                     {/* Image Section */}
                     <div className="lg:w-1/2 w-full order-1 lg:order-2">
-                        <img
+                        <img loading="lazy" decoding="async"
                             src="/images/category/standardnecklacelengths2.jpg"
                             alt="Standard Necklace Lengths"
                             className="w-full h-auto"
@@ -259,7 +259,7 @@ export const NecklaceLengthGuide = () => {
                 <div className="flex flex-col lg:flex-row items-center md:items-start gap-10">
                     {/* Image Section */}
                     <div className="lg:w-1/2 w-full">
-                        <img
+                        <img loading="lazy" decoding="async"
                             src="/images/category/necklacelength1.jpg"
                             alt="Standard Necklace Lengths"
                             className="w-full h-auto"
@@ -324,7 +324,7 @@ export const NecklaceLengthGuide = () => {
 
                     {/* Image Section */}
                     <div className="lg:w-1/2 w-full order-1 lg:order-2">
-                        <img
+                        <img loading="lazy" decoding="async"
                             src="/images/category/necklacelength2.jpg"
                             alt="Standard Necklace Lengths"
                             className="w-full h-auto"

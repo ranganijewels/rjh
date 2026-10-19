@@ -308,6 +308,7 @@ const Star = ({ dim }) => (
 export const Testimonials = ({ id, eyebrow, title, intro }) => {
   const { homeData } = useHomepageData();
   const reviews = homeData?.testimonial_section?.[0]?.reviews || [];
+  if (!reviews.length) return null;
   return (
     <section id={id} className={`${anchor} container mx-auto xl:px-[30px] px-[18px]`}>
       <div className="max-w-[720px] mx-auto text-center">

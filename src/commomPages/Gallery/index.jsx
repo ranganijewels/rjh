@@ -1,26 +1,50 @@
 "use client";
 import HeroSection from "@/components/common/HeroSection";
-import React from "react";
-import { LOVED_BY_HEARTS } from "../Customize/constant";
+import React, { useEffect, useState } from "react";
 import { useCustomizeData } from "../Customize/useCustomizeData";
 import GalleryGrid from "./GalleryGrid";
 import { usePageHero } from "@/hooks/usePageHero";
 
 const Gallery = () => {
-  // Custom creations are managed in one place (CMS → Customize Page → Gallery).
-  // The dedicated gallery shows the full set; fall back to the seed if empty.
+  // Client projects come from CMS → Customize Page → Gallery and are only
+  // returned once marked as real + permitted. Until there are any, the gallery
+  // shows photography of pieces from the live catalogue.
   const { customizeData } = useCustomizeData();
   const hero = usePageHero("gallery");
-  const items =
-    customizeData?.cms_page?.custom_creation?.length > 0
-      ? customizeData.cms_page.custom_creation
-      : LOVED_BY_HEARTS.map((g) => ({ image: g.imageUrl, title: g.title }));
+  const creations = customizeData?.cms_page?.custom_creation || [];
+  const [catalogue, setCatalogue] = useState([]);
+
+  useEffect(() => {
+    if (creations.length) return;
+    let cancelled = false;
+    fetch("/api/product", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ limit: 20, page: 1, sort_by: "new_arrival" }),
+    })
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        const rows = j?.data?.products || j?.data || [];
+        setCatalogue(
+          (Array.isArray(rows) ? rows : [])
+            .filter((p) => p?.product_image)
+            .map((p) => ({ image: p.product_image, title: p.product_name || p.title || "" }))
+        );
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [creations.length]);
+
+  const items = creations.length ? creations : catalogue;
 
   return (
     <section>
       <HeroSection
-        title={hero?.title || " Your Stories. Our Craft."}
-        description={hero?.description || " A curated showcase of one-of-a-kind pieces created by our customers — each with its own meaning and magic."}
+        title={hero?.title || "See Rangani in the Details"}
+        description={hero?.description || "A closer look at lab-grown diamond jewellery from our collection."}
         leftBtnText="Start Your Custom Journey"
         backgroundUrl={hero?.file || "/videos/gallery.webm"}
         mobileFile={hero?.mobileFile}

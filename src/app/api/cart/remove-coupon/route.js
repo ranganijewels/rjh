@@ -4,8 +4,12 @@ import { rjApi } from "@/lib/apiHandler";
 export async function POST(req) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const guestId = req.headers.get("x-guest-id") || "";
     const result = await rjApi("DELETE", "/storefront/cart/coupon", {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...(guestId && { "x-guest-id": guestId }),
+      },
     });
     if (!result.ok) {
       return NextResponse.json(

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Typography from "@/components/ui/Typography/Typography";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
+import { responsiveImg } from "@/lib/imageSizes";
 
 /**
  * "Discover Styles" coverflow carousel (keyzarjewelry-style): a centered,
@@ -84,6 +85,7 @@ export default function DiscoverStyles({ heading, subHeading, styles = [] }) {
                 className="block w-full max-w-[380px] aspect-square outline-none bg-white"
               >
                 <img
+                  {...responsiveImg(st.imageUrl, "(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 56vw")}
                   src={st.imageUrl}
                   alt={st.title || "Ring style"}
                   className="w-full h-full object-contain select-none pointer-events-none"

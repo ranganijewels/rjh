@@ -42,7 +42,9 @@ const TopBar = () => {
         {!isMobile && (
           <SocialMediaIcons className="w-[300px]" icons={SOCIAL_MEDIA_ICONS} />
         )}
-        <div className="text-center lg:flex-1 w-full">
+        {/* min-h reserves the message line before /api/swiper-messages answers,
+            so the page below doesn't jump down when the text arrives (CLS). */}
+        <div className="text-center lg:flex-1 w-full min-h-[36px]">
           <Swiper
             loop={swiperMessages.length > 1}
             slidesPerView={1}

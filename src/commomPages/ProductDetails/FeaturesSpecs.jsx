@@ -1,5 +1,6 @@
 import Accordion from "@/components/ui/Accordion/Accordion";
-import { SHIPPING_RETURNS_DATA } from "./constants";
+import Link from "next/link";
+import { SHIPPING_BULLETS, DELIVERY, certificateFor } from "@/content/policies";
 import {
   CareGuideIcon,
   CleaningDiamondIcon,
@@ -12,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFaqs } from "@/store/slices/faqSlice";
 import { formatCarat, toTitleCase } from "@/utils/string";
+import { resolveTokens } from "@/lib/resolveTokens";
 
 const AccordionListSection = ({ title, icon, points, isLast }) => {
   return (
@@ -50,6 +52,11 @@ const FeaturesSpecs = ({
   // Returns and Certification accordions. Fall back to the built-in copy.
   shippingReturns,
   certificationCare,
+  // GEO/AEO: AI-answer-engine summary + per-product FAQs (token-resolved
+  // against the shopper's live selection, same tokenCtx Details.jsx builds).
+  aeoSummary,
+  productFaqs,
+  tokenCtx = {},
 }) => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.faq);
@@ -381,63 +388,87 @@ const FeaturesSpecs = ({
         />
       </Accordion>
       <Accordion title="Shipping & Returns" btnStyle="!capitalize">
-        {Array.isArray(shippingReturns) && shippingReturns.length > 0 ? (
-          // CMS-authored bullet list (CMS → Product Detail → Shipping & Returns)
-          <ul className="list-disc list-inside marker:text-[8px] text-[14px] flex flex-col gap-2 py-3">
-            {shippingReturns.map((line, i) => (
+        <ul className="list-disc list-inside marker:text-[8px] text-[14px] flex flex-col gap-2 py-3">
+          {productDetail?.production_time && (
+            <li>
+              This piece is made, certified and dispatched within {productDetail.production_time}, then
+              delivered to the US and Canada in about {DELIVERY.transitUsCa}.
+            </li>
+          )}
+          {(Array.isArray(shippingReturns) && shippingReturns.some((l) => String(l || "").trim())
+            ? shippingReturns.filter((l) => String(l || "").trim())
+            : SHIPPING_BULLETS
+          )
+            .filter((line) => !(productDetail?.production_time && /dispatched within/i.test(line)))
+            .map((line, i) => (
               <li key={i}>{line}</li>
             ))}
-          </ul>
-        ) : (
-          <div className="flex flex-col gap-5">
-            {SHIPPING_RETURNS_DATA.map((section, index) => (
-              <div
-                key={index}
-                className="py-5 border-[var(--teal-3)] flex flex-col gap-3"
-              >
-                <Typography variant="h6" className="font-[500]">
-                  {section.title}
-                </Typography>
-                <ul className="list-disc list-inside marker:text-[8px] text-[14px]">
-                  {section.points.map((point, i) => (
-                    <li key={i}>{point}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
+        </ul>
+        <p className="text-[13px] pb-3">
+          <Link href="/shipping" className="underline">Shipping policy</Link>
+          {" · "}
+          <Link href="/easy-return" className="underline">Returns policy</Link>
+        </p>
       </Accordion>
       <Accordion title="Certification" btnStyle="!capitalize">
         <ul className="list-disc list-inside marker:text-[8px] text-[14px] flex flex-col gap-2 py-3">
-          {(Array.isArray(certificationCare) && certificationCare.length > 0
-            ? certificationCare
+          <li>
+            {certificateFor({
+              diamondCertLab: productDetail?.cert_lab,
+              centerStoneWeightCt: productDetail?.center_diamond_weight_ct,
+            }).text}
+          </li>
+          {(Array.isArray(certificationCare) && certificationCare.some((l) => String(l || "").trim())
+            ? certificationCare.filter((l) => String(l || "").trim())
             : [
-                "Each diamond is graded and accompanied by a lab certificate (IGI / GIA).",
-                "Precious metals are responsibly sourced and hallmarked for purity.",
-                "Complimentary cleaning & inspection at our atelier, for life.",
+                "Gold is hallmarked for purity.",
+                "Lifetime warranty against manufacturing defects.",
+                "Store separately in the provided pouch; avoid contact with chemicals.",
               ]
           ).map((line, i) => (
             <li key={i}>{line}</li>
           ))}
         </ul>
+        <p className="text-[13px] pb-3">
+          <Link href="/certification" className="underline">How our certificates work</Link>
+        </p>
       </Accordion>
+      {aeoSummary && (
+        <p className="lg:text-[13px] text-[12px] font-[300] italic text-[var(--grey-3,#6b7280)] py-3 border-b border-[var(--border,#e5e7eb)]">
+          {aeoSummary}
+        </p>
+      )}
       {(() => {
-        // Prefer a "Product Details" FAQ group; fall back to the first group so
-        // the accordion still renders when the CMS uses a different category
-        // name (live data groups everything under "FAQs Page").
-        const faqGroup =
-          items?.find((e) => e.faq_category_title === "Product Details") ||
-          items?.[0];
-        if (!faqGroup?.faqs?.length) return null;
+        // Only FAQ categories the admin ticked for product pages (CMS ▸ FAQs).
+        const faqGroups = (items || []).filter((e) => e.pdp);
+        // Per-product FAQs (admin/AI-authored, token-resolved) come first —
+        // they're specific to this exact product, ahead of the shared
+        // storefront-wide category FAQs.
+        const resolvedProductFaqs = (Array.isArray(productFaqs) ? productFaqs : [])
+          .filter((f) => f?.question && f?.answer)
+          .map((f) => ({
+            question: resolveTokens(f.question, tokenCtx),
+            answer: resolveTokens(f.answer, tokenCtx),
+          }));
+        const sharedFaqs = faqGroups.flatMap((g) => g.faqs || []);
+        if (!resolvedProductFaqs.length && !sharedFaqs.length) return null;
+        const total = resolvedProductFaqs.length + sharedFaqs.length;
         return (
           <Accordion title="FAQs" btnStyle="!capitalize">
-            {faqGroup.faqs.map((que, idx) => (
+            {resolvedProductFaqs.map((que, idx) => (
               <AccordionListSection
-                key={idx}
-                title={`${idx + 1}. ${que?.question}`}
+                key={`product-${idx}`}
+                title={`${idx + 1}. ${que.question}`}
+                points={[que.answer]}
+                isLast={idx === total - 1}
+              />
+            ))}
+            {sharedFaqs.map((que, idx) => (
+              <AccordionListSection
+                key={`shared-${idx}`}
+                title={`${resolvedProductFaqs.length + idx + 1}. ${que?.question}`}
                 points={Array.isArray(que?.answer) ? que.answer : [que?.answer]}
-                isLast={idx === faqGroup.faqs.length - 1}
+                isLast={resolvedProductFaqs.length + idx === total - 1}
               />
             ))}
           </Accordion>

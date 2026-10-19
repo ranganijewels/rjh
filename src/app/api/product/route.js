@@ -21,6 +21,9 @@ export async function POST(req) {
     // Diamond shape filter: URL param is shape name e.g. "Round", "Oval"
     if (body.diamond_shape) params.set("diamondShape", body.diamond_shape);
 
+    // Department (Engagement / Wedding / Jewellery menus) and collection
+    if (body.department) params.set("department", body.department);
+    if (body.collection) params.set("collection", body.collection);
     // Category filter
     if (body.category) params.set("category", body.category);
     // Style/sub-category is its own DB column — this used to overload the
@@ -34,6 +37,7 @@ export async function POST(req) {
     // a DB column) so price sorts are done in-memory below, after attachPrices().
     const SORT_MAP = {
       new_arrival: { sortBy: "createdAt", sortDir: "desc" },
+      createdAt_desc: { sortBy: "createdAt", sortDir: "desc" },
     };
     const sortSpec = body.sort_by ? SORT_MAP[body.sort_by] : undefined;
     if (sortSpec) {

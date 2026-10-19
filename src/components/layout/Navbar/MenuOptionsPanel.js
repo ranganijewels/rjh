@@ -3,10 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button/Button";
 import Link from "next/link";
 import clsx from "clsx";
-import { toTitleCase } from "@/utils/string";
 import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { useRouter } from "next/navigation";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
   const router = useRouter();
@@ -75,8 +75,18 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
               className="flex xl:gap-[10px] lg:gap-[10px] flex-col w-full"
               key={index}
             >
-              <h3 className="xl:text-[14px] lg:text-[12px] font-[500] xl:mb-[14px] lg:mb-[8px] uppercase">
-                {category.title}
+              <h3 className="xl:text-[14px] lg:text-[12px] font-[500] xl:mb-[14px] lg:mb-[8px]">
+                {category.link ? (
+                  <Link
+                    href={category.link}
+                    className="hover:text-[var(--teal-1)]"
+                    onClick={() => setActiveMenu(null)}
+                  >
+                    {category.title}
+                  </Link>
+                ) : (
+                  category.title
+                )}
               </h3>
 
               {category.items?.map((item, idx) => {
@@ -93,7 +103,7 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
                     className="text-[var(--grey-2)] xl:text-[14px] text-[12px] hover:text-[var(--teal-1)]"
                     onClick={() => setActiveMenu(null)}
                   >
-                    {toTitleCase(item.label) || toTitleCase(item)}
+                    {item.label || item}
                   </Link>
                 );
               })}
@@ -111,13 +121,14 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
               className="group cursor-pointer"
             >
               <div className="overflow-hidden bg-white">
-                <img
+                <img loading="lazy" decoding="async"
+                  {...responsiveImg(item.image, "(min-width: 1024px) 20vw, 50vw")}
                   src={item.image}
                   alt={item.label}
                   className="w-full h-[260px] object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
-              <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide uppercase">
+              <p className="mt-[14px] text-center text-[14px] font-[500] tracking-wide">
                 {item.label}
               </p>
             </Link>
@@ -129,7 +140,8 @@ const MenuOptionsPanel = ({ activeMenu, setActiveMenu, menus }) => {
       {Array.isArray(selectedMenu.imageSection) &&
         selectedMenu?.imageSection?.map((section, idx) => (
           <div key={idx} className="xl:min-w-[301px] lg:min-w-[259px]">
-            <img
+            <img loading="lazy" decoding="async"
+              {...responsiveImg(section.imageUrl, "(min-width: 1280px) 369px, 259px")}
               src={section.imageUrl}
               alt={section.additionalTitle}
               className="pb-[16px] xl:w-[369px] xl:h-[241px] lg:w-[259px] lg:h-[192px] object-cover"

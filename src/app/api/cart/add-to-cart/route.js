@@ -4,6 +4,7 @@ import { rjApi } from "@/lib/apiHandler";
 export async function POST(req) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const guestId = req.headers.get("x-guest-id") || "";
     const body = await req.json().catch(() => ({}));
 
     // Fetch product name from NestJS
@@ -22,7 +23,7 @@ export async function POST(req) {
     }
 
     const result = await rjApi("POST", "/storefront/cart", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`, ...(guestId && { "x-guest-id": guestId }) },
       body: {
         productId,
         productName,
@@ -31,12 +32,15 @@ export async function POST(req) {
         metadata: {
           metalColor: body.metal_color,
           metalType: body.metal_type,
+          metalTypeName: body.metal_family || undefined,
           shape: body.diamond_shape,
           centerDiamondWeight: body.center_diamond_weight,
           ringSize: body.ring_size,
           size: body.size,
           clarity: body.diamond_clarity || undefined,
+          color: body.diamond_color || undefined,
           engraving: body.engraving || undefined,
+          backType: body.back_type || undefined,
           image: mediaImage,
         },
       },

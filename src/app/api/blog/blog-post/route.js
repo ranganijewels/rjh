@@ -13,8 +13,10 @@ export async function GET(req) {
     const blogs = result.raw?.data || [];
     return NextResponse.json({
       data: blogs.map(b => ({
-        id: b.id, slug: b.slug, title: b.title, excerpt: b.excerpt,
-        featured_image: b.featuredImage || "", published_at: b.publishedAt,
+        id: b.id, slug: b.slug, title: b.title,
+        excerpt: b.excerpt, content: b.content,
+        featured_image: b.featuredImageUrl || "",
+        published_at: b.publishedAt, created_at: b.publishedAt || b.createdAt,
         tags: b.tags || [], author: b.author || "RJ House",
       }))
     });

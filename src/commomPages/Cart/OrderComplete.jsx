@@ -3,9 +3,11 @@ import Button from "@/components/ui/Button/Button";
 import Typography from "@/components/ui/Typography/Typography";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
+import { trackPurchase } from "@/lib/analytics";
 import { useSelector } from "react-redux";
 import FailedOrder from "./FailedOrder";
+import { getCurrencySymbol } from "@/utils/currencySymbol";
 
 const OrderComplete = () => {
   const router = useRouter();
@@ -13,10 +15,27 @@ const OrderComplete = () => {
   const rawOrder = useSelector((state) => state.order?.order);
   let order = rawOrder?.data?.order || rawOrder?.order || rawOrder;
 
-  if (!order) {
+  if (!order && typeof window !== "undefined") {
     const saved = JSON.parse(localStorage.getItem("recentOrder"));
     order = saved?.data?.order || saved?.order || saved;
   }
+
+  // Purchase conversion — once per order number; online orders reach this
+  // page only after the payment is confirmed Paid.
+  useEffect(() => {
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem("recentOrder") || "{}");
+    } catch {}
+    if (order && order.payment_status !== "failed") {
+      trackPurchase({
+        orderNumber: order.order_number || order.id,
+        total: order.total,
+        items: saved?.analyticsItems || [],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.order_number, order?.id]);
 
   if (rawOrder?.data?.payment_status === "failed") {
     return <FailedOrder />;
@@ -116,7 +135,9 @@ const OrderComplete = () => {
           </Typography>
 
           <Typography className="font-[600]" variant="h6">
-            ${order?.total?.toFixed(2)}
+            {order?.currency_code
+              ? `${getCurrencySymbol(order.currency_code)} ${Number(order?.charged_amount ?? order?.total ?? 0).toFixed(2)}`
+              : `$${Number(order?.total ?? 0).toFixed(2)}`}
           </Typography>
 
           <Typography className="font-[600]" variant="h6">

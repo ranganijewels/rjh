@@ -23,14 +23,14 @@ const DEFAULTS = {
     {
       title: "Our Story",
       description:
-        "What began as a family atelier is today a house devoted to one idea: that extraordinary diamonds shouldn't cost the earth. Every Rangani piece is designed in-house, cast in responsibly sourced gold, and set by master jewelers who have spent decades at the bench.",
+        "Our family has worked with diamonds for more than 50 years — first in natural diamond manufacturing, then growing and cutting our own lab-grown diamonds, and today making fine jewellery in 10K, 14K and 18K gold and 925 sterling silver.",
       file: `${NEST}/uploads/product-media/traditional-solitaire-engagement-ring-yellowgold-labgrowndiamond-ovalcut-1.00ct-002-web.avif`,
       quote: "Jewelry should carry a story — yours, and the story of how it was made.",
     },
     {
       title: "Lab Grown, Beyond Compare",
       description:
-        "Our diamonds are grown above ground with a fraction of the footprint of mining — chemically, optically and physically identical to mined stones, IGI & GIA certified, and hand-selected for exceptional cut, color and clarity.",
+        "Our diamonds are grown above ground with a fraction of the footprint of mining — chemically, optically and physically identical to mined stones, and hand-selected for cut, colour and clarity. Solitaire centre stones come with an IGI or GIA report; jewellery set with smaller diamonds comes with an SGL certificate.",
       file: `${NEST}/uploads/product-media/nirvana-engagement-ring-whitegold-labgrowndiamond-pearcut-1.00ct-002-web.avif`,
       quote: "The same fire. The same forever. A far kinder origin.",
     },
@@ -40,11 +40,11 @@ const DEFAULTS = {
       headtitle: "The Rangani Standard",
       description: "Every piece, every order, every time.",
       service_items: [
-        { icon: "/icons/certified.svg", title: "Certified Diamonds", service_description: "IGI & GIA graded, conflict-free" },
-        { icon: "/icons/lifetime-warranty.svg", title: "Lifetime Warranty", service_description: "Craftsmanship guaranteed for life" },
-        { icon: "/icons/shipping.svg", title: "Free Insured Shipping", service_description: "Fully insured, worldwide" },
+        { icon: "/icons/certified.svg", title: "Certified Diamonds", service_description: "IGI/GIA for solitaires, SGL for jewellery" },
+        { icon: "/icons/lifetime-warranty.svg", title: "Lifetime Warranty", service_description: "Against manufacturing defects" },
+        { icon: "/icons/shipping.svg", title: "Free Insured Shipping", service_description: "Tracked and fully insured" },
         { icon: "/icons/diamond.svg", title: "Ethically Sourced", service_description: "Lab grown, responsibly made" },
-        { icon: "/icons/earth.svg", title: "Global Standards", service_description: "BIS hallmarked gold, always" },
+        { icon: "/icons/earth.svg", title: "Hallmarked Metals", service_description: "10K, 14K & 18K gold, 925 silver" },
         { icon: "/icons/leaf.svg", title: "Sustainable at Heart", service_description: "A fraction of mining's footprint" },
       ],
     },

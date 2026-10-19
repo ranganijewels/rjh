@@ -22,6 +22,9 @@ export const FOOTER_MENUS = [
       { label: "Blog", url: "/blog" },
       { label: "Diamond Education", url: "/diamond-education" },
       { label: "FAQs", url: "/faqs" },
+      { label: "Privacy Policy", url: "/privacy-policy" },
+      { label: "Terms of Service", url: "/terms-of-service" },
+      { label: "Cookie Settings", url: "#cookie-settings" },
     ],
   },
   {
@@ -43,7 +46,7 @@ export const FOOTER_MENUS = [
       //   label: "Live Chat",
       //   url: "https://tawk.to/chat/682421b836f29c190d212c4e/1ir6i7eiu",
       // },
-      { label: "Email Us", url: "mailto:support@therjhouse.com" },
+      { label: "Email Us", url: "mailto:info@ranganijewelry.com" },
       { label: "Book Consultations", url: "/book-consultancy" },
       { label: "Contact Us", url: "/contact-us" },
     ],

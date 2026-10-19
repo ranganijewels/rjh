@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useCrudApi } from "@/hooks/useCrudApi";
 
-export const useHomepageData = () => {
+// `initialData` (server-rendered homepage) skips the client fetch entirely, so
+// the page paints with its content instead of shifting when data arrives.
+export const useHomepageData = (initialData = null) => {
   const { fetchAll } = useCrudApi(`/api/home`);
-  const [homeData, setHomeData] = useState(null);
-  const [loadingHome, setLoadingHome] = useState(true);
+  const [homeData, setHomeData] = useState(initialData);
+  const [loadingHome, setLoadingHome] = useState(!initialData);
 
   useEffect(() => {
+    if (initialData) return;
     let isMounted = true;
     setLoadingHome(true);
 
@@ -22,7 +25,7 @@ export const useHomepageData = () => {
       });
 
     return () => (isMounted = false);
-  }, [fetchAll]);
+  }, [fetchAll, initialData]);
 
   return {
     homeData,

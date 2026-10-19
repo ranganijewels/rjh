@@ -12,6 +12,7 @@ function Stars({ value = 0, size = 16 }) {
     <span
       className="inline-flex items-center"
       style={{ gap: 2, lineHeight: 1 }}
+      role="img"
       aria-label={`${v} out of 5 stars`}
     >
       {[1, 2, 3, 4, 5].map((i) => (

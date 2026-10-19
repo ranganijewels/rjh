@@ -20,10 +20,10 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { useRouter } from "next/navigation";
 import Collection from "../Collection";
 
-const HomepageLayout = () => {
+const HomepageLayout = ({ initialData = null }) => {
   const [showPopup, setShowPopup] = useState(false);
   const router = useRouter();
-  const { homeData } = useHomepageData();
+  const { homeData } = useHomepageData(initialData);
 
   // /** Handle Signup Popup */
   useEffect(() => {

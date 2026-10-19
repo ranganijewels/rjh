@@ -15,7 +15,11 @@ import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { WishlistPopupProvider } from "@/context/WishlistPopupContext";
 import LiveChat from "@/components/chat/LiveChat";
 import Analytics from "@/components/analytics/Analytics";
-import { BUSINESS, SITE_URL, SOCIAL_URLS } from "@/config/business";
+import ConsentBanner from "@/components/analytics/ConsentBanner";
+import { headers } from "next/headers";
+import { BUSINESS, SITE_URL } from "@/config/business";
+import { getSiteContact } from "@/lib/siteContact";
+import { SiteContactProvider } from "@/context/SiteContactContext";
 
 // Rangani brand typography: Montserrat for UI/body, Source Serif for
 // editorial copy, Cormorant Garamond for display headings.
@@ -38,14 +42,29 @@ const cormorant = Cormorant_Garamond({
   display: "swap",
 });
 
-export const metadata = {
+// Every page reads request data (canonical path, search params), so render
+// per request — this lets client components using useSearchParams render
+// their real content on the server instead of bailing out to client-only.
+export const dynamic = "force-dynamic";
+
+const SITE_DESCRIPTION =
+  "Lab-grown diamond engagement rings, wedding bands & fine jewelry in 10K, 14K & 18K gold and 925 sterling silver, made by a family with more than 50 years in diamonds. Free insured shipping.";
+
+// Pages that set their own canonical (product, collections, …) override this;
+// everything else gets a self-referencing canonical on the primary domain
+// instead of inheriting the homepage's.
+export async function generateMetadata() {
+  const path = (await headers()).get("x-pathname") || "/";
+  return { ...metadata, alternates: { canonical: path } };
+}
+
+const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: "Rangani Jewelry House — Lab Grown Diamond Engagement Rings & Fine Jewelry",
     template: "%s | Rangani Jewelry House",
   },
-  description:
-    "Ethically crafted lab-grown diamond engagement rings, wedding bands & fine jewelry. IGI/GIA certified, BIS hallmarked, free insured worldwide shipping & lifetime warranty.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "lab grown diamond engagement rings",
     "diamond jewelry",
@@ -55,7 +74,6 @@ export const metadata = {
     "Rangani Jewelry House",
   ],
   applicationName: "Rangani Jewelry House",
-  alternates: { canonical: "/" },
   // Favicons are declared as explicit <link> tags in <head> below —
   // metadata.icons would emit an un-scoped link that overrides the
   // prefers-color-scheme variants.
@@ -63,8 +81,7 @@ export const metadata = {
     type: "website",
     siteName: "Rangani Jewelry House",
     title: "Rangani Jewelry House — Lab Grown Diamond Fine Jewelry",
-    description:
-      "Ethically crafted, certified lab-grown diamond engagement rings & fine jewelry. Free insured shipping, lifetime warranty.",
+    description: SITE_DESCRIPTION,
     url: SITE_URL,
     locale: "en_US",
     images: [{ url: "/logo/rj-house.svg", width: 636, height: 219, alt: "Rangani Jewelry House" }],
@@ -78,8 +95,10 @@ export const metadata = {
   robots: { index: true, follow: true },
 };
 
-// Site-wide Organization + WebSite structured data (brand entity + sitelinks search)
-const ORG_JSONLD = {
+// Site-wide Organization + WebSite structured data (brand entity + sitelinks
+// search). Contact details come from CMS Theme & Branding so the schema always
+// matches what the footer/contact page show.
+const orgJsonLd = (contact) => ({
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -88,17 +107,17 @@ const ORG_JSONLD = {
       name: BUSINESS.name,
       url: SITE_URL,
       logo: `${SITE_URL}/logo/rj-house.svg`,
-      email: BUSINESS.email,
-      telephone: BUSINESS.phone,
+      email: contact.email,
+      ...(contact.phone ? { telephone: contact.phone } : {}),
       description:
         "Lab-grown diamond engagement rings & fine jewelry — refined luxury, timeless designs.",
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer support",
-        email: BUSINESS.email,
-        telephone: BUSINESS.phone,
+        email: contact.email,
+        ...(contact.phone ? { telephone: contact.phone } : {}),
       },
-      sameAs: SOCIAL_URLS,
+      ...(contact.sameAs.length ? { sameAs: contact.sameAs } : {}),
     },
     {
       "@type": "WebSite",
@@ -113,9 +132,10 @@ const ORG_JSONLD = {
       },
     },
   ],
-};
+});
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const contact = await getSiteContact();
   return (
     <html lang="en">
       <head>
@@ -135,7 +155,7 @@ export default function RootLayout({ children }) {
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd(contact)) }}
         />
       </head>
       <body
@@ -151,6 +171,8 @@ export default function RootLayout({ children }) {
         <Suspense fallback={null}>
           <Analytics />
         </Suspense>
+        <ConsentBanner />
+        <SiteContactProvider value={contact}>
         <ReduxProvider>
           <PreferencesProvider>
             <WishlistPopupProvider>
@@ -173,12 +195,13 @@ export default function RootLayout({ children }) {
                   }}
                 />
                 <main id="main" className="flex-1 flex flex-col">{children}</main>
-                <Footer />
+                <Footer contact={contact} />
                 <LiveChat />
               </ReactQueryProvider>
             </WishlistPopupProvider>
           </PreferencesProvider>
         </ReduxProvider>
+        </SiteContactProvider>
       </body>
     </html>
   );

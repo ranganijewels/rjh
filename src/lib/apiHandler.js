@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { buildTokenContext, resolveTokens } from "./resolveTokens";
+import { displayProductName } from "./productName";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TENANT_ID = process.env.NEXT_PUBLIC_TENANT_ID || "00000000-0000-0000-0000-000000000001";
@@ -74,14 +76,20 @@ export function transformProduct(p) {
   const sortedMedia = (p.media || []).sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
   const isVideo = (url) => /\.(mp4|webm|mov|avi)$/i.test(url || "");
 
-  // Primary: prefer media matching THIS product's own metal color, else any image
+  // Primary/hover: use the admin's explicit Main/Rollover tag (media.altText
+  // is repurposed as a "main" | "rollover" | "gallery" role marker — see
+  // ProductMedia entity). Falls back to sort position only for older media
+  // that predates the tagging feature, so nothing regresses for those rows.
+  const roleOf = (m) => (m.altText || "").toLowerCase();
+  const byRole = (pool, role) => pool.find((m) => roleOf(m) === role);
+
   const cardColor = (p.metalColor || "YELLOW").toUpperCase();
   const colorImages = sortedMedia.filter(
     (m) => (m.metalColor || "YELLOW").toUpperCase() === cardColor && !isVideo(m.fileUrl || m.url)
   );
   const anyImages = sortedMedia.filter((m) => !isVideo(m.fileUrl || m.url));
-  const primaryMedia = colorImages[0] || anyImages[0];
-  const hoverMedia = colorImages[1] || anyImages[1] || primaryMedia;
+  const primaryMedia = byRole(colorImages, "main") || byRole(anyImages, "main") || colorImages[0] || anyImages[0];
+  const hoverMedia = byRole(colorImages, "rollover") || byRole(anyImages, "rollover") || colorImages[1] || anyImages[1] || primaryMedia;
 
   const primaryImage = primaryMedia?.fileUrl || primaryMedia?.url || p.mainImageUrl || "";
   const hoverImage = hoverMedia?.fileUrl || hoverMedia?.url || primaryImage;
@@ -92,21 +100,40 @@ export function transformProduct(p) {
   // Always offer all 3 for the swatches; listing card color-change will show same image if no specific color images
   const metalColorSwatches = ["YELLOW", "WHITE", "ROSE"];
 
-  // Per-color image lists so the card can run an instant, client-side image
-  // slider + metal-swap (no per-card API call). Videos excluded.
+  // Per-color image lists for the card — ONLY the Main + Rollover pair per
+  // color (not the whole gallery), so hovering a metal swatch previews that
+  // color's main shot and hovering the card image swaps to its rollover,
+  // with no multi-image carousel. Falls back to sort position per-color
+  // when a color has no explicit role tags.
   const imagesByColor = {};
-  for (const m of anyImages) {
-    const c = (m.metalColor || "YELLOW").toUpperCase();
-    const url = m.fileUrl || m.url;
-    if (!url) continue;
-    (imagesByColor[c] = imagesByColor[c] || []).push(url);
+  for (const c of colorSet) {
+    const pool = anyImages.filter((m) => (m.metalColor || "YELLOW").toUpperCase() === c);
+    const main = byRole(pool, "main") || pool[0];
+    const roll = byRole(pool, "rollover") || pool[1] || main;
+    const urls = [main, roll].map((m) => m?.fileUrl || m?.url).filter(Boolean);
+    if (urls.length) imagesByColor[c] = [...new Set(urls)];
   }
-  const allImages = anyImages.map((m) => m.fileUrl || m.url).filter(Boolean);
+  const allImages = [primaryImage, hoverImage].filter(Boolean);
+
+  // Listing cards have no per-card metal/diamond selector, so any {{token}}
+  // in the (AI-generated) title/description resolves against the product's
+  // default/first metal option — same default-variant rule the SEO meta tags
+  // use, kept live-reactive only on the PDP where a selector actually exists.
+  const firstMetal = Array.isArray(p.metadata?.metalOptions) ? p.metadata.metalOptions[0] : null;
+  const cardTokenCtx = buildTokenContext({
+    metalType: firstMetal?.type || p.metalType,
+    karat: firstMetal?.purities?.[0] || p.metalPurity,
+    metalColor: firstMetal?.colors?.[0] || p.metalColor,
+    diamondShape: p.diamondShape || p.centerStoneShape,
+    diamondWeight: p.diamondWeightCt || p.centerStoneWeightCt,
+    diamondClarity: p.diamondClarity || p.diamondQuality,
+    diamondColor: p.diamondColor,
+  });
 
   return {
     product_id: p.id,
     id: p.id,
-    title: p.productName || p.name || "Jewelry",
+    title: resolveTokens(p.productName || p.name, cardTokenCtx) || displayProductName(p),
     // No stored price — the listing route overrides these with live engine
     // prices (POST /pricing/batch). Default 0 until that resolves.
     product_price: 0,
@@ -125,7 +152,9 @@ export function transformProduct(p) {
     shape: p.diamondShape || "",
     design_group: p.metadata?.designGroup || p.designGroup || null,
     display_discount_percent: Number(p.metadata?.displayDiscountPercent) || 0,
-    description: p.description || "",
+    display_discount_ends_at: p.metadata?.displayDiscountEndsAt || null,
+    badges: Array.isArray(p.metadata?.badges) ? p.metadata.badges : [],
+    description: resolveTokens(p.description, cardTokenCtx),
     sku: p.productCode || p.sku || "",
     slug: p.slug || p.id,
     is_wishlisted: false,
@@ -174,6 +203,7 @@ export function consolidateDesignGroups(items) {
       seen.add(key);
       shape_variants.push({
         display_discount_percent: m.display_discount_percent || 0,
+        display_discount_ends_at: m.display_discount_ends_at || null,
         shape: sh,
         product_id: m.product_id,
         product_image: m.product_image,

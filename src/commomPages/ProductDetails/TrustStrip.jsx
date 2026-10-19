@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { CLAIMS } from "@/content/policies";
 
 // Fixed icon set — the CMS badge stores an icon KEY + label (raw SVG paths
 // aren't editable in the CMS). Unknown keys fall back to the shipping icon.
@@ -14,9 +15,9 @@ const ICON_PATHS = {
 };
 
 const DEFAULT_BADGES = [
-  { icon: "shipping", label: "Free insured shipping" },
-  { icon: "diamond", label: "Certified diamonds" },
-  { icon: "returns", label: "30-day easy returns" },
+  { icon: "shipping", label: CLAIMS.shipping },
+  { icon: "diamond", label: CLAIMS.certification },
+  { icon: "returns", label: CLAIMS.returnsShort },
   { icon: "lock", label: "Secure checkout" },
 ];
 

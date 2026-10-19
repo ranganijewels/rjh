@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://rangani.example";
+import { SITE_URL } from "@/config/business";
 
 export default function robots() {
   return {
@@ -6,7 +6,7 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/account", "/cart", "/api/", "/(auth)"],
+        disallow: ["/account", "/cart", "/api/", "/login", "/sign-up", "/search", "/wishlist"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

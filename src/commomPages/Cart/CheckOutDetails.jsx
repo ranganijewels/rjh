@@ -10,20 +10,23 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { setOrder } from "@/store/slices/orderSlice";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { trackBeginCheckout, trackPaymentInfo } from "@/lib/analytics";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import QuantitySelector from "./QuantitySelector";
 import { toTitleCase } from "@/utils/string";
 import Dropdown from "@/components/ui/Dropdown/Dropdown";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
+import { convertPrice } from "@/utils/money";
 import { usePreferences } from "@/context/PreferencesContext";
 import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import { useCoupon } from "@/hooks/useCoupon";
+import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
 
 const CheckOutDetails = () => {
   const [isDifferentBilling, setIsDifferentBilling] = useState(false);
-  // Cash on Delivery is the only live payment method until a gateway is wired.
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [errors, setErrors] = useState({});
   const [placingOrder, setPlacingOrder] = useState(false);
@@ -87,11 +90,12 @@ const CheckOutDetails = () => {
     }
   }, [customer]);
 
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
+  // Start the country from the shopper's selected store country.
+  useEffect(() => {
+    if (selectedCountry?.label) {
+      setAddress((prev) => (prev.country ? prev : { ...prev, country: selectedCountry.label }));
+    }
+  }, [selectedCountry?.label]);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -101,6 +105,16 @@ const CheckOutDetails = () => {
   );
   const shippingCharge = useSelector((state) => state.cart.shipping);
   const { create } = useCrudApi(`/api/cart/place-order`);
+
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || !cartItems?.length) return;
+    checkoutTracked.current = true;
+    trackBeginCheckout(
+      summary?.grand_total,
+      cartItems.map((i) => ({ id: i.sku || i.product_id, name: i.product_name || i.title, price: i.product_price, quantity: i.quantity }))
+    );
+  }, [cartItems, summary?.grand_total]);
 
   const handlePaymentChange = (value) => {
     setSelectedPayment(value);
@@ -126,12 +140,11 @@ const CheckOutDetails = () => {
         city: address.city,
         state: address.state,
         zip_code: address.zipCode,
-        payment_method: selectedPayment,
+        country: address.country,
+        payment_method: selectedPayment === "online" ? "ONLINE" : "COD",
+        currency_code: selectedCountry?.currency || "USD",
         use_different_billing: isDifferentBilling,
         shipping_charge: shippingCharge,
-        card_number: paymentDetails.cardNumber.replace(/\s/g, ""),
-        expiry_date: paymentDetails.expiryDate,
-        cvv: paymentDetails.cvv,
         ...(isDifferentBilling && {
           billing_street_address: address.billingStreetAddress,
           billing_city: address.billingCity,
@@ -141,11 +154,47 @@ const CheckOutDetails = () => {
       };
 
       const response = await create(payload);
-      if (response.status) {
-        dispatch(setOrder(response));
-        localStorage.setItem("recentOrder", JSON.stringify(response));
-        router.push("/cart/order-complete");
+      if (!response.status) {
+        toast.error(response.message || "Failed to place order.");
+        return;
       }
+
+      const order = response.data?.order;
+      dispatch(setOrder(response));
+      trackPaymentInfo(
+        summary?.grand_total,
+        (cartItems || []).map((i) => ({ id: i.sku || i.product_id, name: i.product_name || i.title, price: i.product_price, quantity: i.quantity })),
+        selectedPayment
+      );
+      localStorage.setItem(
+        "recentOrder",
+        JSON.stringify({
+          ...response,
+          email: contactInfo.email,
+          analyticsItems: (cartItems || []).map((i) => ({
+            id: i.sku || i.product_id,
+            name: i.product_name || i.title,
+            price: i.product_price,
+            quantity: i.quantity,
+            variant: [i.metal_type, i.metal_color, i.diamond_shape].filter(Boolean).join(" "),
+          })),
+        })
+      );
+
+      if (selectedPayment === "online" && order?.payment_session_id) {
+        // Hand off to Cashfree's own hosted checkout — card/UPI/netbanking
+        // details are entered there, never captured on this site.
+        const cashfree = await loadCashfree({
+          mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || "sandbox",
+        });
+        await cashfree.checkout({
+          paymentSessionId: order.payment_session_id,
+          redirectTarget: "_self",
+        });
+        return; // browser navigates away to Cashfree
+      }
+
+      router.push("/cart/order-complete");
     } catch (error) {
       toast.error(
         error?.response?.data?.message ||
@@ -168,10 +217,11 @@ const CheckOutDetails = () => {
       newErrors.lastName = "Last name is required.";
     }
 
+    const phoneDigits = contactInfo.phone.replace(/\D/g, "");
     if (!contactInfo.phone.trim()) {
       newErrors.phone = "Phone number is required.";
-    } else if (!/^\d{10}$/.test(contactInfo.phone)) {
-      newErrors.phone = "Phone number must be 10 digits.";
+    } else if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+      newErrors.phone = "Enter a valid phone number, including area code.";
     }
 
     if (!contactInfo.email.trim()) {
@@ -187,6 +237,10 @@ const CheckOutDetails = () => {
 
     if (!address.city.trim()) {
       newErrors.city = "City is required.";
+    }
+
+    if (!address.country.trim()) {
+      newErrors.country = "Country is required.";
     }
 
     if (!address.state.trim()) {
@@ -223,20 +277,6 @@ const CheckOutDetails = () => {
     // Payment
     if (!selectedPayment) {
       newErrors.selectedPayment = "Select a payment method.";
-    }
-
-    if (selectedPayment === "card" || selectedPayment === "credit-card") {
-      if (!paymentDetails.cardNumber.trim()) {
-        newErrors.cardNumber = "Card number is required.";
-      }
-
-      if (!paymentDetails.expiryDate.trim()) {
-        newErrors.expiryDate = "Expiry date is required.";
-      }
-
-      if (!paymentDetails.cvv.trim()) {
-        newErrors.cvv = "CVV is required.";
-      }
     }
 
     return newErrors;
@@ -320,42 +360,25 @@ const CheckOutDetails = () => {
     }
   };
 
-  const handlePaymentDetailsChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "expiryDate") {
-      let cleanValue = value.replace(/\D/g, "");
-
-      cleanValue = cleanValue.slice(0, 4);
-
-      if (cleanValue.length >= 3) {
-        cleanValue = cleanValue.slice(0, 2) + "/" + cleanValue.slice(2);
-      }
-
-      setPaymentDetails((prev) => ({ ...prev, [name]: cleanValue }));
-    } else {
-      if (/^\d*$/.test(value)) {
-        setPaymentDetails((prev) => ({ ...prev, [name]: value }));
-      }
-    }
-
-    setErrors((prev) => {
-      if (!prev[name]) return prev;
-      const updated = { ...prev };
-      delete updated[name];
-      return updated;
-    });
-  };
-
   return (
     <section className="flex lg:flex-row flex-col xl:gap-[64px] lg:gap-[50px]">
       <div className="lg:w-[50%] lg:order-1 order-2 w-full space-y-[24px]">
         {/* Contact Information */}
         <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
           <div className="space-y-[24px]">
-            <Typography variant="h4" className="font-[500]">
-              Contact Information
-            </Typography>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <Typography variant="h4" className="font-[500]">
+                Contact Information
+              </Typography>
+              {!customer && (
+                <Link
+                  href="/login?redirect=/cart/checkout"
+                  className="text-[13px] underline text-[var(--teal-1)]"
+                >
+                  Have an account? Sign in (optional)
+                </Link>
+              )}
+            </div>
             <div className="flex flex-col sm:flex-row gap-[24px]">
               <div className="w-full">
                 <Input
@@ -395,7 +418,6 @@ const CheckOutDetails = () => {
               placeholder="Phone Number"
               borderBottom
               type="tel"
-              pattern="[0-9]{10}"
               name="phone"
               value={contactInfo.phone}
               onChange={handleContactChange}
@@ -458,19 +480,18 @@ const CheckOutDetails = () => {
             {errors.street && (
               <p id="street-error" className="text-red-500 text-sm mt-1">{errors.street}</p>
             )}
-            {/* <Dropdown
+            <Input
               label="Country *"
               placeholder="Country"
               borderBottom
-              options={["india", "us"]}
-              fullWidth
-              containerClass="flex-col"
               name="country"
               value={address.country}
-              onChange={(e) =>
-                setAddress((prev) => ({ ...prev, country: e.target.value }))
-              }
-            /> */}
+              onChange={handleAddressChange}
+              hasError={!!errors.country}
+            />
+            {errors.country && (
+              <p id="country-error" className="text-red-500 text-sm">{errors.country}</p>
+            )}
             <Input
               label="Town / City *"
               placeholder="Town / City"
@@ -598,79 +619,28 @@ const CheckOutDetails = () => {
               Payment method
             </Typography>
             <div className="space-y-[12px]">
-              {/* Card payment is disabled until a payment gateway is
-                  integrated — no gateway means "card" would place an order
-                  without ever charging the customer. */}
               <RadioButton
                 name="payment"
-                value="credit-card"
-                checked={false}
-                onChange={() => {}}
-                disabled
-                aria-disabled="true"
-                labelClassName="opacity-50 !cursor-not-allowed focus-within:ring-2 focus-within:ring-[var(--teal-1)] focus-within:ring-offset-2"
+                value="online"
+                checked={selectedPayment === "online"}
+                onChange={() => handlePaymentChange("online")}
               >
                 <div className="flex justify-between w-full items-center">
-                  <span>
-                    Card / UPI
-                    <span className="ml-2 text-[11px] uppercase tracking-wide text-[var(--placeholder)] border border-[var(--teal-3)] rounded-full px-2 py-[1px]">
-                      Coming soon
-                    </span>
-                  </span>
-                  <span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <rect
-                        x="2"
-                        y="4"
-                        width="20"
-                        height="16"
-                        rx="4"
-                        stroke="#141718"
-                        strokeWidth="1.5"
-                      />
-                      <circle
-                        cx="2"
-                        cy="2"
-                        r="2"
-                        transform="matrix(1 0 0 -1 10 14)"
-                        stroke="#141718"
-                        strokeWidth="1.5"
-                      />
-                      <circle
-                        cx="1"
-                        cy="1"
-                        r="1"
-                        transform="matrix(1 0 0 -1 17 13)"
-                        fill="#141718"
-                      />
-                      <circle
-                        cx="1"
-                        cy="1"
-                        r="1"
-                        transform="matrix(1 0 0 -1 5 13)"
-                        fill="#141718"
-                      />
-                    </svg>
-                  </span>
+                  <span>Pay Online (Card / UPI / NetBanking)</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="4" stroke="#141718" strokeWidth="1.5" />
+                    <circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 10 14)" stroke="#141718" strokeWidth="1.5" />
+                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 17 13)" fill="#141718" />
+                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 5 13)" fill="#141718" />
+                  </svg>
                 </div>
               </RadioButton>
-
-              {/* <RadioButton
-                name="payment"
-                value="paypal"
-                checked={selectedPayment === "paypal"}
-                onChange={() => handlePaymentChange("paypal")}
-              >
-                <div className="flex justify-between w-full">
-                  <span>Paypal</span>
-                </div>
-              </RadioButton> */}
 
               <RadioButton
                 name="payment"
@@ -684,70 +654,22 @@ const CheckOutDetails = () => {
               </RadioButton>
             </div>
 
-            {/* Card fields only shown for card payment */}
-            {(selectedPayment === "card" || selectedPayment === "credit-card") && (
-              <div className="space-y-[24px]">
-                <div>
-                  <Input
-                    label="Card Number *"
-                    placeholder="1234 1234 1234 1234"
-                    borderBottom
-                    type="text"
-                    name="cardNumber"
-                    value={paymentDetails.cardNumber}
-                    onChange={(e) => {
-                      let value = e.target.value.replace(/\D/g, "");
-                      value = value.slice(0, 16);
-                      value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-                      setPaymentDetails((prev) => ({ ...prev, cardNumber: value }));
-                    }}
-                    hasError={!!errors.cardNumber}
-                  />
-                  {errors.cardNumber && (
-                    <p id="cardNumber-error" className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>
-                  )}
-                </div>
+            <div className="text-[12.5px] leading-relaxed text-[var(--grey-2)] space-y-1">
+              <p>
+                Prices are shown in {selectedCountry?.currency || "USD"}
+                {selectedCountry?.currency && selectedCountry.currency !== "USD"
+                  ? " (converted from USD at today's rate)"
+                  : ""}
+                . Online payments are charged in {selectedCountry?.currency || "USD"}; cash on
+                delivery is collected in USD.
+              </p>
+              <p>
+                Import duties and taxes charged by the destination country are not included in this
+                total and are paid by the customer.{" "}
+                <Link href="/shipping" className="underline">Shipping &amp; duties</Link>
+              </p>
+            </div>
 
-                <div className="flex gap-[24px]">
-                  <div className="w-full">
-                    <Input
-                      label="Expiration date *"
-                      placeholder="MM/YY"
-                      borderBottom
-                      type="text"
-                      containerClass="w-full"
-                      name="expiryDate"
-                      value={paymentDetails.expiryDate}
-                      onChange={handlePaymentDetailsChange}
-                      hasError={!!errors.expiryDate}
-                    />
-                    {errors.expiryDate && (
-                      <p id="expiryDate-error" className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>
-                    )}
-                  </div>
-
-                  <div className="w-full">
-                    <Input
-                      label="CVV *"
-                      placeholder="CVV code"
-                      borderBottom
-                      containerClass="w-full"
-                      name="cvv"
-                      value={paymentDetails.cvv}
-                      onChange={handlePaymentDetailsChange}
-                      type="password"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={3}
-                      hasError={!!errors.cvv}
-                    />
-                    {errors.cvv && (
-                      <p id="cvv-error" className="text-red-500 text-sm mt-1">{errors.cvv}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
             <Button
               title={placingOrder ? "Placing Order..." : "Place Order"}
               className="!w-full"
@@ -857,7 +779,7 @@ const CheckOutDetails = () => {
                   </div>
                   <Typography variant="p" className="font-[600]">
                     {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                    {items.subtotal ?? 0}
+                    {convertPrice(items.subtotal ?? 0, selectedCountry).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </Typography>
                 </div>
               ))
@@ -931,7 +853,7 @@ const CheckOutDetails = () => {
               </Typography>
               <Typography variant="h5" className="font-[500]">
                 {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                {Number(summary?.cart_total ?? 0)}
+                {convertPrice(summary?.cart_total ?? 0, selectedCountry).toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </Typography>
             </div>
 
@@ -961,7 +883,7 @@ const CheckOutDetails = () => {
                 >
                   <MinusIcon />
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.discount)}{" "}
+                  {convertPrice(summary?.discount ?? 0, selectedCountry).toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
                   <span
                     className="cursor-pointer text-[var(--teal-1)]"
                     onClick={remove}
@@ -979,7 +901,7 @@ const CheckOutDetails = () => {
               </Typography>
               <Typography variant="h4" className="font-[600]">
                 {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                {Number(summary?.grand_total ?? 0)}
+                {convertPrice(summary?.grand_total ?? 0, selectedCountry).toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </Typography>
             </div>
           </div>

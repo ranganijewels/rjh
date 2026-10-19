@@ -1,4 +1,5 @@
 "use client";
+import LazyVideo from "@/components/common/LazyVideo";
 import React from "react";
 import DOMPurify from "dompurify";
 import Button from "../ui/Button/Button";
@@ -6,6 +7,7 @@ import clsx from "clsx";
 import Typography from "../ui/Typography/Typography";
 import { useFileType } from "@/hooks/useFileType";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const JewelryCTA = ({
   title,
@@ -35,17 +37,17 @@ const JewelryCTA = ({
     >
       {/* Background Video/Image */}
       {backgroundIsVideo || isVideo ? (
-        <video
+        <LazyVideo
           className="absolute inset-0 w-full h-full object-cover -z-10"
           src={backgroundUrl}
           autoPlay={!reducedMotion}
           loop={!reducedMotion}
           muted
           playsInline
-          preload="metadata"
         />
       ) : (
-        <img
+        <img loading="lazy" decoding="async"
+          {...responsiveImg(backgroundUrl, "100vw")}
           src={backgroundUrl}
           alt="Jewelry Background"
           className="absolute inset-0 w-full h-full object-cover -z-10"
@@ -64,7 +66,7 @@ const JewelryCTA = ({
           </Typography>
           <p
             className="tracking-wide font-normal xl:text-[24px] lg:text-[14px] text-[12px]"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description || "") }}
+            dangerouslySetInnerHTML={{ __html: typeof window === "undefined" ? description || "" : DOMPurify.sanitize(description || "") }}
           />
           <div className={`flex gap-7 ${btnContainerclass}`}>
             {buttons?.map((btn, i) => (
@@ -87,19 +89,19 @@ const JewelryCTA = ({
       {/* Right Image */}
       {bannerVideo ? (
         <div className="md:w-[30%] flex justify-center md:justify-end absolute right-0 z-10">
-          <video
+          <LazyVideo
             className="h-auto xl:w-[775px] lg:w-[413px] sm:w-[214px] w-[126px]"
             src={imageSrc}
             autoPlay={!reducedMotion}
             loop={!reducedMotion}
             muted
             playsInline
-            preload="metadata"
           />
         </div>
       ) : imageSrc ? (
         <div className="md:w-[30%] flex justify-center md:justify-end absolute right-0 bottom-0 z-10">
-          <img
+          <img loading="lazy" decoding="async"
+            {...responsiveImg(imageSrc, "(min-width: 1280px) 775px, (min-width: 1024px) 413px, (min-width: 640px) 214px, 126px")}
             src={imageSrc}
             alt="Jewelry"
             className="h-auto xl:w-[775px] lg:w-[413px] sm:w-[214px] w-[126px]"

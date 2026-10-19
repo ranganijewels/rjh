@@ -1,5 +1,5 @@
+import LazyVideo from "@/components/common/LazyVideo";
 import React from "react";
-import Image from "next/image";
 import Button from "../../components/ui/Button/Button";
 import Typography from "@/components/ui/Typography/Typography";
 import Heading from "@/components/ui/Heading/Heading";
@@ -8,6 +8,7 @@ import {
   Gem, Diamond, Award, Crown, Sparkles, Truck, RotateCcw, ShieldCheck,
   BadgeCheck, Lock, Heart, Gift, Leaf, Headphones, ScrollText, Star,
 } from "lucide-react";
+import { responsiveImg } from "@/lib/imageSizes";
 
 // Feature icons are stored as a KEY (chosen via the CMS icon picker) and rendered
 // as real SVGs. Keys MUST match rjhouse-cms IconPicker's FEATURE_ICONS.
@@ -73,9 +74,9 @@ const WhyChoose = ({ collections }) => {
       <div className="grid lg:grid-cols-2 grid-cols-1">
         <div className="w-auto">
           {leftFile && (isVideo ? (
-            <video className="w-full max-w-[960px] xl:h-[709px] h-[378px] object-cover" src={leftFile} autoPlay loop muted playsInline />
+            <LazyVideo className="w-full max-w-[960px] xl:h-[709px] h-[378px] object-cover" src={leftFile} autoPlay loop muted playsInline />
           ) : (
-            <Image src={leftFile} alt="Why Choose" width={960} height={709} priority={false} className="w-full max-w-[960px] xl:h-[709px] h-[378px] object-cover" />
+            <img {...responsiveImg(leftFile, "(min-width: 1024px) 50vw, 100vw")} src={leftFile} alt="Why Choose" width={960} height={709} loading="lazy" decoding="async" className="w-full max-w-[960px] xl:h-[709px] h-[378px] object-cover" />
           ))}
         </div>
         <div

@@ -14,6 +14,8 @@ import { useWishlistPopup } from "@/context/WishlistPopupContext";
 import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import { SHAPE_CODES_IMAGE, shapeToCode } from "@/constants/constant";
 import { useMetalColorMap, swatchCss } from "@/hooks/useMetalColorMap";
+import { useProductBadgeMap } from "@/hooks/useProductBadgeMap";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const SHAPES = SHAPE_CODES_IMAGE[0] || {};
 const shapeIconOf = (name) => SHAPES[shapeToCode(name)]?.icon || null;
@@ -44,26 +46,19 @@ const toSwatchKey = (mc) => {
   return "YELLOW";
 };
 
-function Chevron({ dir }) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      {dir === "left" ? <path d="M15 18l-6-6 6-6" /> : <path d="M9 6l6 6-6 6" />}
-    </svg>
-  );
-}
-
 const ProductCard = ({
   productName, price, colorsPalettes, productImg, gridLayout, className,
   cardClass = "", imgClass = "", hoverImage: initialHoverImage, customWidth,
   productId, metalColor, wishlistStatus, categoryId, shape, metalType,
   centerDiamondWeight, ringSize, size, isWishlistCard, designNo, category,
   disableWishlistPopup = false, id, imagesByColor, allImages,
-  shapeVariants, isDesignGroupCard, displayDiscountPercent,
+  shapeVariants, isDesignGroupCard, displayDiscountPercent, displayDiscountEndsAt, badges,
 }) => {
   const router = useRouter();
   const { selectedCountry } = usePreferences();
   // Admin-managed swatch colors (hex + hex2 two-tone); hardcoded map is fallback.
   const colorMasterMap = useMetalColorMap();
+  const badgeMap = useProductBadgeMap();
 
   // A card is either a design group (multiple shape siblings) or a single product.
   const variants = useMemo(() => {
@@ -96,18 +91,17 @@ const ProductCard = ({
   }, [current, activeColor]);
 
   const activeImage = sliderImages[sliderIndex] || sliderImages[0] || current?.product_image;
-  const hasSlider = sliderImages.length > 1;
   const metalSwatches = (current?.metal_color?.length ? current.metal_color : (colorsPalettes?.length ? colorsPalettes : ["YELLOW", "WHITE", "ROSE"]));
   const displayPrice = current?.product_price ?? price;
   const discountPct = current?.display_discount_percent ?? displayDiscountPercent ?? 0;
-  const discount = current?.price_on_request ? null : getDiscount(displayPrice, discountPct);
+  const discountEnds = current?.display_discount_ends_at ?? displayDiscountEndsAt ?? null;
+  const discount = current?.price_on_request ? null : getDiscount(displayPrice, discountPct, discountEnds);
 
   useEffect(() => { if (wishlistStatus !== undefined) setIsWishlisted(wishlistStatus); }, []);
   useEffect(() => { setSliderIndex(0); }, [activeShapeIdx, activeColor]);
 
   const previewShape = (i) => { setActiveShapeIdx(i); };
   const previewColor = (key) => { setActiveColor(key); };
-  const stepSlide = (d) => setSliderIndex((i) => (sliderImages.length ? (i + d + sliderImages.length) % sliderImages.length : 0));
 
   const goToProduct = () => {
     const pid = current?.product_id || productId;
@@ -140,21 +134,21 @@ const ProductCard = ({
       <div
         className={`group bg-white relative overflow-hidden mb-[14px] cursor-pointer ${customWidth ? cardClass : container}`}
         onClick={goToProduct}
-        onMouseEnter={() => { if (hasSlider && sliderIndex === 0) setSliderIndex(1); }}
+        onMouseEnter={() => { if (sliderImages.length > 1 && sliderIndex === 0) setSliderIndex(1); }}
         onMouseLeave={() => setSliderIndex(0)}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goToProduct(); }
-          else if (e.key === "ArrowRight" && hasSlider) { e.preventDefault(); stepSlide(1); }
-          else if (e.key === "ArrowLeft" && hasSlider) { e.preventDefault(); stepSlide(-1); }
         }}
         aria-label={`View ${productName}`}
       >
-        {/* One image drives BOTH the hover rollover (enter → 2nd image) and the
-            ◀▶ slider (steps sliderIndex). key + fade gives a soft crossfade. */}
+        {/* Exactly two images: the admin-tagged Main image by default, swapped
+            to the Rollover image on hover. No arrows/dots — key + fade gives a
+            soft crossfade between the two. */}
         <img
           key={activeImage}
+          {...responsiveImg(activeImage, "(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw")}
           src={activeImage}
           alt={productName}
           width={400}
@@ -167,27 +161,22 @@ const ProductCard = ({
           className={`card-img-fade object-contain ${customWidth ? imgClass : img}`}
         />
 
-        {hasSlider && (
-          <>
-            <button type="button" aria-label="Previous image" onClick={(e) => { e.stopPropagation(); stepSlide(-1); }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 grid place-items-center w-9 h-9 rounded-full bg-white/85 text-[var(--grey-2)] shadow-sm opacity-0 group-hover:opacity-100 hover:bg-white transition-opacity">
-              <Chevron dir="left" />
-            </button>
-            <button type="button" aria-label="Next image" onClick={(e) => { e.stopPropagation(); stepSlide(1); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 grid place-items-center w-9 h-9 rounded-full bg-white/85 text-[var(--grey-2)] shadow-sm opacity-0 group-hover:opacity-100 hover:bg-white transition-opacity">
-              <Chevron dir="right" />
-            </button>
-            <div className="absolute bottom-3 left-0 right-0 z-10 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              {sliderImages.map((_, i) => (
-                <span key={i} className={`h-1.5 rounded-full transition-all ${i === sliderIndex ? "w-4 bg-[var(--teal-1)]" : "w-1.5 bg-[var(--teal-3)]"}`} />
-              ))}
-            </div>
-          </>
-        )}
-
-        {discount && (
-          <div className="absolute top-0 left-0 m-[12px] z-10 rounded-[3px] bg-[var(--color-error)] px-[8px] py-[3px] text-[11px] font-[600] leading-none text-white">
-            −{discount.percent}%
+        {(discount || badges?.length > 0) && (
+          <div className="absolute top-0 left-0 m-[12px] z-10 flex flex-col items-start gap-[6px]">
+            {discount && (
+              <span className="rounded-[3px] bg-[var(--color-error)] px-[8px] py-[3px] text-[11px] font-[600] leading-none text-white">
+                −{discount.percent}%
+              </span>
+            )}
+            {(badges || []).map((code) => (
+              <span
+                key={code}
+                className="rounded-[3px] px-[8px] py-[3px] text-[11px] font-[600] leading-none text-white uppercase tracking-[0.02em]"
+                style={{ backgroundColor: badgeMap[code]?.hex || "var(--grey-2)" }}
+              >
+                {badgeMap[code]?.name || code}
+              </span>
+            ))}
           </div>
         )}
 
@@ -213,9 +202,9 @@ const ProductCard = ({
               <span className="text-[12px] text-[var(--placeholder)] line-through">
                 {formatProductPrice(discount.originalPrice, selectedCountry)}
               </span>
-              {discount.endsSoon && (
+              {discount.endsLabel && (
                 <span className="text-[10px] font-[600] uppercase tracking-[0.03em] text-[var(--color-error)]">
-                  • Ends soon
+                  • {discount.endsLabel}
                 </span>
               )}
             </>

@@ -4,7 +4,7 @@ import { CUSTOMER_LOVE } from "@/commomPages/StoryPages/content";
 export const metadata = {
   title: "Customer Love",
   description:
-    "Testimonials, reviews, and real moments from the people we've had the privilege of serving since 1990.",
+    "Reviews and real moments from the people who have chosen Rangani jewellery.",
 };
 
 const page = () => <ContentPage slug="customer-love" {...CUSTOMER_LOVE} />;

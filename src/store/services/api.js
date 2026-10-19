@@ -1,3 +1,5 @@
+import { getGuestId } from "@/lib/guestId";
+
 export const apiGet = async (url, token, extraHeaders = {}) => {
   const res = await fetch(url, {
     method: "GET",
@@ -6,6 +8,7 @@ export const apiGet = async (url, token, extraHeaders = {}) => {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
       "x-tenant-id": process.env.NEXT_PUBLIC_TENANT_ID,
+      ...(!token && getGuestId() && { "x-guest-id": getGuestId() }),
       ...extraHeaders,
     },
   });
@@ -57,6 +60,7 @@ export const apiPost = async (url, body) => {
     Accept: "application/json",
     Authorization: `Bearer ${token}`,
     "x-tenant-id": process.env.NEXT_PUBLIC_TENANT_ID,
+    ...(!token && getGuestId() && { "x-guest-id": getGuestId() }),
   };
 
   let payload = null;

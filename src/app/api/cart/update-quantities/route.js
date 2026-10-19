@@ -4,13 +4,14 @@ import { rjApi } from "@/lib/apiHandler";
 export async function POST(req) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const guestId = req.headers.get("x-guest-id") || "";
     const body = await req.json().catch(() => ({}));
     const items = body.cart_items || body.items || [];
     for (const item of items) {
       const id = item.cart_item_id || item.product_id || item.id;
       if (!id) continue;
       await rjApi("PATCH", `/storefront/cart/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, ...(guestId && { "x-guest-id": guestId }) },
         body: { quantity: item.quantity },
       });
     }

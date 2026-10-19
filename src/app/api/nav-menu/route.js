@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
+import { listingLinkCounts, linkIsEmpty } from "@/lib/menuLinks";
 
 export async function GET() {
   try {
@@ -8,22 +9,21 @@ export async function GET() {
     const mapItem = (item) => ({
       id: item.id, title: item.label, link: item.url || item.link || "#",
       target: item.target || "_self",
+      hasMegaMenu: !!item.metadata?.hasMegaMenu,
+      megaMenuKey: item.metadata?.megaMenuKey,
       children: (item.children || []).map(mapItem),
     });
-    return NextResponse.json({ data: nav.map(mapItem) });
+    const flat = (items) => items.flatMap((i) => [i.url || i.link, ...flat(i.children || [])]);
+    const counts = await listingLinkCounts(flat(nav));
+    const keep = (items) =>
+      items
+        .filter((i) => !linkIsEmpty(counts, i.url || i.link))
+        .map((i) => ({ ...i, children: keep(i.children || []) }));
+    return NextResponse.json({ data: keep(nav).map(mapItem) });
   } catch {
-    return NextResponse.json({
-      data: [
-        { id: 1, title: "Jewelry", link: "/product", children: [
-          { id: 11, title: "Rings", link: "/product?category=rings", children: [] },
-          { id: 12, title: "Necklaces", link: "/product?category=necklaces", children: [] },
-          { id: 13, title: "Earrings", link: "/product?category=earrings", children: [] },
-        ]},
-        { id: 2, title: "Diamonds", link: "/product?category=diamonds", children: [] },
-        { id: 3, title: "Customize", link: "/customize", children: [] },
-        { id: 4, title: "Blog", link: "/blog", children: [] },
-        { id: 5, title: "About Us", link: "/about-us", children: [] },
-      ]
-    });
+    // Genuine fetch failure — return empty so Navbar.js's own fallback to
+    // the hardcoded NAV_MENUS/MENUS_OPTIONS takes over uniformly, instead
+    // of layering in a second, different set of placeholder links here.
+    return NextResponse.json({ data: [] });
   }
 }

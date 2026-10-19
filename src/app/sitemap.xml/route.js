@@ -1,5 +1,33 @@
-// GET /sitemap.xml — real XML <urlset> built from the same-origin sitemap proxy.
-const SITE = "https://rangani.example";
+// GET /sitemap.xml — static routes + every indexable URL the API knows about
+// (live products, populated collections, published facet pages, blog posts).
+import { SITE_URL } from "@/config/business";
+import { rjApi } from "@/lib/apiHandler";
+
+const STATIC_ROUTES = [
+  "/",
+  "/product",
+  "/customize",
+  "/about-us",
+  "/craftsmanship",
+  "/sustainability",
+  "/customer-love",
+  "/the-rj-house-standard",
+  "/behind-the-brilliance",
+  "/diamond-education",
+  "/blog",
+  "/contact-us",
+  "/book-consultancy",
+  "/faqs",
+  "/shipping",
+  "/easy-return",
+  "/certification",
+  "/lifetime-warranty",
+  "/gift-concierge",
+  "/ring-size-guide",
+  "/jewelry-care",
+  "/terms-of-service",
+  "/privacy-policy",
+];
 
 function xmlEscape(s) {
   return String(s ?? "")
@@ -10,31 +38,39 @@ function xmlEscape(s) {
     .replace(/'/g, "&apos;");
 }
 
-// Build an absolute loc from a sitemap entry's `loc` (slug or path or full URL).
-function toAbsolute(loc) {
+const toAbsolute = (loc) => {
   const raw = String(loc ?? "").trim();
-  if (!raw) return SITE + "/";
   if (/^https?:\/\//i.test(raw)) return raw;
-  return SITE + "/" + raw.replace(/^\/+/, "");
-}
+  return `${SITE_URL}/${raw.replace(/^\/+/, "")}`;
+};
 
-export async function GET(req) {
+export async function GET() {
   let entries = [];
   try {
-    const origin = new URL(req.url).origin;
-    const res = await fetch(`${origin}/api/seo/sitemap`, { cache: "no-store" });
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json)) entries = json;
-    }
+    const result = await rjApi("GET", "/seo/sitemap");
+    const data = result.raw?.data ?? result.raw;
+    if (Array.isArray(data)) entries = data;
   } catch {
     entries = [];
   }
 
-  const urls = entries
+  const all = [
+    ...STATIC_ROUTES.map((loc) => ({ loc, priority: loc === "/" ? 1 : 0.7 })),
+    ...entries,
+  ];
+  const seen = new Set();
+  const urls = all
+    .filter((e) => {
+      const key = toAbsolute(e?.loc);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .map((e) => {
       const loc = xmlEscape(toAbsolute(e?.loc));
-      const lastmod = e?.lastmod ? `\n    <lastmod>${xmlEscape(e.lastmod)}</lastmod>` : "";
+      const lastmod = e?.lastmod
+        ? `\n    <lastmod>${xmlEscape(new Date(e.lastmod).toISOString())}</lastmod>`
+        : "";
       const priority =
         e?.priority != null ? `\n    <priority>${xmlEscape(e.priority)}</priority>` : "";
       return `  <url>\n    <loc>${loc}</loc>${lastmod}${priority}\n  </url>`;

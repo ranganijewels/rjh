@@ -9,57 +9,53 @@ import { usePageHero } from "@/hooks/usePageHero";
 
 const BlogListing = () => {
   const hero = usePageHero("blog");
-  const [blogCategory, setBlogCategory] = useState([]);
-  const [categoryId, setCategoryId] = useState(null);
   const [blogPosts, setBlogPosts] = useState([]);
-  const { fetchAll: fetchCategories } = useCrudApi(`/api/blog/blog-category`);
+  const [loading, setLoading] = useState(true);
   const { fetchAll: fetchPosts } = useCrudApi(`/api/blog/blog-post`);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const activeTag = searchParams.get("cat"); // e.g. "engagement" — matches a post's tag
 
   useEffect(() => {
-    fetchCategories()
-      .then((res) => setBlogCategory(res?.data || []))
-      .catch((err) => console.error("Error fetching categories", err));
-
     fetchPosts()
       .then((res) => setBlogPosts(res?.data || []))
-      .catch((err) => console.error("Error fetching posts", err));
-  }, [fetchCategories, fetchPosts]);
+      .catch((err) => console.error("Error fetching posts", err))
+      .finally(() => setLoading(false));
+  }, [fetchPosts]);
 
-  // Sync categoryId with query param
-  useEffect(() => {
-    if (blogCategory.length > 0) {
-      const catSlug = searchParams.get("cat"); // e.g. "education"
-      if (catSlug) {
-        const matched = blogCategory.find(
-          (cat) =>
-            cat?.title?.toLowerCase().replace(/\s+/g, "-") ===
-            catSlug.toLowerCase()
-        );
-        setCategoryId(matched?.id || null);
-      } else {
-        setCategoryId(null); // "All"
-      }
-    }
-  }, [searchParams, blogCategory]);
+  // Category tabs are derived straight from the tags actually present on
+  // published posts — no separate categories list to keep in sync, and a
+  // tab never points at content that doesn't exist.
+  const blogCategory = Array.from(
+    new Set(blogPosts.flatMap((p) => p?.tags || []))
+  ).sort();
 
   // Click handler → updates URL
-  const handleCategoryClick = (cat) => {
-    if (!cat) {
+  const handleCategoryClick = (tag) => {
+    if (!tag) {
       router.push("/blog"); // Reset to "All"
     } else {
-      const slug = cat.title.toLowerCase().replace(/\s+/g, "-");
-      router.push(`/blog?cat=${slug}`);
+      router.push(`/blog?cat=${encodeURIComponent(tag)}`);
     }
   };
 
-  // Filter posts
-  const filteredPosts = categoryId
-    ? blogPosts.filter(
-        (post) => post?.blog_category_id === categoryId && post?.is_active === 1
+  // Filter posts by tag (case-insensitive match against the "cat" query param)
+  const filteredPosts = activeTag
+    ? blogPosts.filter((post) =>
+        (post?.tags || []).some(
+          (t) => t.toLowerCase() === activeTag.toLowerCase()
+        )
       )
-    : blogPosts.filter((post) => post?.is_active === 1);
+    : blogPosts;
+
+  // ImageWithContent is a generic card component (file/image + title +
+  // description) — map each post into that shape rather than changing the
+  // shared component to know about blog-specific field names.
+  const cardData = filteredPosts.map((post) => ({
+    ...post,
+    image: post.featured_image || "",
+    description: post.excerpt || "",
+  }));
 
   return (
     <section>
@@ -83,7 +79,7 @@ const BlogListing = () => {
             role="button"
             tabIndex={0}
             className={`font-[500] cursor-pointer relative pb-2 hover:text-[var(--grey-2)] active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] ${
-              categoryId === null
+              !activeTag
                 ? "text-[var(--grey-2)] border-b"
                 : "text-[var(--grey-2)]"
             }`}
@@ -96,33 +92,33 @@ const BlogListing = () => {
             }}
           >
             All
-            {categoryId === null && (
+            {!activeTag && (
               <span className="absolute left-0 bottom-0 w-full h-[2px] bg-primary" />
             )}
           </Typography>
 
-          {/* Dynamic Categories */}
-          {blogCategory?.map((cat) => (
+          {/* Dynamic Categories (real tags from published posts) */}
+          {blogCategory?.map((tag) => (
             <Typography
-              key={cat?.id}
+              key={tag}
               variant="h5"
               role="button"
               tabIndex={0}
               className={`font-[500] cursor-pointer relative pb-2 hover:text-[var(--grey-2)] active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] ${
-                categoryId === cat?.id
+                activeTag?.toLowerCase() === tag.toLowerCase()
                   ? "text-[var(--grey-2)] border-b"
                   : "text-[var(--grey-2)]"
               }`}
-              onClick={() => handleCategoryClick(cat)}
+              onClick={() => handleCategoryClick(tag)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  handleCategoryClick(cat);
+                  handleCategoryClick(tag);
                 }
               }}
             >
-              {cat?.title}
-              {categoryId === cat?.id && (
+              {tag}
+              {activeTag?.toLowerCase() === tag.toLowerCase() && (
                 <span className="absolute left-0 bottom-0 w-full h-[2px] bg-primary" />
               )}
             </Typography>
@@ -130,19 +126,7 @@ const BlogListing = () => {
         </div>
 
         {/* Blog Posts */}
-        {filteredPosts?.length > 0 ? (
-          <ImageWithContent
-            redirectUrl="/blog"
-            data={filteredPosts}
-            containerClass="container mx-auto grid !grid-cols-1 md:!grid-cols-2 lg:!grid-cols-3 gap-6"
-          />
-        ) : blogPosts?.length > 0 ? (
-          <div className="min-h-[60vh] flex items-center justify-center">
-            <Typography variant="h5" className="text-[var(--grey-2)]">
-              No articles found in this category.
-            </Typography>
-          </div>
-        ) : (
+        {loading ? (
           <div
             className="min-h-[60vh] flex items-center justify-center"
             role="status"
@@ -150,6 +134,20 @@ const BlogListing = () => {
             aria-busy="true"
           >
             <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+          </div>
+        ) : cardData?.length > 0 ? (
+          <ImageWithContent
+            redirectUrl="/blog"
+            data={cardData}
+            containerClass="container mx-auto grid !grid-cols-1 md:!grid-cols-2 lg:!grid-cols-3 gap-6"
+          />
+        ) : (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <Typography variant="h5" className="text-[var(--grey-2)]">
+              {blogPosts?.length > 0
+                ? "No articles found in this category."
+                : "No articles published yet."}
+            </Typography>
           </div>
         )}
       </div>

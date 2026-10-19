@@ -4,11 +4,12 @@ import Button from "@/components/ui/Button/Button";
 import ProductsGallery from "./ProductsGallery";
 import MetalSelector from "./MetalSelector";
 import DiamondOptions from "./DiamondOptions";
+import CollectionVariantSwitcher from "./CollectionVariantSwitcher";
 import RingSizeSelector from "./RingSizeSelector";
 import FeaturesSpecs from "./FeaturesSpecs";
 import TrustStrip from "./TrustStrip";
 import { addRecentlyViewed } from "@/utils/recentlyViewed";
-import { trackViewItem, trackAddToCart } from "@/lib/analytics";
+import { trackViewItem, trackAddToCart, trackAddToWishlist, trackCustomization } from "@/lib/analytics";
 import toast from "react-hot-toast";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
@@ -18,6 +19,8 @@ import HeartIcon from "@/components/Icons/HeartIcon";
 import { usePreferences } from "@/context/PreferencesContext";
 import { formatMoney, PRICE_ON_REQUEST_LABEL } from "@/utils/money";
 import { getDiscount } from "@/utils/discount";
+import { buildTokenContext, resolveTokens } from "@/lib/resolveTokens";
+import { useProductBadgeMap } from "@/hooks/useProductBadgeMap";
 import BookAppointment from "./BookAppointment";
 import PairItWith from "./PairItWith";
 import { useSelector } from "react-redux";
@@ -25,8 +28,11 @@ import { useWishlistLogic } from "@/hooks/useWishlistLogic";
 import ShareModal from "@/components/ui/Modal/ShareModal";
 import ReviewSummary from "@/components/ui/ReviewSummary";
 import { usePdpContent } from "./usePdpContent";
+import { getGuestId } from "@/lib/guestId";
 
-const Details = () => {
+// initialDetail = server-fetched product data, so the gallery and buy box are
+// in the first HTML instead of appearing after a client fetch.
+const Details = ({ initialDetail = null }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { productId } = useParams();
@@ -35,8 +41,14 @@ const Details = () => {
   const [designNo, setDesignNo] = useState("");
   const { create: getAmount } = useCrudApi("/api/productDetail/get-amount");
   // Buy-box spec additions: clarity chips (re-price), free engraving, booking.
-  const [clarityOptions, setClarityOptions] = useState([]);
+  // Diamond colour + clarity choices come from the Diamond Rate Master (only
+  // values that have a rate for this stone), so every choice re-prices.
+  const [diamondOptions, setDiamondOptions] = useState({ colors: [], clarities: [] });
   const [selectedClarity, setSelectedClarity] = useState("");
+  const [selectedDiamondColor, setSelectedDiamondColor] = useState("");
+  // Stud earring back (Push / Screw) — no price change.
+  const [selectedBack, setSelectedBack] = useState("");
+  const diamondChoiceRef = useRef({ color: "", clarity: "" });
   const [engraving, setEngraving] = useState("");
   const [bookingOpen, setBookingOpen] = useState(false);
   const { create } = useCrudApi(`/api/cart/add-to-cart`);
@@ -62,21 +74,11 @@ const Details = () => {
     fetchFilters();
   }, []);
 
-  const [productInfo, setProductInfo] = useState(null);
+  const [productInfo, setProductInfo] = useState(initialDetail);
   // Clarity re-pricing only makes sense when the product has a center stone
   // (see productDetail route's hasCenterStone gate) — a plain metal piece has
   // no diamond clarity to choose.
-  useEffect(() => {
-    if (!productInfo?.center_diamond_weight_ct) {
-      setClarityOptions([]);
-      return;
-    }
-    fetch("/api/diamond-clarity")
-      .then((r) => r.json())
-      .then((j) => setClarityOptions(j?.data || []))
-      .catch(() => {});
-  }, [productInfo?.center_diamond_weight_ct]);
-  const [galleryMedia, setGalleryMedia] = useState([]);
+  const [galleryMedia, setGalleryMedia] = useState(initialDetail?.media || []);
   const [selectedShape, setSelectedShape] = useState(
     productInfo?.occasion?.custom_title
   );
@@ -84,6 +86,25 @@ const Details = () => {
     productInfo?.diamonds?.find((e) => e?.center === 1)?.wt
   );
   const [selectedMetal, setSelectedMetal] = useState(null);
+  useEffect(() => {
+    if (!productInfo?.id) return;
+    const carat = String(productInfo?.center_diamond_weight_ct ? selectedWeight || "" : "").replace(/[^0-9.]/g, "");
+    fetch(`/api/diamond-options/${productInfo.id}${carat ? `?carat=${carat}` : ""}`)
+      .then((r) => r.json())
+      .then((j) => {
+        const d = j?.data || {};
+        setDiamondOptions({ colors: d.colors || [], clarities: d.clarities || [] });
+        const pick = (list, cur, def) =>
+          list.includes(cur) ? cur : list.includes(String(def || "").toUpperCase()) ? String(def).toUpperCase() : "";
+        const color = pick(d.colors || [], diamondChoiceRef.current.color, d.defaultColor);
+        const clarity = pick(d.clarities || [], diamondChoiceRef.current.clarity, d.defaultClarity);
+        diamondChoiceRef.current = { color, clarity };
+        setSelectedDiamondColor(color);
+        setSelectedClarity(clarity);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productInfo?.id, selectedWeight]);
   const [errorMessage, setErrorMessage] = useState("");
   const [pricing, setPricing] = useState();
 
@@ -97,7 +118,9 @@ const Details = () => {
   );
   const [selectDiamondWeightId, setSelectDiamondWeightId] = useState();
   const { selectedCountry } = usePreferences();
+  const badgeMap = useProductBadgeMap();
   const [selectedCarat, setSelectedCarat] = useState(null);
+  const viewedRef = useRef(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const customerId = useSelector((state) => state.auth?.customer?.id);
   const wishlistCount = useSelector((state) => state.wishlist.count);
@@ -192,12 +215,18 @@ const Details = () => {
           setProductInfo(data);
           setGalleryMedia(data?.media || []);
           addRecentlyViewed(data);
-          trackViewItem({
-            id: data.id,
-            name: data.name || data.title,
-            category: data.category?.name,
-            price: data.price,
-          });
+          // Once per product per page view — this effect re-runs on country /
+          // variant changes and must not repeat the ViewContent event.
+          const viewId = data.sku || data.id;
+          if (viewId && viewedRef.current !== viewId) {
+            viewedRef.current = viewId;
+            trackViewItem({
+              id: viewId,
+              name: data.name || data.title,
+              category: data.category?.name,
+              price: data.price,
+            });
+          }
         }
       })
       .catch(console.error)
@@ -230,8 +259,9 @@ const Details = () => {
           center_diamond_weight: weight
             ? String(weight).replace(/[^0-9.]/g, "")
             : null,
-          // Clarity re-prices via the engine's diamond-rate lookup.
-          diamond_quality: selectedClarity || undefined,
+          // Colour/clarity re-price the centre stone via the Diamond Rate Master.
+          diamond_clarity: diamondChoiceRef.current.clarity || undefined,
+          diamond_color: diamondChoiceRef.current.color || undefined,
         },
         {
           headers: {
@@ -301,9 +331,13 @@ const Details = () => {
     });
 
     setIsWishlisted(wishlisted);
+    // Only a confirmed save counts (not a removal or a failed request).
+    if (wishlisted && !isWishlisted) {
+      trackAddToWishlist({ id: productInfo?.sku || productInfo?.id, name: productInfo?.name || productInfo?.title, price: productInfo?.product_price });
+    }
   };
 
-  const updatePricingWithClarity = async (clarity) => {
+  const updatePricingWithDiamond = async ({ color, clarity }) => {
     if (!selectedMetal?.karat || !productInfo) return;
     try {
       const res = await getAmount(
@@ -316,7 +350,8 @@ const Details = () => {
           center_diamond_weight: selectedWeight
             ? String(selectedWeight).replace(/[^0-9.]/g, "")
             : null,
-          diamond_quality: clarity,
+          diamond_clarity: clarity || undefined,
+          diamond_color: color || undefined,
         },
         { headers: { currency: selectedCountry?.currency } }
       );
@@ -328,20 +363,9 @@ const Details = () => {
   const handleAddToCart = async () => {
     if (isAddingToCart) return;
 
-    const token = localStorage.getItem("authTokenRJHouse");
-
-    // Bring the shopper right back to this product after they sign in.
-    const returnTo =
-      typeof window !== "undefined"
-        ? encodeURIComponent(window.location.pathname + window.location.search)
-        : "";
-    const loginUrl = returnTo ? `/login?redirect=${returnTo}` : "/login";
-
+    // No sign-in needed: without a token the bag is kept against this
+    // browser's guest id and merged into the account if the shopper signs in.
     try {
-      if (!token) {
-        toast("Please sign in to add items to your bag.", { icon: "🔐" });
-        return router.push(loginUrl);
-      }
       if (!selectedRingSize && productInfo?.sizes?.length > 0) {
         setErrorMessage(
           `Please select a ${toTitleCase(productInfo?.category?.name)} Size.`
@@ -366,23 +390,38 @@ const Details = () => {
         size: selectedWidth,
         is_wishlist: isWishlisted,
         diamond_clarity: selectedClarity || "",
-        engraving: engraving.trim() || "",
+        diamond_color: selectedDiamondColor || "",
+        back_type: productInfo?.earring_backs?.length ? selectedBack || productInfo.earring_backs[0] : "",
+        metal_family: selectedMetal?.karat?.metalType || "Gold",
+        engraving: productInfo?.engraving_enabled ? engraving.trim() || "" : "",
       };
-      const response = await create(payload);
+      let response = await create(payload);
+      if (!response.status && response.code === 401 && localStorage.getItem("authTokenRJHouse")) {
+        // Expired session: carry on as a guest rather than blocking the add.
+        localStorage.removeItem("authTokenRJHouse");
+        response = await fetch("/api/cart/add-to-cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-guest-id": getGuestId() || "" },
+          body: JSON.stringify(payload),
+        }).then((r) => r.json());
+      }
       if (response.status) {
         trackAddToCart({
-          id: productInfo?.id,
+          id: productInfo?.sku || productInfo?.id,
           name: productInfo?.name || productInfo?.title,
           price: pricing,
           quantity: 1,
         });
+        // A confirmed personalised configuration (engraving, or a chosen
+        // diamond colour/clarity) — not every dropdown change.
+        if ((productInfo?.engraving_enabled && engraving.trim()) || selectedClarity || selectedDiamondColor) {
+          trackCustomization({
+            id: productInfo?.sku || productInfo?.id,
+            name: productInfo?.name || productInfo?.title,
+            price: pricing,
+          });
+        }
         router.push("/cart");
-      } else if (response.code === 401) {
-        // Stale/expired session — clear it and send the shopper to sign in,
-        // returning them to this product afterwards.
-        localStorage.removeItem("authTokenRJHouse");
-        toast.error("Your session expired — please sign in again.");
-        router.push(loginUrl);
       } else {
         toast.error(response.message || "Could not add to bag. Please try again.");
       }
@@ -547,28 +586,58 @@ const Details = () => {
       : null;
   const discount = productInfo?.price_on_request
     ? null
-    : getDiscount(effectivePrice, productInfo?.display_discount_percent);
+    : getDiscount(effectivePrice, productInfo?.display_discount_percent, productInfo?.display_discount_ends_at);
 
-  const dynamicDescription = useMemo(() => {
+  // Live token context — the shopper's CURRENT metal/diamond selection. Any
+  // {{token}} in admin/AI-authored title/short-description/description/AEO
+  // summary/FAQs resolves against this, recomputing instantly on every
+  // selector change (same deps the old one-off "Crafted in..." line used).
+  const tokenCtx = useMemo(
+    () =>
+      buildTokenContext({
+        metalType: productInfo?.metal_type,
+        karat: selectedMetal?.karat?.value,
+        metalColor: activeColor,
+        diamondShape: selectedShape,
+        diamondWeight: selectedWeight,
+        diamondClarity: selectedClarity || productInfo?.diamond_clarity,
+        diamondColor: selectedDiamondColor || productInfo?.diamond_color,
+      }),
+    [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight, selectedClarity, selectedDiamondColor]
+  );
+
+  const resolvedTitle = useMemo(
+    () => resolveTokens(productInfo?.title, tokenCtx),
+    [productInfo?.title, tokenCtx]
+  );
+  const resolvedShortDescription = useMemo(
+    () => resolveTokens(productInfo?.short_description, tokenCtx),
+    [productInfo?.short_description, tokenCtx]
+  );
+  const resolvedDescription = useMemo(
+    () => resolveTokens(productInfo?.description, tokenCtx),
+    [productInfo?.description, tokenCtx]
+  );
+  const resolvedAeoSummary = useMemo(
+    () => resolveTokens(productInfo?.aeo_summary, tokenCtx),
+    [productInfo?.aeo_summary, tokenCtx]
+  );
+
+  // Legacy fallback for products whose stored description has no {{tokens}}
+  // yet (written before this feature) — keeps the same live "Crafted in…"
+  // sentence that used to be the ONLY dynamic content on this page.
+  const legacyDynamicDescription = useMemo(() => {
     if (!productInfo) return "";
-
-    const karat = selectedMetal?.karat?.value || "";
-    const color = activeColor ? toTitleCase(activeColor) : "";
-    const metalStr =
-      karat || color ? `${karat} ${color} Gold` : "premium metal";
-
-    const isBlank = (v) =>
-      !v || v === "undefined" || v === "null" || v === "NaN";
-    const shape = !isBlank(selectedShape) ? toTitleCase(selectedShape) : "";
-    const cleanWeight = !isBlank(selectedWeight)
-      ? String(selectedWeight).replace(/[^\d.]/g, "")
-      : "";
-    const weight = cleanWeight ? `${cleanWeight} ct` : "";
+    if (/\{\{\w+\}\}/.test(productInfo?.description || "")) return ""; // already token-based, don't double up
+    const karat = tokenCtx.karat || "";
+    const color = tokenCtx.metal_color || "";
+    const metalStr = karat || color ? `${karat} ${color} Gold` : "premium metal";
     const diamondPart =
-      shape || weight ? `a ${weight} ${shape} diamond` : "brilliant accents";
-
+      tokenCtx.diamond_shape !== "diamond" || tokenCtx.diamond_weight
+        ? `a ${tokenCtx.diamond_weight} ${tokenCtx.diamond_shape}`.trim() + " diamond"
+        : "brilliant accents";
     return `Crafted in ${metalStr} with ${diamondPart} for timeless elegance.`;
-  }, [productInfo, selectedMetal, activeColor, selectedShape, selectedWeight]);
+  }, [productInfo, tokenCtx]);
 
   return (
     <>
@@ -605,10 +674,23 @@ const Details = () => {
                 )}
               </p>
             )}
+            {productInfo?.badges?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-[6px]">
+                {productInfo.badges.map((code) => (
+                  <span
+                    key={code}
+                    className="rounded-[3px] px-[8px] py-[3px] text-[11px] font-[600] leading-none text-white uppercase tracking-[0.02em]"
+                    style={{ backgroundColor: badgeMap[code]?.hex || "var(--grey-2)" }}
+                  >
+                    {badgeMap[code]?.name || code}
+                  </span>
+                ))}
+              </div>
+            )}
             <h1
               className="font-[var(--font-cormorant)] text-[26px] md:text-[30px] leading-[1.15] tracking-[-0.01em] text-[var(--grey-2)] font-medium"
             >
-              {productInfo?.title && toTitleCase(productInfo.title)}
+              {resolvedTitle && toTitleCase(resolvedTitle)}
             </h1>
           </div>
 
@@ -623,9 +705,9 @@ const Details = () => {
             // Short description with graceful fallback to the opening of the
             // long description, so this slot is never empty (spec item 4).
             const sd =
-              productInfo?.short_description ||
-              (productInfo?.description
-                ? String(productInfo.description).replace(/\s+/g, " ").slice(0, 140).replace(/\s\S*$/, "") + "…"
+              resolvedShortDescription ||
+              (resolvedDescription
+                ? resolvedDescription.slice(0, 140).replace(/\s\S*$/, "") + "…"
                 : "");
             return sd ? (
               <p className="text-[13.5px] font-[300] text-[var(--grey-2)] leading-relaxed">
@@ -648,10 +730,10 @@ const Details = () => {
                     <span className="inline-flex items-center rounded-full bg-[var(--color-error)] px-[10px] py-[3px] text-[11px] font-[600] uppercase tracking-[0.02em] text-white">
                       Save {discount.percent}%
                     </span>
-                    {discount.endsSoon && (
+                    {discount.endsLabel && (
                       <span className="inline-flex items-center gap-[5px] rounded-full border border-[var(--color-error)] px-[10px] py-[3px] text-[11px] font-[500] uppercase tracking-[0.02em] text-[var(--color-error)]">
                         <span className="h-[6px] w-[6px] rounded-full bg-[var(--color-error)]" />
-                        Ends Soon
+                        {discount.endsLabel}
                       </span>
                     )}
                   </>
@@ -662,9 +744,6 @@ const Details = () => {
                 {PRICE_ON_REQUEST_LABEL}
               </p>
             )}
-            {/* Financing strip removed per design review (installments not live
-                yet). Re-enable by restoring <Financing config={pdp?.financing}
-                price={effectivePrice} …/> here. */}
           </div>
 
         </div>
@@ -847,37 +926,82 @@ const Details = () => {
             setSelectedCarat={setSelectedCarat}
           />
         )}
-        {clarityOptions.length > 0 && (
+        {[
+          { key: "color", label: "Diamond Color", options: diamondOptions.colors, value: selectedDiamondColor },
+          { key: "clarity", label: "Clarity", options: diamondOptions.clarities, value: selectedClarity },
+        ]
+          .filter((g) => g.options.length > 0)
+          .map((g) => (
+            <div key={g.key} className="space-y-[8px]">
+              <p className="text-[14px] font-[500] text-[var(--grey-2)]">
+                {g.label} :{" "}
+                <span className="text-sm font-normal text-[var(--teal-1)]">{g.value || "Select"}</span>
+              </p>
+              <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={g.label}>
+                {g.options.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    role="radio"
+                    aria-checked={g.value === opt}
+                    onClick={() => {
+                      pricingEnabledRef.current = true;
+                      const next = { ...diamondChoiceRef.current, [g.key]: opt };
+                      diamondChoiceRef.current = next;
+                      if (g.key === "color") setSelectedDiamondColor(opt);
+                      else setSelectedClarity(opt);
+                      updatePricingWithDiamond(next);
+                    }}
+                    className={`min-w-[48px] px-3 py-[7px] text-[12px] border transition-colors ${
+                      g.value === opt
+                        ? "border-[var(--teal-1)] text-[var(--teal-1)]"
+                        : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+
+        {productInfo?.earring_backs?.length > 0 && (
           <div className="space-y-[8px]">
             <p className="text-[14px] font-[500] text-[var(--grey-2)]">
-              Clarity :{" "}
+              Earring Back :{" "}
               <span className="text-sm font-normal text-[var(--teal-1)]">
-                {selectedClarity || "Select"}
+                {selectedBack || productInfo.earring_backs[0]}
               </span>
             </p>
-            <div className="flex gap-2 flex-wrap">
-              {clarityOptions.map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => {
-                    pricingEnabledRef.current = true;
-                    setSelectedClarity(c.code);
-                    updatePricingWithClarity(c.code);
-                  }}
-                  className={`min-w-[54px] px-3 py-[7px] text-[12px] border transition-colors ${
-                    selectedClarity === c.code
-                      ? "border-[var(--teal-1)] text-[var(--teal-1)]"
-                      : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
-                  }`}
-                  title={c.name}
-                >
-                  {c.code}
-                </button>
-              ))}
+            <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Earring back">
+              {productInfo.earring_backs.map((b) => {
+                const active = (selectedBack || productInfo.earring_backs[0]) === b;
+                return (
+                  <button
+                    key={b}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setSelectedBack(b)}
+                    className={`px-3 py-[7px] text-[12px] border transition-colors ${
+                      active
+                        ? "border-[var(--teal-1)] text-[var(--teal-1)]"
+                        : "border-[var(--teal-3)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
+                    }`}
+                  >
+                    {b}
+                  </button>
+                );
+              })}
             </div>
+            <p className="text-[12px] text-[var(--grey-2)]">Same price for either back.</p>
           </div>
         )}
+
+        <CollectionVariantSwitcher
+          variants={productInfo?.collection_variants}
+          currentProductId={productInfo?.id}
+        />
 
         {productInfo?.sizes?.length > 0 && (
           <RingSizeSelector
@@ -920,7 +1044,8 @@ const Details = () => {
           />
         )}
 
-        {/* Free engraving — max 20 characters, saved with the order */}
+        {/* Free engraving — only on products where admin enabled it */}
+        {productInfo?.engraving_enabled && (
         <div className="space-y-[6px]">
           <p className="text-[14px] font-[500] text-[var(--grey-2)]">
             Engraving <span className="text-[12px] font-normal text-[var(--placeholder)]">(optional · free)</span>
@@ -938,6 +1063,7 @@ const Details = () => {
             </span>
           </div>
         </div>
+        )}
 
         {errorMessage && (
           <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
@@ -980,11 +1106,11 @@ const Details = () => {
                 descExpanded ? "" : "line-clamp-2"
               }`}
             >
-              {[productInfo?.description, dynamicDescription]
+              {[resolvedDescription, legacyDynamicDescription]
                 .filter(Boolean)
                 .join(" ")}
             </p>
-            {(productInfo?.description || "").length > 90 && (
+            {(resolvedDescription || "").length > 90 && (
               <button
                 type="button"
                 onClick={() => setDescExpanded((v) => !v)}
@@ -1020,6 +1146,9 @@ const Details = () => {
             pricingDetails={pricingDetails}
             shippingReturns={pdp?.shipping_returns}
             certificationCare={pdp?.certification_care}
+            aeoSummary={resolvedAeoSummary}
+            productFaqs={productInfo?.faqs}
+            tokenCtx={tokenCtx}
             id="priceBreakupId"
           />
         )}

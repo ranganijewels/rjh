@@ -7,7 +7,6 @@ import SocialMediaIcons from "@/components/ui/SocialMediaIcons/SocialMediaIcons"
 import Link from "next/link";
 import { SOCIAL_MEDIA_ICONS } from "@/constants/constant";
 import { useCustomizeData } from "@/commomPages/Customize/useCustomizeData";
-import { toTitleCase } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { usePreferences } from "@/context/PreferencesContext";
 
@@ -160,12 +159,12 @@ const MobileNav = ({ closeMobile, menus }) => {
                   closeMobile(false);
                 }}
               >
-                <img
+                <img loading="lazy" decoding="async"
                   src={item.image}
                   alt={item.label}
                   className="w-full h-[140px] object-cover"
                 />
-                <p className="mt-[8px] text-center text-[12px] font-[500] uppercase">
+                <p className="mt-[8px] text-center text-[12px] font-[500]">
                   {item.label}
                 </p>
               </Link>
@@ -180,6 +179,7 @@ const MobileNav = ({ closeMobile, menus }) => {
               title={category.title}
               key={index}
               containerClass={"p-[16px_20px] !border-0"}
+              titleCase="normal-case"
             >
               <div
                 className={clsx(
@@ -206,7 +206,7 @@ const MobileNav = ({ closeMobile, menus }) => {
                     >
                       <p className="py-[4px] text-[var(--grey-2)]">
                         {" "}
-                        {toTitleCase(item.label) || toTitleCase(item)}
+                        {item.label || item}
                       </p>
                     </Link>
                   );
@@ -219,7 +219,7 @@ const MobileNav = ({ closeMobile, menus }) => {
         {subMenu?.imageSection?.length > 0 &&
           subMenu.imageSection.map((section, idx) => (
             <div key={idx} className="p-[16px_20px]">
-              <img
+              <img loading="lazy" decoding="async"
                 src={section.imageUrl}
                 alt={section.additionalTitle}
                 className="pb-[16px] object-cover w-full max-w-[301px] h-[216px] md:h-[270px]"

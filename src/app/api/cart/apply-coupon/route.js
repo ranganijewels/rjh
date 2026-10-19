@@ -4,9 +4,10 @@ import { rjApi } from "@/lib/apiHandler";
 export async function POST(req) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
+    const guestId = req.headers.get("x-guest-id") || "";
     const body = await req.json().catch(() => ({}));
     const result = await rjApi("POST", "/storefront/cart/coupon", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`, ...(guestId && { "x-guest-id": guestId }) },
       body: { couponCode: body.code || body.couponCode },
     });
     // Backend returns HTTP 200 even for invalid coupons, with couponApplied:false

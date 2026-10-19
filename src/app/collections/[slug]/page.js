@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import HeroSection from "@/components/common/HeroSection";
 import { heroFromCms, heroHasContent } from "@/lib/cmsHero";
 import Typography from "@/components/ui/Typography/Typography";
-import Button from "@/components/ui/Button/Button";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const NEST = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TENANT = process.env.NEXT_PUBLIC_TENANT_ID || "00000000-0000-0000-0000-000000000001";
@@ -29,41 +29,39 @@ async function fetchCollectionHero() {
 
 // ─── data ──────────────────────────────────────────────────────────────────
 
-// Resolve a SeoPage for the slug. Prefer the same-origin proxy; fall back to NestJS.
+// Resolve a published SEO landing page (+ its matching products) for the slug.
 async function resolvePage(slug) {
-  // Try same-origin proxy first (so it works the same as the browser path).
-  try {
-    const h = await headers();
-    const host = h.get("x-forwarded-host") || h.get("host");
-    const proto = h.get("x-forwarded-proto") || "http";
-    if (host) {
-      const res = await fetch(
-        `${proto}://${host}/api/seo/resolve?slug=${encodeURIComponent(slug)}`,
-        { cache: "no-store" }
-      );
-      if (res.ok) {
-        const j = await res.json();
-        if (j?.data) return j.data;
-      }
-    }
-  } catch {
-    /* fall through to direct NestJS */
-  }
-
-  // Direct NestJS fallback.
   try {
     const res = await fetch(
       `${NEST}/api/v1/seo/resolve?slug=${encodeURIComponent(slug)}`,
       { cache: "no-store", headers: { "x-tenant-id": TENANT } }
     );
-    if (res.ok) {
-      const j = await res.json();
-      return j?.data ?? j ?? null;
-    }
+    if (!res.ok) return null;
+    const j = await res.json();
+    const data = j?.data ?? j ?? null;
+    return data?.kind === "page" ? data : null;
   } catch {
-    /* ignore */
+    return null;
   }
-  return null;
+}
+
+// Published, indexable engagement facet pages — used as "shop by shape" links.
+async function fetchFacetLinks() {
+  try {
+    const res = await fetch(`${NEST}/api/v1/seo/pages?status=published`, {
+      next: { revalidate: 300 },
+      headers: { "x-tenant-id": TENANT },
+    });
+    if (!res.ok) return [];
+    const j = await res.json();
+    const rows = Array.isArray(j?.data) ? j.data : Array.isArray(j) ? j : [];
+    return rows
+      .filter((p) => p.indexable && p.type === "facet")
+      .map((p) => ({ slug: p.urlSlug, label: p.h1 || p.metaTitle || p.urlSlug }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  } catch {
+    return [];
+  }
 }
 
 // Admin-managed Collection (Dashboard → Product Management → Collections):
@@ -83,52 +81,9 @@ async function fetchCollection(slug) {
   }
 }
 
-// Parse simple shape / carat hints out of the slug for the product search.
-function hintsFromSlug(slug) {
-  const s = String(slug || "").toLowerCase();
-  const shapes = ["round", "oval", "pear", "cushion", "emerald", "princess", "marquise", "radiant", "asscher", "heart"];
-  const shape = shapes.find((sh) => s.includes(sh));
-  const caratMatch = s.match(/(\d+(?:\.\d+)?)\s*-?\s*(?:ct|carat)/);
-  return {
-    shape: shape ? shape.charAt(0).toUpperCase() + shape.slice(1) : null,
-    carat: caratMatch ? caratMatch[1] : null,
-  };
-}
-
-// Fetch products for the grid via NestJS /search/products (with slug hints),
-// falling back to recent active products.
-async function fetchProducts(slug) {
-  const { shape, carat } = hintsFromSlug(slug);
-  const params = new URLSearchParams({ limit: "12", status: "active" });
-  if (shape) params.set("diamondShape", shape);
-  if (carat) params.set("carat", carat);
-
-  const tryFetch = async (qs) => {
-    try {
-      const res = await fetch(`${NEST}/api/v1/search/products?${qs}`, {
-        cache: "no-store",
-        headers: { "x-tenant-id": TENANT },
-      });
-      if (!res.ok) return null;
-      const j = await res.json();
-      const data = j?.data ?? j;
-      return Array.isArray(data) ? data : null;
-    } catch {
-      return null;
-    }
-  };
-
-  // First with hints, then unfiltered fallback.
-  let list = await tryFetch(params.toString());
-  if (!list || list.length === 0) {
-    list = await tryFetch(new URLSearchParams({ limit: "12", status: "active" }).toString());
-  }
-  return list || [];
-}
-
 function productCardFields(p) {
   const id = p?.id || p?.product_id || p?.productId;
-  const title = p?.productName || p?.name || p?.title || "Jewelry";
+  const title = p?.productName || p?.name || p?.title || "";
   const media = Array.isArray(p?.media) ? p.media : [];
   const image =
     p?.mainImageUrl ||
@@ -146,18 +101,24 @@ export async function generateMetadata({ params }) {
   const collection = await fetchCollection(slug);
   if (collection?.name) {
     return {
-      title: `${collection.name} — Rangani Jewelry House`,
+      title: collection.name,
       description: collection.description || undefined,
+      alternates: { canonical: `/collections/${collection.slug || slug}` },
     };
   }
-  const page = await resolvePage(slug);
-  if (!page) {
+  const resolved = await resolvePage(slug);
+  const page = resolved?.page;
+  if (!page || !resolved.products?.length) {
     return { title: "Collection not found", robots: { index: false } };
   }
   return {
-    title: page.metaTitle || page.h1 || "Collection",
+    // Facet meta titles already end with the brand — don't let the layout's
+    // "%s | Rangani Jewelry House" template add it twice.
+    title: /rangani/i.test(page.metaTitle || "")
+      ? { absolute: page.metaTitle }
+      : page.metaTitle || page.h1 || "Collection",
     description: page.metaDescription || undefined,
-    alternates: page.canonicalTo ? { canonical: page.canonicalTo } : undefined,
+    alternates: { canonical: page.canonicalTo?.trim() || `/collections/${page.urlSlug}` },
     robots: page.indexable === false ? { index: false } : undefined,
   };
 }
@@ -168,33 +129,29 @@ export default async function CollectionPage({ params }) {
   const { slug } = await params;
   // Real admin-managed collection first; generic SEO page as fallback.
   const collection = await fetchCollection(slug);
+  const resolved = collection ? null : await resolvePage(slug);
   const page = collection
     ? { h1: collection.name, introMd: collection.description || "" }
-    : await resolvePage(slug);
+    : resolved?.page;
+  const products = collection ? collection.products || [] : resolved?.products || [];
 
-  if (!page) {
-    return (
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "96px 24px", textAlign: "center" }}>
-        <Typography as="h1" variant="h2" textColor="teal" className="!text-center">
-          Collection not found
-        </Typography>
-        <Typography as="p" variant="p" textColor="customGrey" className="!text-center block mt-4">
-          We couldn&apos;t find the collection you were looking for. It may have moved or no longer exists.
-        </Typography>
-        <div className="mt-7 flex justify-center">
-          <Button title="Browse all jewelry" url="/product" variant="outlineTeal" />
-        </div>
-      </main>
-    );
-  }
+  // Unknown slug, or a collection / facet with nothing a shopper can buy.
+  if (!page || products.length === 0) notFound();
 
-  const products = collection?.products?.length
-    ? collection.products
-    : await fetchProducts(slug);
-  // The collection's own banner wins; the CMS "Collections" hero is the fallback.
+  const isEngagement = /engagement/i.test(`${slug} ${page.h1 || ""}`);
+  const facetLinks = isEngagement
+    ? (await fetchFacetLinks()).filter((f) => f.slug !== slug)
+    : [];
+
+  // The collection's own banner wins; the CMS "Collections" hero image is the
+  // fallback, but its generic copy is replaced by this collection's own so an
+  // engagement page never opens with earrings/necklaces copy.
+  const cmsHero = collection?.heroImage ? null : await fetchCollectionHero();
   const hero = collection?.heroImage
     ? { title: collection.name, description: collection.description, file: collection.heroImage }
-    : await fetchCollectionHero();
+    : cmsHero
+      ? { ...cmsHero, title: page.h1, description: "", buttons: [] }
+      : null;
 
   return (
     <>
@@ -224,18 +181,27 @@ export default async function CollectionPage({ params }) {
             {page.introMd}
           </Typography>
         ) : null}
+        {isEngagement && (
+          <nav aria-label="Browse engagement rings" className="mt-6 flex flex-wrap justify-center gap-2">
+            {facetLinks.slice(0, 12).map((f) => (
+              <Link
+                key={f.slug}
+                href={`/collections/${f.slug}`}
+                className="rounded-full border border-[var(--teal-3)] px-3 py-1 text-[13px] text-[var(--teal-1)] hover:bg-[var(--teal-1)] hover:text-white"
+              >
+                {f.label}
+              </Link>
+            ))}
+            <Link
+              href="/ring-size-guide"
+              className="rounded-full border border-[var(--teal-3)] px-3 py-1 text-[13px] text-[var(--teal-1)] hover:bg-[var(--teal-1)] hover:text-white"
+            >
+              Ring size guide
+            </Link>
+          </nav>
+        )}
       </header>
 
-      {products.length === 0 ? (
-        <Typography
-          as="p"
-          variant="p"
-          textColor="customGrey"
-          className="!text-center block py-12"
-        >
-          No products available in this collection right now.
-        </Typography>
-      ) : (
         <div
           style={{
             display: "grid",
@@ -266,8 +232,11 @@ export default async function CollectionPage({ params }) {
                   {image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
+                      {...responsiveImg(image, "(min-width: 1024px) 25vw, 50vw")}
                       src={image}
                       alt={title}
+                      loading={i < 4 ? "eager" : "lazy"}
+                      decoding="async"
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : null}
@@ -279,7 +248,6 @@ export default async function CollectionPage({ params }) {
             );
           })}
         </div>
-      )}
       </main>
     </>
   );

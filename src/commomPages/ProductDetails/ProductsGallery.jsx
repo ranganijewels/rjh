@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import LazyVideo from "@/components/common/LazyVideo";
 import Image from "next/image";
 import clsx from "clsx";
 import { useSearchParams } from "next/navigation";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import ImageLightbox from "./ImageLightbox";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const isVideo = (src) =>
   typeof src === "string" &&
@@ -128,6 +130,11 @@ const ProductsGallery = ({
 
   return (
     <>
+      {/* Reserve the square gallery space while media loads, so the details
+          below don't jump down when the first image arrives (CLS). */}
+      {!activeMedia && (
+        <div className="aspect-square w-full bg-[var(--product-bg,#f7f7f7)]" aria-hidden />
+      )}
       {/* Mobile Main Preview */}
       {activeMedia && (
         <div
@@ -135,18 +142,21 @@ const ProductsGallery = ({
           onClick={() => setLightboxIndex(activeIndex)}
         >
           {isVideo(activeMedia.image) ? (
-            <video
+            <LazyVideo
               src={activeMedia.image}
               autoPlay={!reducedMotion}
               loop={!reducedMotion}
               muted
               playsInline
-              preload="metadata"
               className="w-full h-full object-contain"
             />
           ) : (
-            <Image
+            // Mobile main image = the LCP on phones: eager, high priority, right-sized.
+            <img
+              {...responsiveImg(activeMedia.image, "(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw")}
               src={activeMedia.image}
+              fetchPriority="high"
+              decoding="async"
               alt={
                 productName
                   ? `${productName}${
@@ -181,11 +191,10 @@ const ProductsGallery = ({
           >
             {isVideo(media.image) ? (
               <>
-                <video
+                <LazyVideo
                   src={media.image}
                   muted
                   playsInline
-                  preload="metadata"
                   className="w-full h-full object-cover"
                 />
                 {/* play badge so shoppers know this thumbnail is a video */}
@@ -198,7 +207,9 @@ const ProductsGallery = ({
                 </span>
               </>
             ) : (
-              <Image
+              <img
+                {...responsiveImg(media.image, "75px")}
+                decoding="async"
                 alt={
                   productName
                     ? `${productName}${
@@ -246,13 +257,12 @@ const ProductsGallery = ({
               onClick={() => setLightboxIndex(index)}
             >
               {isMediaVideo ? (
-                <video
+                <LazyVideo
                   src={product.image}
                   autoPlay={!reducedMotion}
                   loop={!reducedMotion}
                   muted
                   playsInline
-                  preload="metadata"
                   className={clsx(
                     "w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-[1.04]",
                     heightClass.media
@@ -260,6 +270,7 @@ const ProductsGallery = ({
                 />
               ) : (
                 <img
+                  {...responsiveImg(product.image, "(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw")}
                   src={product.image}
                   alt={
                     productName

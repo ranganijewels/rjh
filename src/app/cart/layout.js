@@ -35,22 +35,10 @@ const CartLayout = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("authTokenRJHouse")
-        : null;
-    if (!token) {
-      router.replace(`/login?redirect=${pathname}`);
-      return;
-    }
+    // Guest checkout: the cart works without a login — fetchCart falls back
+    // to the x-guest-id header when there's no auth token.
     dispatch(fetchCart({ currency: selectedCountry?.currency }));
   }, [dispatch, selectedCountry?.currency]);
-
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("authTokenRJHouse")
-      : null;
-  if (!token) return null;
 
   const currentIndex = steps.findIndex((s) => s.path === pathname);
 
@@ -74,7 +62,7 @@ const CartLayout = ({ children }) => {
         }`}
       >
         <div className="lg:py-[80px] py-[40px] xl:px-[80px] lg:px-[37px] px-[18px]">
-          {pathname === "/cart/order-complete" ? (
+          {pathname === "/cart/order-complete" || pathname === "/cart/payment-status" ? (
             children
           ) : cartItems && cartItems.length > 0 ? (
             <>

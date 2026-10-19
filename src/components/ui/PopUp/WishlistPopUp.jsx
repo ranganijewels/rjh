@@ -48,7 +48,7 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
             return (
               <div key={item.id} className="flex gap-[22px]">
                 <div className="p-[19px_20px] bg-[var(--product-bg)] shrink-0">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={item?.product?.image}
                     className="h-[100px] w-[100px] object-contain"
                   />

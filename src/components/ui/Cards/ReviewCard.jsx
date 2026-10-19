@@ -1,5 +1,6 @@
 import { useFileType } from "@/hooks/useFileType";
 import React from "react";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const ReviewCard = ({ name, designation, review, customerImg, className }) => {
   const { isVideo } = useFileType(customerImg);
@@ -18,7 +19,7 @@ const ReviewCard = ({ name, designation, review, customerImg, className }) => {
           </p>
         </div>
         <div>
-          <img
+          <img loading="lazy" decoding="async"
             src="/icons/quotes.svg"
             className="xl:h-[48px] xl:w-[48px] h-[24px] w-[24px]"
             alt="quotes"
@@ -39,7 +40,8 @@ const ReviewCard = ({ name, designation, review, customerImg, className }) => {
               playsInline
             />
           ) : (
-            <img
+            <img loading="lazy" decoding="async"
+              {...responsiveImg(customerImg, "(min-width: 1280px) 272px, 50vw")}
               src={customerImg}
               className="w-full h-full object-cover xl:max-w-[272px] xl:h-[369px]"
               alt="customer"

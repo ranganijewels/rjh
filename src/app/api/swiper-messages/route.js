@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { BUSINESS } from "@/config/business";
 
-// Announcement bar messages. Currency shows in the visitor's currency at
-// checkout; the store default is USD, so use $ here (was ₹, which mismatched).
+// Announcement bar messages — keep claims in line with the published
+// shipping, returns and certification policies.
 export async function GET() {
   return NextResponse.json({
     data: [
-      { id: 1, message: `Free insured shipping worldwide | Call us: ${BUSINESS.phone}` },
-      { id: 2, message: "Certified diamonds | IGI & GIA certified | BIS Hallmarked Gold" },
-      { id: 3, message: "Lifetime warranty & 30-day easy returns on every order" },
+      { id: 1, message: "Free insured shipping on every order" },
+      { id: 2, message: "Certified lab-grown diamonds | Hallmarked 10K, 14K & 18K gold and 925 silver" },
+      { id: 3, message: "14-day returns on eligible items | Lifetime manufacturing warranty" },
     ],
   });
 }

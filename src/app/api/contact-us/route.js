@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
+import { marketingFromRequest } from "@/lib/marketingServer";
 
 // Persist a contact-form submission to the backend (CMS forms inbox reads these
 // from /storefront/contact-submissions). Previously a no-op stub.
@@ -12,6 +13,7 @@ export async function POST(req) {
       phone: b.phone || b.phone_number || null,
       subject: b.query || b.subject || "General Enquiry",
       message: b.message || "",
+      marketing: marketingFromRequest(req),
     };
 
     if (!payload.name || !payload.email || !payload.message) {

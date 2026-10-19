@@ -5,10 +5,12 @@ import { NextIcon, PreviousIcon } from "@/components/Icons/common";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import React, { useRef, useEffect, useState } from "react";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const FindYourDiomond = ({ title, description, shapes, buttons }) => {
   const router = useRouter();
   const scrollRef = useRef(null);
+  const desktopScrollRef = useRef(null);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
 
   // Repeated data ONLY for mobile view
@@ -31,6 +33,23 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
       }
 
       scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
+
+  const scrollDesktop = (direction) => {
+    if (desktopScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = desktopScrollRef.current;
+      const scrollAmount = clientWidth * 0.6;
+
+      let scrollTo =
+        direction === "left"
+          ? scrollLeft - scrollAmount
+          : scrollLeft + scrollAmount;
+
+      if (scrollTo < 0) scrollTo = 0;
+      else if (scrollTo > scrollWidth - clientWidth) scrollTo = scrollWidth - clientWidth;
+
+      desktopScrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
     }
   };
 
@@ -102,7 +121,8 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                 className="flex flex-col items-center shrink-0 cursor-pointer snap-center w-1/3 gap-[5px]"
                 onClick={() => router.push(`/product?shape=${shape?.shape_id}`)}
               >
-                <img
+                <img loading="lazy" decoding="async"
+                  {...responsiveImg(shape?.icon_image, "70px")}
                   src={shape?.icon_image}
                   alt={shape?.icon_title}
                   className="w-[70px] h-[70px] p-[10px] transition-transform duration-300 hover:scale-110"
@@ -118,25 +138,48 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
         {/* ========================================== */}
         {/* DESKTOP VIEW (Original Layout)            */}
         {/* ========================================== */}
-        <div className="hidden md:flex mx-auto gap-[24px] sm:gap-[32px] xl:gap-[50px] hide-scrollbar overflow-x-auto px-[10px] scroll-smooth xl:mb-[70px] mb-[36px]">
-          {Array.isArray(shapes) &&
-            shapes.map((shape, idx) => (
-              <div
-                key={`desktop-${idx}`}
-                className="flex flex-col xl:gap-[10px] gap-[5px] items-center shrink-0 cursor-pointer group"
-                onClick={() => router.push(`/product?shape=${shape?.shape_id}`)}
-              >
-                <img
-                  src={shape?.icon_image}
-                  alt={shape?.icon_title}
-                  className={clsx(
-                    "xl:w-[106px] xl:h-[106px] w-[54px] h-[54px] p-[19px]",
-                    "transition-transform duration-300 ease-in-out hover:scale-110"
-                  )}
-                />
-                <Typography variant="p">{shape?.icon_title}</Typography>
-              </div>
-            ))}
+        <div className="hidden md:block relative group/desktop-scroll xl:mb-[70px] mb-[36px]">
+          <button
+            type="button"
+            onClick={() => scrollDesktop("left")}
+            aria-label="Scroll to previous diamond shapes"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
+          >
+            <PreviousIcon />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollDesktop("right")}
+            aria-label="Scroll to next diamond shapes"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
+          >
+            <NextIcon />
+          </button>
+
+          <div
+            ref={desktopScrollRef}
+            className="flex mx-auto gap-[24px] sm:gap-[32px] xl:gap-[50px] hide-scrollbar overflow-x-auto px-[10px] scroll-smooth"
+          >
+            {Array.isArray(shapes) &&
+              shapes.map((shape, idx) => (
+                <div
+                  key={`desktop-${idx}`}
+                  className="flex flex-col xl:gap-[10px] gap-[5px] items-center shrink-0 cursor-pointer group"
+                  onClick={() => router.push(`/product?shape=${shape?.shape_id}`)}
+                >
+                  <img loading="lazy" decoding="async"
+                    {...responsiveImg(shape?.icon_image, "(min-width: 1280px) 106px, 54px")}
+                    src={shape?.icon_image}
+                    alt={shape?.icon_title}
+                    className={clsx(
+                      "xl:w-[106px] xl:h-[106px] w-[54px] h-[54px] p-[19px]",
+                      "transition-transform duration-300 ease-in-out hover:scale-110"
+                    )}
+                  />
+                  <Typography variant="p">{shape?.icon_title}</Typography>
+                </div>
+              ))}
+          </div>
         </div>
 
         <div className="text-center">

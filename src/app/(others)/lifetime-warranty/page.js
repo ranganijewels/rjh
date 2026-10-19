@@ -1,10 +1,7 @@
-import LifetimeWarranty from '@/commomPages/PrivacyPolicy/LifetimeWarranty'
-import React from 'react'
+import PolicyPage, { policyMetadata } from "@/components/common/PolicyPage";
 
-export const page = () => {
-  return (
-    <LifetimeWarranty/>
-  )
+export const generateMetadata = () => policyMetadata("lifetime-warranty");
+
+export default function Page() {
+  return <PolicyPage slug="lifetime-warranty" />;
 }
-
-export default page;

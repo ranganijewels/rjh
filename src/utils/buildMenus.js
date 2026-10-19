@@ -48,8 +48,8 @@ export const buildMenus = (apiData, options) => {
             "Start with a Diamond",
             "Virtual Consultation",
             // "Ready-to-Ship Rings",
-            { label: "Free Resizing", href: "/free-resizing" },
-            { label: "Jewelry Care", href: "/blog/jewelry-care" },
+            { label: "Lifetime Warranty", href: "/lifetime-warranty" },
+            { label: "Jewelry Care", href: "/jewelry-care" },
           ],
         },
       ],
@@ -103,11 +103,11 @@ export const buildMenus = (apiData, options) => {
         {
           title: "Shop by Category",
           items: [
-            { label: "Necklaces", href: "/product?category=pendant" },
+            { label: "Necklaces", href: "/product?category=Necklace" },
             { label: "Earrings", href: "/product?category=Earring" },
             { label: "Bracelets", href: "/product?category=Bracelet" },
             { label: "Stacking Rings", href: "/product?category=Ring" },
-            { label: "Jewelry Sets", href: "/product?category=pendant" },
+            { label: "Jewelry Sets", href: "/product?category=Sets" },
           ],
         },
 
@@ -137,11 +137,11 @@ export const buildMenus = (apiData, options) => {
           items: [
             "Jewelry Styling Guide",
             "How to Layer & Stack",
-            { label: "Jewelry Care", href: "/blog/jewelry-care" },
+            { label: "Jewelry Care", href: "/jewelry-care" },
             "Metals & Materials",
             {
               label: "Lab-Grown Diamond Info",
-              href: "/blog/lab-grown-diamonds-info",
+              href: "/diamond-education",
             },
           ],
         },
@@ -178,11 +178,11 @@ export const buildMenus = (apiData, options) => {
             "Customization Guide",
             {
               label: "Diamond Selection Guide",
-              href: "/blog/diamond-selection-guide",
+              href: "/diamond-education",
             },
             {
               label: "Metal & Setting Options",
-              href: "/blog/metal-setting-options",
+              href: "/diamond-education",
             },
             { label: "Ring Size Guide", href: "/ring-size-guide" },
           ],
@@ -192,7 +192,7 @@ export const buildMenus = (apiData, options) => {
           items: [
             "Past Custom Designs",
             "Customer Stories",
-            { label: "Behind the Craft", href: "/blog/behind-the-craft" },
+            { label: "Behind the Craft", href: "/craftsmanship" },
             "Explore Signature Details",
           ],
         },
@@ -201,14 +201,14 @@ export const buildMenus = (apiData, options) => {
           items: [
             {
               label: "Jewelry Styling Guide",
-              href: "/blog/jewelry-styling-guide",
+              href: "/blog",
             },
-            { label: "How to Layer & Stack", href: "/blog/how-to-layer-stack" },
-            { label: "Jewelry Care", href: "/blog/jewelry-care" },
+            { label: "How to Layer & Stack", href: "/blog" },
+            { label: "Jewelry Care", href: "/jewelry-care" },
             "Metals & Materials",
             {
               label: "Lab-Grown Diamond Info ",
-              href: "/blog/lab-grown-diamonds-info",
+              href: "/diamond-education",
             },
           ],
         },

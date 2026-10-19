@@ -2,6 +2,7 @@
 import React from "react";
 import clsx from "clsx";
 import Typography from "@/components/ui/Typography/Typography";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const FeaturesList = ({
   items = [],
@@ -58,7 +59,8 @@ const FeaturesList = ({
                 itemClass
               )}
             >
-              <img
+              <img loading="lazy" decoding="async"
+                {...responsiveImg(item.image || item.icon, "70px")}
                 src={item.image || item.icon}
                 alt={item?.title || "icon"}
                 width={70}

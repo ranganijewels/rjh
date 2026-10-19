@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { displayProductName } from "@/lib/productName";
 import { rjApi } from "@/lib/apiHandler";
 
 // NOTE: The legacy `/pricing-config` fallback (INR-scale defaults like Gold 6500/g)
@@ -21,8 +22,9 @@ const SHAPE_MAP = {
   RAD: { code: "RAD", title: "Radiant" },
 };
 
-export async function GET(req, { params }) {
-  const { id } = await params;
+// Storefront PDP data for a product. Used by GET /api/productDetail/:id and by
+// the server-rendered product page (so the gallery/buy box are in the HTML).
+export async function buildProductDetail(id) {
   try {
     const [productResult, variantsResult] = await Promise.all([
       rjApi("GET", `/products/${id}`),
@@ -30,9 +32,7 @@ export async function GET(req, { params }) {
     ]);
 
     const p = productResult.raw?.data || productResult.raw;
-    if (!p || !p.id) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
+    if (!p || !p.id) return null;
 
     // Diamond-shape model: each shape is a SEPARATE product, linked to the same
     // design via metadata.designGroup. Fetch the sibling products so the shape
@@ -46,6 +46,19 @@ export async function GET(req, { params }) {
       ).catch(() => null);
       const rows = sibRes?.raw?.data || sibRes?.raw || [];
       designSiblings = Array.isArray(rows) ? rows : [];
+    }
+
+    // Collection-variant model (e.g. an "Initials" collection where A/B/C/...
+    // are all one family) — only returns siblings when the product's
+    // collection has Variant Mode on; empty/variantMode:false otherwise.
+    let collectionVariants = { variantMode: false, products: [] };
+    if (p.collectionName) {
+      const cvRes = await rjApi(
+        "GET",
+        `/collections/by-name/${encodeURIComponent(p.collectionName)}/variants`
+      ).catch(() => null);
+      const cv = cvRes?.raw?.data || cvRes?.raw;
+      if (cv?.variantMode) collectionVariants = cv;
     }
 
     // Build color-tagged gallery from media records
@@ -286,8 +299,8 @@ export async function GET(req, { params }) {
     const data = {
       id: p.id,
       product_id: p.id,
-      name: p.productName || p.name || "Jewelry",
-      title: p.productName || p.name || "Jewelry",
+      name: displayProductName(p),
+      title: displayProductName(p),
       design_no: p.productCode || p.sku || p.id,
       // p.description is the real, admin-editable long-description column.
       // p.longDescription is a legacy field that's never actually populated —
@@ -337,13 +350,24 @@ export async function GET(req, { params }) {
       collection_name: p.collectionName || null,
       short_description: p.shortDescription || null,
       display_discount_percent: Number(p.metadata?.displayDiscountPercent) || 0,
+      display_discount_ends_at: p.metadata?.displayDiscountEndsAt || null,
+      production_time: String(p.metadata?.productionTime || "").trim() || null,
+      badges: Array.isArray(p.metadata?.badges) ? p.metadata.badges : [],
       pairs_with: Array.isArray(p.metadata?.pairsWith) ? p.metadata.pairsWith : [],
+      aeo_summary: p.metadata?.aeoSummary || null,
+      faqs: Array.isArray(p.metadata?.faqs) ? p.metadata.faqs : [],
+      collection_variants: collectionVariants.products.map((cv) => ({
+        id: cv.id,
+        title: cv.title,
+        image: cv.image,
+        variant_label: cv.variantLabel,
+      })),
       gender: p.metadata?.gender || null,
       sku: p.productCode || null,
       setting: (Array.isArray(p.metadata?.materials)
         ? p.metadata.materials.find((m) => m?.setting)?.setting
         : null) || null,
-      center_diamond_weight_ct: p.centerStoneWeightCt || null,
+      center_diamond_weight_ct: hasCenterStone ? p.centerStoneWeightCt : null,
       metal_options: Array.isArray(p.metadata?.metalOptions) ? p.metadata.metalOptions : [],
       weight_matrix: Array.isArray(p.metadata?.weightMatrix) ? p.metadata.weightMatrix : [],
       is_configurable:
@@ -355,6 +379,19 @@ export async function GET(req, { params }) {
       // Category
       category_id: p.categoryId || null,
       category: { id: p.categoryId || null, name: p.category || "Ring" },
+      sub_category: p.subCategory || "",
+      // Earrings offer a choice of back (same price). metadata.earringBacks
+      // can override the list per product.
+      earring_backs: Array.isArray(p.metadata?.earringBacks) && p.metadata.earringBacks.length
+        ? p.metadata.earringBacks
+        : /^earring/i.test(p.category || "")
+          ? ["Push Back", "Screw Back"]
+          : [],
+      // Engraving field only when enabled on the product (admin form).
+      // Rings offer engraving by default; admin can switch it off (or on) per product.
+      engraving_enabled: typeof p.metadata?.engravingEnabled === "boolean"
+        ? p.metadata.engravingEnabled
+        : /^(ring|wedding|band)/i.test(p.category || ""),
       shape: p.diamondShape || "",
 
       // Gallery media with actual per-color tags from NestJS
@@ -363,7 +400,8 @@ export async function GET(req, { params }) {
       media: allMedia,
 
       // Ring sizes
-      sizes: RING_SIZES,
+      // Only rings and bands are sized; earrings/pendants/etc. have no size picker.
+      sizes: /^(ring|wedding|band)/i.test(p.category || "Ring") ? RING_SIZES : [],
       // Carat weight options for the center stone configurator
       productsizevariant: caratVariants,
       variants: shapeVariants,
@@ -381,9 +419,20 @@ export async function GET(req, { params }) {
       is_wishlisted: false,
     };
 
-    return NextResponse.json({ data });
+    return data;
   } catch (e) {
     console.error("productDetail error:", e);
+    throw e;
+  }
+}
+
+export async function GET(req, { params }) {
+  const { id } = await params;
+  try {
+    const data = await buildProductDetail(id);
+    if (!data) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    return NextResponse.json({ data });
+  } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

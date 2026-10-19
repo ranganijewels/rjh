@@ -6,28 +6,28 @@
 export const OUR_STORY = {
   heroTitle: "Our Story",
   heroSubtitle:
-    "Three decades of craft, a name rooted in richness, and a quiet promise to make brilliance without compromise.",
+    "More than 50 years with diamonds, a name rooted in richness, and a quiet promise to make brilliance without compromise.",
   heroImage: "/images/about-us-banner.png",
   blocks: [
     {
       type: "split",
       id: "our-story",
-      eyebrow: "Since 1990",
+      eyebrow: "50+ Years With Diamonds",
       title: "The RJ House Journey",
       image: "/images/home/jewellery.jpg",
       imageAlt: "Rangani fine jewelry",
       body: [
-        "Rangani Jewelry House began in 1990 as a family atelier, where hand-set stones and quiet attention to detail mattered more than volume. Three generations of craftsmanship built a reputation for pieces made to be worn for decades, not seasons.",
-        "As the House grew, so did its convictions. What started on a modest workbench has become a full atelier devoted to lab-grown diamonds and responsibly sourced 18K and 22K gold, carrying the same founding discipline into a more conscientious era of fine jewelry.",
+        "Our family has worked with diamonds for more than 50 years, beginning in natural diamond manufacturing. That experience grew into growing and cutting our own lab-grown diamonds, and from there into making the jewellery they are set in.",
+        "Rangani Jewelry House brings that knowledge together: lab-grown diamonds set in 10K, 14K and 18K gold and 925 sterling silver, made with the attention to detail that comes from understanding a diamond from the inside.",
       ],
     },
     {
       type: "stats",
       items: [
-        { value: "1990", label: "Family Atelier Founded" },
-        { value: "3", label: "Generations of Craft" },
+        { value: "50+", label: "Years With Diamonds" },
         { value: "100%", label: "Lab-Grown Diamonds" },
-        { value: "IGI · GIA", label: "Certified Stones" },
+        { value: "10K–18K", label: "Gold & 925 Silver" },
+        { value: "IGI · GIA · SGL", label: "Certified" },
       ],
     },
     {
@@ -46,7 +46,7 @@ export const OUR_STORY = {
         {
           icon: "gem",
           title: "Craft",
-          text: "Respect for the skill of the artisans who shape each setting, continuing techniques taught bench-side for three generations.",
+          text: "Respect for the skill of the artisans who shape each setting, continuing techniques taught bench-side.",
         },
         {
           icon: "infinity",
@@ -63,7 +63,7 @@ export const OUR_STORY = {
       quote: "Fine jewelry should feel personal and alive — not simply valuable.",
       body: [
         "Rangani draws from a word rooted in color and richness, a nod to the vivid life a well-made piece of jewelry brings to the person who wears it.",
-        "Paired with House, the name signals belonging rather than transaction — a family atelier and, by extension, a home for every client who enters it. The name has stayed unchanged since 1990, a constant through every evolution of the craft.",
+        "Paired with House, the name signals belonging rather than transaction — a family atelier and, by extension, a home for every client who enters it. The name has stayed a constant through every evolution of the craft.",
       ],
     },
     {
@@ -78,8 +78,8 @@ export const OUR_STORY = {
         "Rangani Jewelry House builds exclusively with lab-grown diamonds and responsibly sourced gold — a deliberate choice rather than a trend, so clients never have to weigh brilliance against conscience.",
       ],
       bullets: [
-        "Exclusively lab-grown, IGI & GIA certified diamonds",
-        "Responsibly sourced 18K and 22K gold, alloyed in-house",
+        "Exclusively lab-grown diamonds — IGI or GIA reports for solitaires, SGL certificates for jewellery",
+        "10K, 14K and 18K gold and 925 sterling silver, hallmarked for purity",
         "Every setting shaped by hand by master artisans",
         "Quiet luxury — understated, meticulous, made for a lifetime",
       ],
@@ -90,7 +90,7 @@ export const OUR_STORY = {
 export const CRAFTSMANSHIP = {
   heroTitle: "The Craft Behind Every Piece",
   heroSubtitle:
-    "Since 1990, three generations of hand skill and quiet discipline have shaped how an RJ House piece is imagined, made, and finished.",
+    "More than 50 years of working with diamonds shapes how an RJ House piece is imagined, made, and finished.",
   heroImage: "/videos/the-art-of-making.mp4",
   blocks: [
     {
@@ -144,7 +144,7 @@ export const CRAFTSMANSHIP = {
       image: "/images/customize/custom-engravings.png",
       imageAlt: "Hand engraving at the atelier bench",
       body: [
-        "Rangani Jewelry House began as a family atelier in 1990, and much of that spirit remains: a small bench of jewelers, gemologists, and finishers who know a piece by the hands that made it. Skills here are still taught bench-side, one jeweler mentoring the next.",
+        "Rangani Jewelry House grew out of a family business in diamonds, and much of that spirit remains: a small bench of jewelers, gemologists, and finishers who know a piece by the hands that made it. Skills here are still taught bench-side, one jeweler mentoring the next.",
         "It is slower work than a factory floor, and we have kept it that way on purpose. Every ring, pendant, or pair of earrings passes through people who take responsibility for it personally, from the first wax model to the final polish.",
       ],
     },
@@ -164,7 +164,7 @@ export const CRAFTSMANSHIP = {
         {
           image: "/images/customize/choosing-ring-metal.png",
           title: "Responsible Gold",
-          text: "18K and 22K gold sourced through responsible channels and alloyed in-house to the warmth and durability we require.",
+          text: "10K, 14K and 18K gold and 925 sterling silver, sourced through responsible channels and hallmarked for purity.",
         },
       ],
     },
@@ -183,17 +183,17 @@ export const SUSTAINABILITY = {
   heroTitle: "Sustainability, By Design",
   heroSubtitle:
     "A family atelier's commitment to lab-grown diamonds, responsible sourcing, and jewelry that honors the earth it comes from.",
-  heroImage: "/images/home/shine-with-elova-4.png",
+  heroImage: "/images/home/shine-with-rj-4.png",
   blocks: [
     {
       type: "split",
       id: "ethical-promise",
       eyebrow: "Our Foundation",
       title: "A Promise We Keep Quietly",
-      image: "/images/home/shine-with-elova-2.png",
+      image: "/images/home/shine-with-rj-2.png",
       imageAlt: "Rangani jewelry, responsibly made",
       body: [
-        "Since 1990, Rangani Jewelry House has been a family atelier before it was ever a brand, and that shapes how it defines integrity. An ethical promise, for us, is not a marketing claim but a daily discipline: knowing where a diamond began, how a gold band was formed, and who shaped it along the way.",
+        "Rangani Jewelry House was a family business in diamonds long before it was a jewellery brand, and that shapes how it defines integrity. An ethical promise, for us, is not a marketing claim but a daily discipline: knowing where a diamond began, how a gold band was formed, and who shaped it along the way.",
         "It asks a simple question before any other: would we be proud to explain, in full, how this piece came to be. That standard, more than any certificate, is what we hold ourselves to.",
       ],
     },
@@ -231,7 +231,7 @@ export const SUSTAINABILITY = {
       imageAlt: "Responsibly sourced gold bands",
       reverse: true,
       body: [
-        "Beyond diamonds, Rangani Jewelry House is attentive to the gold that anchors every setting, favoring 18K and 22K gold from suppliers who can speak plainly to their own practices. Relationships with artisans and material partners are built over years, not transactions.",
+        "Beyond diamonds, Rangani Jewelry House is attentive to the gold that anchors every setting, favoring gold and silver from suppliers who can speak plainly to their own practices. Relationships with artisans and material partners are built over years, not transactions.",
         "Responsible sourcing also means asking questions of every partner in the chain, from refiners to setters, and choosing to work only where those answers hold up to scrutiny. It is a slower way of building a jewelry house — one we consider worth the extra care.",
       ],
     },
@@ -265,7 +265,7 @@ export const SUSTAINABILITY = {
 export const CUSTOMER_LOVE = {
   heroTitle: "Stories, Told by Those Who Wear Them",
   heroSubtitle:
-    "Three decades of trust, gathered here in the words of the people we've had the privilege of serving.",
+    "In the words of the people who have chosen Rangani jewellery.",
   heroImage: "/images/review/review-bg.png",
   blocks: [
     {
@@ -274,56 +274,56 @@ export const CUSTOMER_LOVE = {
       eyebrow: "In Their Words",
       title: "What Our Clients Say",
       intro:
-        "We read every note that comes our way — after a proposal, an anniversary, or simply the quiet decision to treat oneself to something well made. These are not curated for effect; they are a record of how we hope to be remembered.",
+        "Published with each customer's permission.",
     },
     {
       type: "split",
       id: "reviews",
-      eyebrow: "Verified Feedback",
+      eyebrow: "Product Reviews",
       title: "Reviews From Every Step of the Journey",
       image: "/images/review/review-4.jpg",
       imageAlt: "A client wearing her Rangani piece",
       body: [
-        "From the first consultation to the moment a ring is resized years later, our clients share honest reviews about their experience. We publish this feedback openly — a house built on lab-grown diamonds and responsible gold should be just as transparent about how it treats people.",
-        "Reviews touch on the details that matter most: clarity of communication, accuracy against the 4Cs we quote, and the care taken at every handoff. Where we fall short, we listen and adjust.",
+        "Reviews on our product pages are written by customers who bought that piece, and are moderated only for spam and personal details — never for rating.",
+        "If you have bought from us, we would value your honest review of the piece and of how we looked after you.",
       ],
       button: { text: "Browse All Reviews", url: "/reviews" },
     },
     {
       type: "stories",
       id: "client-stories",
-      eyebrow: "Beyond the Purchase",
-      title: "Client Stories Worth Telling",
+      eyebrow: "Made for the Moment",
+      title: "Pieces for Every Occasion",
       intro:
-        "Some pieces mark an engagement, others a milestone anniversary or a promise made quietly to oneself. These stories give context to the craft.",
+        "Some pieces mark an engagement, others a milestone anniversary or a promise made quietly to oneself. A few of the moments our jewellery is designed for.",
       cards: [
         {
           image: "/images/home/customer-1.png",
           tag: "The Proposal",
           title: "A Yes in the Making",
-          text: "From a first sketch shared over a consultation call to the moment the box opened — a solitaire designed around one person's hand.",
+          text: "Design a solitaire around one person's hand, from a first sketch on a consultation call to the finished ring.",
         },
         {
           image: "/images/home/customer-2.png",
           tag: "The Anniversary",
-          title: "Twenty Years, Retold",
-          text: "A band reimagined with the original engraving carried over — the same promise, set in new gold.",
+          title: "A Promise, Retold",
+          text: "Reimagine an anniversary band and carry the original engraving into a new design.",
         },
         {
           image: "/images/home/customer-3.png",
           tag: "The Self-Purchase",
           title: "Worn for Oneself",
-          text: "Chosen with care and without occasion — proof that something well made needs no other reason.",
+          text: "Something well made needs no other reason — choose a piece simply because you love it.",
         },
       ],
     },
     {
       type: "mosaic",
       id: "real-moments",
-      eyebrow: "As It Happened",
-      title: "Real Moments, Unscripted",
+      eyebrow: "In the Details",
+      title: "Rangani, Up Close",
       intro:
-        "Unposed and unpolished glimpses our clients send us — the jewelry doing what it was made to do. Shared with permission, gathered with gratitude.",
+        "A closer look at the settings, stones and finishes that go into our jewellery.",
       images: [
         "/images/review/review-1.png",
         "/images/review/review-5.jpg",

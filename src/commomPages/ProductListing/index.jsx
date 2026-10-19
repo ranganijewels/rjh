@@ -11,7 +11,7 @@ import FilterChips from "@/components/ui/FilterChips/FilterChips";
 import useProductGridLogic from "./useProductGridLogic";
 import { useCrudApi } from "@/hooks/useCrudApi";
 
-const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
+const ProductListing = ({ initialProducts, loading, isFetchingNextPage, initialHero = null }) => {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category_id");
   const collection = searchParams.get("collection");
@@ -22,7 +22,10 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
   const { fetchAll: menuHeroBanner } = useCrudApi("/api/product/menu-banner");
 
   const [filtersData, setFiltersData] = useState([]);
-  const [heroData, setHeroData] = useState(null);
+  // Server-rendered banner for the first view; client fetch only when the
+  // category/collection changes afterwards.
+  const [heroData, setHeroData] = useState(initialHero);
+  const heroFromServer = React.useRef(!!initialHero);
   const [activeFilterIndex, setActiveFilterIndex] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
   const [filtersError, setFiltersError] = useState(null);
@@ -38,6 +41,10 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage }) => {
   } = useProductGridLogic();
 
   useEffect(() => {
+    if (heroFromServer.current) {
+      heroFromServer.current = false;
+      return;
+    }
     const fetchHero = async () => {
       try {
         if (categoryId) {

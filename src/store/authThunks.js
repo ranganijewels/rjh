@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiPost } from "./services/api";
+import { getGuestId } from "@/lib/guestId";
 
 // Login
 export const loginUser = createAsyncThunk(
@@ -14,6 +15,14 @@ export const loginUser = createAsyncThunk(
 
       if (res.token) {
         localStorage.setItem("authTokenRJHouse", res.token);
+        // Keep anything added to the bag before signing in.
+        const guestId = getGuestId();
+        if (guestId) {
+          await fetch("/api/cart/merge", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${res.token}`, "x-guest-id": guestId },
+          }).catch(() => {});
+        }
       }
 
       return { customer: res.customer, token: res.token };

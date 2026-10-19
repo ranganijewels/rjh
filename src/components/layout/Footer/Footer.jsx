@@ -4,7 +4,24 @@ import { FOOTER_MENUS } from "./constant";
 import Typography from "@/components/ui/Typography/Typography";
 import clsx from "clsx";
 
-const Footer = () => {
+// Contact links come from CMS Theme & Branding (via the root layout) so the
+// footer, contact page and Organization schema always show the same details.
+const withContact = (menus, contact) =>
+  menus.map((section) =>
+    section.title !== "Contact"
+      ? section
+      : {
+          ...section,
+          links: [
+            ...(contact?.email ? [{ label: "Email Us", url: `mailto:${contact.email}` }] : []),
+            ...(contact?.phone ? [{ label: `Call ${contact.phone}`, url: contact.phoneHref }] : []),
+            ...section.links.filter((l) => !l.url.startsWith("mailto:")),
+          ],
+        }
+  );
+
+const Footer = ({ contact }) => {
+  const menus = withContact(FOOTER_MENUS, contact);
   return (
     <footer className="xl:pt-[54px] pt-[40px] text-[var(--teal-1)]">
       <div className="grid md:grid-cols-3 grid-cols-2 lg:grid-cols-5 2xl:gap-[131px] lg:gap-[70px] md:gap-[48px] gap-[24px] xl:pb-[36px] pb-[18px] xl:px-[70px] lg:px-[37px] px-[18px]">
@@ -20,7 +37,7 @@ const Footer = () => {
         </div>
 
         {/* Menu Sections */}
-        {FOOTER_MENUS.map((section) => (
+        {menus.map((section) => (
           <div
             key={section.title}
             className="flex xl:gap-[10px] lg:gap-[10px] flex-col"

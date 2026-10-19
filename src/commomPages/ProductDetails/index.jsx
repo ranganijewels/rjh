@@ -15,7 +15,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import { useParams, useSearchParams } from "next/navigation";
 import { usePdpContent } from "./usePdpContent";
 
-const ProductDetails = () => {
+const ProductDetails = ({ initialDetail = null }) => {
   const params = useParams();
   const productId = params?.productId;
   const pdp = usePdpContent();
@@ -38,7 +38,7 @@ const ProductDetails = () => {
   return (
     <div className="xl:space-y-[80px] space-y-[40px] xl:mt-[50px] mt-[20px]">
       {/* Gallery + sticky buy box */}
-      <Details />
+      <Details initialDetail={initialDetail} />
 
       {/* Big "Complete the Look" removed (spec Jul 2026) — replaced by the small
           "Pair It With" cards inside the buy box, below the FAQs. */}

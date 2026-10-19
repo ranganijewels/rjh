@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { marketingFromRequest } from "@/lib/marketingServer";
 
 const NEST = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TENANT =
@@ -11,7 +12,7 @@ export async function POST(req) {
     const res = await fetch(`${NEST}/api/v1/storefront/appointments`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-tenant-id": TENANT },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, marketing: marketingFromRequest(req) }),
     });
     const j = await res.json();
     return NextResponse.json(

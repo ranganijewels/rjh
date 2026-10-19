@@ -17,9 +17,9 @@ const FOUR_CS = [
 const FAQS = [
   { q: "Are lab-grown diamonds real diamonds?", a: "Yes. Lab-grown diamonds are chemically, physically and optically identical to mined diamonds — same carbon crystal structure, same brilliance, same hardness. They are graded by the same labs (IGI, GIA) on the same 4 Cs." },
   { q: "How are lab-grown diamonds more sustainable?", a: "Lab-grown diamonds are created without mining, are conflict-free by design, and have a dramatically smaller environmental footprint — a core part of the Rangani promise." },
-  { q: "Do lab-grown diamonds come certified?", a: "Every Rangani diamond ships with an independent IGI or GIA certificate detailing the 4 Cs, with a report number you can verify online directly with the lab." },
+  { q: "Do lab-grown diamonds come certified?", a: "Yes. Solitaire centre diamonds (0.50 ct and above) come with an individual IGI or GIA grading report you can verify on the lab's website. Jewellery set with smaller diamonds comes with an SGL jewellery certificate for the finished piece. Each product page states which applies." },
   { q: "Which of the 4 Cs matters most?", a: "Cut. A superbly cut diamond will out-sparkle a larger stone with a poor cut. We recommend prioritizing Cut, then Color and Clarity in the near-colorless / VS range for the best balance of beauty and value." },
-  { q: "What does Rangani's warranty cover?", a: "Every piece includes a lifetime warranty against manufacturing defects, complimentary cleaning & inspection, free insured worldwide shipping and easy returns." },
+  { q: "What does Rangani's warranty cover?", a: "Every piece has a lifetime warranty against manufacturing defects — if a fault in materials or workmanship is found, we repair or replace it. Orders ship free and insured, with 14-day returns on eligible items." },
 ];
 
 const FAQ_JSONLD = {
@@ -76,8 +76,8 @@ export default function DiamondEducationPage() {
           <p className="text-[14px] text-[var(--grey-2)] leading-relaxed">
             Lab-grown diamonds are real diamonds — identical in chemistry, sparkle and hardness to mined stones,
             graded by the same labs on the same 4&nbsp;Cs. They are conflict-free, kinder to the planet, and let
-            you choose a larger, finer stone for the same investment. Every Rangani diamond is IGI/GIA certified
-            with a verifiable report.
+            you choose a larger, finer stone for the same investment. Solitaire centre stones come with a
+            verifiable IGI or GIA report; jewellery set with smaller diamonds comes with an SGL certificate.
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             <Link href="/product" className="px-6 py-3 rounded-full bg-[var(--teal-1)] text-white text-[13px] font-[600]">

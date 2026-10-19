@@ -38,6 +38,7 @@ const ProductGrid = ({ gridLayout, collections, loading, clearFilters }) => {
                   productName={item?.title}
                   price={item?.product_price}
                   displayDiscountPercent={item?.display_discount_percent}
+                  displayDiscountEndsAt={item?.display_discount_ends_at}
                   productImg={item?.product_image}
                   colorsPalettes={item?.metal_color}
                   gridLayout={gridLayout}
@@ -54,6 +55,7 @@ const ProductGrid = ({ gridLayout, collections, loading, clearFilters }) => {
                   allImages={item?.all_images}
                   shapeVariants={item?.shape_variants}
                   isDesignGroupCard={item?.is_design_group_card}
+                  badges={item?.badges}
                 />
               );
             })

@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
+import { marketingFromRequest } from "@/lib/marketingServer";
 import {
   CRAFTING_YOUR_VISION,
   QUESTIONS,
-  LOVED_BY_HEARTS,
 } from "@/commomPages/Customize/constant";
+
+// Past-project gallery entries are client work: only show ones the CMS editor
+// has marked as a real project published with the client's permission.
+const verifiedCreations = (items) =>
+  (Array.isArray(items) ? items : []).filter((g) => g && g.consent === true && (g.image || g.imageUrl));
 
 // Build the "Design Guides" cards from real, published Blog Posts in the chosen
 // categories (a blog's category = its tag). Empty categories = all recent posts.
@@ -141,10 +146,7 @@ function buildDefaultContent() {
           description: "A few of the bespoke pieces we've brought to life for our clients.",
         },
       ],
-      custom_creation: LOVED_BY_HEARTS.map((g) => ({
-        image: g.imageUrl,
-        title: g.title,
-      })),
+      custom_creation: [],
       banner_section: [
         {
           bg_file: "/videos/the-art-of-making.mp4",
@@ -197,6 +199,7 @@ export async function GET() {
     const sec = matching[0];
     if (sec?.content?.cms_page) {
       data = sec.content;
+      data.cms_page.custom_creation = verifiedCreations(data.cms_page.custom_creation);
       // Keep the per-category hero banners working even when the CMS section
       // was saved with a single (default) hero: CMS entries win per
       // category_name; defaults fill any category the CMS doesn't define.
@@ -255,6 +258,7 @@ export async function POST(req) {
       budget: b.budget || null,
       description: descParts || null,
       referenceImages: Array.isArray(b.file) ? b.file : b.file ? [b.file] : [],
+      marketing: marketingFromRequest(req),
     };
 
     if (!payload.name || (!payload.email && !payload.phone)) {

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import HeadingWithNavigation from "../ui/Heading/HeadingWithNavigation";
 import { useScrollControls } from "@/hooks/useScrollControls";
 import Typography from "../ui/Typography/Typography";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const FeaturedCollections = ({
   title,
@@ -69,7 +70,8 @@ const FeaturedCollections = ({
                 }
               }}
             >
-              <img
+              <img loading="lazy" decoding="async"
+                {...responsiveImg(product?.file, "(min-width: 1024px) 25vw, 50vw")}
                 src={product?.file}
                 alt={product?.title}
                 className={`w-full mb-[16px] object-cover ${imageStyle}`}

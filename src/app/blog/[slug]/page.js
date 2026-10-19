@@ -1,68 +1,85 @@
-"use client";
-import React, { useEffect, useState, use } from "react";
-import DOMPurify from "dompurify";
-import { useCrudApi } from "@/hooks/useCrudApi";
+import { notFound } from "next/navigation";
 import Typography from "@/components/ui/Typography/Typography";
 import { CalenderIcon, UserIcon } from "@/components/Icons/common";
 
-const BlogDetail = ({ params }) => {
-  const { slug } = use(params);
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const TENANT = process.env.NEXT_PUBLIC_TENANT_ID || "00000000-0000-0000-0000-000000000001";
 
-  const { fetchAll: fetchPosts } = useCrudApi(`/api/blog/blog-post`);
-  const [blog, setBlog] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Published posts only (the public API 404s drafts). Content is sanitised by
+// the API when it is saved, so it is rendered as stored.
+async function fetchPost(slug) {
+  try {
+    const res = await fetch(`${API}/api/v1/cms/blogs/${encodeURIComponent(slug)}`, {
+      headers: { "x-tenant-id": TENANT },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const post = j?.data ?? j;
+    return post?.slug && post?.isPublished ? post : null;
+  } catch {
+    return null;
+  }
+}
 
-  useEffect(() => {
-    fetchPosts()
-      .then((res) => {
-        const found = res?.data?.find((b) => b.slug === slug);
-        setBlog(found || null);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false);
-      });
-  }, [slug, fetchPosts]);
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
+  if (!post) return { title: "Article not found", robots: { index: false } };
+  const description = (post.excerpt || "").replace(/\s+/g, " ").trim().slice(0, 160) || undefined;
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url: `/blog/${post.slug}`,
+      ...(post.featuredImageUrl ? { images: [{ url: post.featuredImageUrl, alt: post.title }] } : {}),
+      ...(post.publishedAt ? { publishedTime: post.publishedAt } : {}),
+    },
+  };
+}
 
-  if (loading)
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
-      </div>
-    );
+export default async function BlogPostPage({ params }) {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
+  if (!post) notFound();
 
-  if (!blog) return <div>Blog not found</div>;
+  const date = post.publishedAt || post.createdAt;
   return (
-    <section className="space-y-[40px] container mx-auto xl:px-[160px] lg:px-[50px] px-[18px] pt-[100px]">
-      <div className="space-y-[24px]">
-        <h2 className="xl:text-[54px] lg:text-[32px] text-[28px] font-[500]">
-          {blog?.title || ""}
-        </h2>
+    <article className="space-y-[40px] container mx-auto xl:px-[160px] lg:px-[50px] px-[18px] pt-[100px] pb-[60px]">
+      <header className="space-y-[24px]">
+        <h1 className="xl:text-[54px] lg:text-[32px] text-[28px] font-[500]">{post.title}</h1>
         <div className="flex gap-[48px]">
           <div className="flex gap-[11px]">
             <UserIcon />
             <Typography variant="h5" textColor="placeholder">
-              {blog?.author || "Admin"}
+              {post.author || "Rangani Jewelry House"}
             </Typography>
           </div>
-          <div className="flex gap-[11px]">
-            <CalenderIcon />
-            <Typography variant="h5" textColor="placeholder">
-              {blog?.created_at
-                ? new Date(blog?.created_at).toLocaleDateString()
-                : "—"}
-            </Typography>
-          </div>
+          {date && (
+            <div className="flex gap-[11px]">
+              <CalenderIcon />
+              <Typography variant="h5" textColor="placeholder">
+                {new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              </Typography>
+            </div>
+          )}
         </div>
-      </div>
+      </header>
 
-      <div
-        dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(blog?.description || ""),
-        }}
-      />
-    </section>
+      {post.featuredImageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={post.featuredImageUrl}
+          alt={post.title}
+          className="w-full h-auto max-h-[480px] object-cover rounded-lg"
+        />
+      )}
+
+      <div className="cms-content" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+    </article>
   );
-};
-
-export default BlogDetail;
+}

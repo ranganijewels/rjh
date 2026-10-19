@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 
 const filtersData = {
   purity: [
+    { value: "10K", label: "10K" },
     { value: "14K", label: "14K" },
     { value: "18K", label: "18K" },
-    { value: "22K", label: "22K" },
   ],
   // metal_color kept as string array for Details.jsx MetalSelector
   metal_color: ["YELLOW", "WHITE", "ROSE"],

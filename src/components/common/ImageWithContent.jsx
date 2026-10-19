@@ -1,10 +1,12 @@
 "use client";
+import LazyVideo from "@/components/common/LazyVideo";
 import React, { useEffect } from "react";
 import Heading from "../ui/Heading/Heading";
 import HeadingWithNavigation from "../ui/Heading/HeadingWithNavigation";
 import { useScrollControls } from "@/hooks/useScrollControls";
 import Link from "next/link";
 import { useFileType } from "@/hooks/useFileType";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const ImageWithContent = ({
   heading,
@@ -65,7 +67,7 @@ const ImageWithContent = ({
               }`}
             >
               {isVideo ? (
-                <video
+                <LazyVideo
                   src={item?.file || item?.image}
                   autoPlay
                   muted
@@ -74,7 +76,8 @@ const ImageWithContent = ({
                   className=" xl:h-[376px] lg:h-[207px] h-[224px] xl:mb-[16px] mb-[8px] object-cover"
                 />
               ) : (
-                <img
+                <img loading="lazy" decoding="async"
+                  {...responsiveImg(item?.file || item?.image, "(min-width: 1024px) 33vw, 80vw")}
                   src={item?.file || item?.image}
                   alt={item?.title}
                   className=" xl:h-[376px] lg:h-[207px] h-[224px] xl:mb-[16px] mb-[8px] object-cover"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import MenuOptionsPanel from "./MenuOptionsPanel";
 import SimpleNavDropdown from "./SimpleNavDropdown";
 import { MENUS_OPTIONS, NAV_MENUS } from "./constant";
@@ -23,14 +23,17 @@ import useIsMobile from "@/utils/useIsMobile";
 import { toTitleCase } from "@/utils/string";
 import Badge from "@/components/ui/Badge/Badge";
 
-// sectionKey -> MENUS_OPTIONS[].title, explicit (not fuzzy-matched) since
-// this decides what content actually renders in a critical nav path.
-const MEGA_MENU_KEY_TO_TITLE = {
-  engagement: "Engagement",
-  wedding: "Wedding",
-  jewelry: "Jewelry",
-  customize: "Customize",
-  "about-us": "About us",
+// The 5 originally-seeded menus' real CmsSection keys — used only inside the
+// NAV_MENUS emergency fallback below, so that if CmsNavigation specifically
+// fails/returns empty while CmsSection content still loads fine, these still
+// resolve their REAL saved content instead of falling all the way through
+// to a second, static-only fallback.
+const LEGACY_MEGA_MENU_KEYS = {
+  Engagement: "engagement",
+  Wedding: "wedding",
+  Jewelry: "jewelry",
+  Customize: "customize",
+  "About us": "about-us",
 };
 
 const Navbar = () => {
@@ -120,63 +123,78 @@ const Navbar = () => {
     loadMegaMenus();
   }, []);
 
-  // The 5 rich menus, each individually overridden by its CMS content when
-  // present — a menu with no saved CmsSection row (never edited, or the
-  // fetch failed) falls back to its hardcoded MENUS_OPTIONS entry untouched.
-  const effectiveMenusOptions = useMemo(() => {
-    return MENUS_OPTIONS.map((m) => {
-      const key = Object.keys(MEGA_MENU_KEY_TO_TITLE).find(
-        (k) => MEGA_MENU_KEY_TO_TITLE[k] === m.title
-      );
-      const cms = key && cmsMegaMenus[key];
-      return cms || m;
-    });
-  }, [cmsMegaMenus]);
-
-  // Top-level bar items: the 5 hardcoded NAV_MENUS ALWAYS render (this is
-  // the "layer on top, don't replace" rule) plus any admin-added item whose
-  // label doesn't already match one of them — so a from-launch, never-wired
-  // CmsNavigation row (e.g. a generic "Home"/"Collections" set seeded before
-  // this feature existed) can't silently blank out the rich mega-menu the
-  // moment it becomes reachable. Only genuinely new admin items append.
+  // Top-level bar items are now fully admin-driven: CMS > Navigation's
+  // top-level list IS the top bar, in its own order. NAV_MENUS only renders
+  // when that fetch genuinely returns nothing (network failure or a
+  // brand-new, not-yet-configured tenant) — a pure emergency fallback, not
+  // an always-on baseline layered under admin items like the previous design.
   const topNavItems = useMemo(() => {
-    const base = NAV_MENUS.map((item) => ({ ...item, children: [] }));
-    const extra = adminNavItems
-      .filter(
-        (item) =>
-          !NAV_MENUS.some((m) => m.label.toLowerCase() === item.title.toLowerCase())
-      )
-      .map((item) => ({
+    if (adminNavItems.length) {
+      return adminNavItems.map((item) => ({
         label: item.title,
         link: item.link,
         children: item.children || [],
+        hasMegaMenu: !!item.hasMegaMenu,
+        megaMenuKey: item.megaMenuKey,
       }));
-    return [...base, ...extra];
+    }
+    // hasMegaMenu:true + the real legacy key here so these still resolve
+    // actual saved CmsSection content (not just the static MENUS_OPTIONS
+    // last-resort in getMegaMenuContent) even if only CmsNavigation's fetch
+    // failed while the mega-menu content fetch succeeded independently.
+    return NAV_MENUS.map((item) => ({
+      ...item,
+      children: [],
+      hasMegaMenu: true,
+      megaMenuKey: LEGACY_MEGA_MENU_KEYS[item.label],
+    }));
   }, [adminNavItems]);
 
-  // Admin-added top-level items with no rich-menu match get folded into the
-  // mobile menu too, as a single-category accordion of their child links —
-  // reuses MobileNav's existing category rendering with no changes there.
+  // Resolves one top-level item's rich content: real CMS content by its
+  // stable key, or — only when the CMS fetch totally failed (cmsMegaMenus is
+  // empty, not just missing this one key) — the matching hardcoded
+  // MENUS_OPTIONS entry for the 5 originally-known titles. A brand-new
+  // custom item with no content yet correctly gets null, not someone else's
+  // fallback content.
+  const getMegaMenuContent = useCallback(
+    (item) => {
+      if (item.megaMenuKey && cmsMegaMenus[item.megaMenuKey]) {
+        return cmsMegaMenus[item.megaMenuKey];
+      }
+      if (!Object.keys(cmsMegaMenus).length) {
+        return MENUS_OPTIONS.find((m) => m.title.toLowerCase() === item.label.toLowerCase()) || null;
+      }
+      return null;
+    },
+    [cmsMegaMenus]
+  );
+
+  // Mobile menu list: every top-level item that resolves to real content —
+  // rich (columns/CTA or media tiles) if hasMegaMenu, else a single flat
+  // category of its own children (same shape SimpleNavDropdown's items use
+  // on desktop) — reusing MobileNav's existing rendering with no changes.
   const menuOptions = useMemo(() => {
-    const extra = topNavItems
-      .filter(
-        (item) =>
-          !effectiveMenusOptions.some(
-            (m) => m.title.toLowerCase() === item.label.toLowerCase()
-          )
-      )
-      .filter((item) => item.children.length)
-      .map((item) => ({
-        title: item.label,
-        categories: [
-          {
+    return topNavItems
+      .map((item) => {
+        if (item.hasMegaMenu) {
+          const content = getMegaMenuContent(item);
+          if (content) return { ...content, title: item.label };
+        }
+        if (item.children.length) {
+          return {
             title: item.label,
-            items: item.children.map((c) => ({ label: c.title, link: c.link })),
-          },
-        ],
-      }));
-    return [...effectiveMenusOptions, ...extra];
-  }, [topNavItems, effectiveMenusOptions]);
+            categories: [
+              {
+                title: item.label,
+                items: item.children.map((c) => ({ label: c.title, link: c.link })),
+              },
+            ],
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }, [topNavItems, getMegaMenuContent]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -220,7 +238,12 @@ const Navbar = () => {
         className={clsx(
           "sticky top-0 z-[1000] w-full will-change-transform",
           "transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]",
-          isNavbarHidden ? "-translate-y-[110%]" : "translate-y-0"
+          isNavbarHidden ? "-translate-y-[110%]" : "translate-y-0",
+          // Server-rendered overlay offset (the header's known height) so the hero
+          // is already under the nav on first paint; without it the page jumped
+          // up ~90px when the measurement below landed (CLS 0.19). The measured
+          // inline style then takes over.
+          isHeroPage && !navHeight && "-mb-[84px] lg:-mb-[93px]"
         )}
         style={isHeroPage && navHeight ? { marginBottom: -navHeight } : undefined}
       >
@@ -413,21 +436,23 @@ const Navbar = () => {
         <div className="relative z-40">
           {activeMenu && (
             <>
-              {effectiveMenusOptions.some(
-                (m) => m.title.toLowerCase() === activeMenu.toLowerCase()
-              ) ? (
-                <MenuOptionsPanel
-                  activeMenu={activeMenu}
-                  setActiveMenu={setActiveMenu}
-                  menus={effectiveMenusOptions}
-                />
-              ) : (
-                <SimpleNavDropdown
-                  activeMenu={activeMenu}
-                  setActiveMenu={setActiveMenu}
-                  item={topNavItems.find((i) => i.label === activeMenu)}
-                />
-              )}
+              {(() => {
+                const item = topNavItems.find((i) => i.label === activeMenu);
+                const megaContent = item?.hasMegaMenu ? getMegaMenuContent(item) : null;
+                return megaContent ? (
+                  <MenuOptionsPanel
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
+                    menus={[{ ...megaContent, title: activeMenu }]}
+                  />
+                ) : (
+                  <SimpleNavDropdown
+                    activeMenu={activeMenu}
+                    setActiveMenu={setActiveMenu}
+                    item={item}
+                  />
+                );
+              })()}
             </>
           )}
 

@@ -60,23 +60,3 @@ export const FEATURES_DATA = [
   },
 ];
 
-export const SHIPPING_RETURNS_DATA = [
-  {
-    title: "Shipping Information",
-    points: [
-      "Free Insured Shipping on all domestic orders. All pieces are securely packaged and delivered with full insurance.",
-      "Made-to-order items ship within 10–15 business days.",
-      "Ready-to-ship items are dispatched within 2–3 business days.",
-      "Tracking details will be shared once your order is on its way.",
-    ],
-  },
-  {
-    title: "Returns & Exchanges",
-    points: [
-      "We offer a 30-day return window from the date of delivery.",
-      "Items must be unworn, in original condition, and include all packaging.",
-      "Custom or engraved pieces are not eligible for returns.",
-      "Need a different size? Enjoy 1 free resizing within 60 days of purchase.",
-    ],
-  },
-];

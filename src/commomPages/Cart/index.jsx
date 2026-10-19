@@ -14,6 +14,7 @@ import QuantitySelector from "./QuantitySelector";
 import { toTitleCase } from "@/utils/string";
 import { usePreferences } from "@/context/PreferencesContext";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
+import { convertPrice } from "@/utils/money";
 import { useCoupon } from "@/hooks/useCoupon";
 import { CloseIcon } from "@/components/Icons/common/CloseIcon";
 import Link from "next/link";
@@ -25,6 +26,33 @@ const shippingOptions = [
   { id: "free", label: "Free", price: 0 },
   // { id: "express", label: "Express", price: 10 },
 ];
+
+
+const metalLabel = (item) => {
+  const t = String(item?.metal_type || "");
+  if (/925|silver/i.test(t)) return "925 Sterling Silver";
+  return [t, toTitleCase(item?.metal_color || ""), "Gold"].filter(Boolean).join(" ");
+};
+
+// Every configured choice on a bag line, so the shopper can check exactly
+// what will be made before paying.
+const CartLineSpecs = ({ item }) => {
+  const rows = [
+    ["Diamond Shape", item?.diamond_shape],
+    ["Metal", item?.metal_type ? metalLabel(item) : ""],
+    ["Center Diamond", item?.center_diamond_weight ? `${item.center_diamond_weight} ct` : ""],
+    ["Diamond Color", item?.diamond_color],
+    ["Diamond Clarity", item?.diamond_clarity],
+    ["Earring Back", item?.back_type],
+    ["Engraving", item?.engraving ? `“${item.engraving}”` : ""],
+  ].filter(([, v]) => v);
+  return rows.map(([label, value]) => (
+    <Typography variant="h6" key={label}>
+      {label} :{" "}
+      <span className="font-[500] text-[var(--grey-2)]">{value}</span>
+    </Typography>
+  ));
+};
 
 const Cart = () => {
   const [selectedShipping, setSelectedShipping] = useState(0);
@@ -171,35 +199,7 @@ const Cart = () => {
                         </span>
                       </Typography>
                     )}
-                    {item?.diamond_shape && (
-                      <Typography variant="h6">
-                        Diamond Shape :{" "}
-                        <span className="font-[500] text-[var(--grey-2)]">
-                          {item?.diamond_shape}
-                        </span>
-                      </Typography>
-                    )}
-                    {item?.metal_type && item?.metal_color && (
-                      <Typography variant="h6">
-                        Metal :{" "}
-                        <span className="font-[500] text-[var(--grey-2)]">
-                          {item?.metal_type +
-                            " " +
-                            toTitleCase(item?.metal_color) +
-                            " Gold"}
-                        </span>
-                      </Typography>
-                    )}
-                    {item?.center_diamond_weight ? (
-                      <Typography variant="h6">
-                        Center Diamond Weight :
-                        <span className="font-[500] text-[var(--grey-2)]">
-                          {item?.center_diamond_weight}
-                        </span>
-                      </Typography>
-                    ) : (
-                      ""
-                    )}
+                    <CartLineSpecs item={item} />
                   </div>
 
                   {item?.ring_size && (
@@ -233,13 +233,13 @@ const Cart = () => {
                   <Typography variant="p" className="font-[600] whitespace-nowrap">
                     {getCurrencySymbol(selectedCountry?.currency)}{" "}
                     {typeof item.subtotal === "number"
-                      ? item.subtotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+                      ? convertPrice(item.subtotal, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
                       : "—"}
                   </Typography>
                   {item.quantity > 1 && (
                     <span className="text-[11px] text-[var(--grey-2)] whitespace-nowrap">
                       {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                      {(item.subtotal / item.quantity).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ea.
+                      {convertPrice(item.subtotal / item.quantity, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ea.
                     </span>
                   )}
                 </div>
@@ -309,33 +309,7 @@ const Cart = () => {
                           </span>
                         </Typography>
                       )}
-                      {item?.diamond_shape && (
-                        <Typography variant="h6">
-                          Diamond Shape :{" "}
-                          <span className="font-[500] text-[var(--grey-2)]">
-                            {item?.diamond_shape}
-                          </span>
-                        </Typography>
-                      )}
-                      {item?.metal_type && item?.metal_color && (
-                        <Typography variant="h6">
-                          Metal :{" "}
-                          <span className="font-[500] text-[var(--grey-2)]">
-                            {item?.metal_type +
-                              " " +
-                              toTitleCase(item?.metal_color) +
-                              " Gold"}
-                          </span>
-                        </Typography>
-                      )}
-                      {item?.center_diamond_weight ? (
-                        <Typography variant="h6">
-                          Center Diamond Weight :
-                          <span className="font-[500] text-[var(--grey-2)]">
-                            {item?.center_diamond_weight}
-                          </span>
-                        </Typography>
-                      ) : null}
+                      <CartLineSpecs item={item} />
                       {item?.ring_size && (
                         <div className="inline-flex gap-2 items-center">
                           <Typography variant="h6">
@@ -373,7 +347,7 @@ const Cart = () => {
                     >
                       {getCurrencySymbol(selectedCountry?.currency) + " "}
                       {typeof item.subtotal === "number"
-                        ? item?.subtotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+                        ? convertPrice(item.subtotal, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
                         : "0.00"}
                     </Typography>
                   </div>
@@ -488,7 +462,7 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h6" className="font-[500]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.cart_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                  {convertPrice(summary?.cart_total ?? 0, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </Typography>
               </div>
 
@@ -503,7 +477,7 @@ const Cart = () => {
                   <span className="flex items-center gap-1 text-[13px] font-[500] whitespace-nowrap">
                     <MinusIcon />
                     {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                    {Number(summary?.discount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                    {convertPrice(summary?.discount ?? 0, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                     <button
                       onClick={remove}
                       disabled={loading}
@@ -521,7 +495,7 @@ const Cart = () => {
                 </Typography>
                 <Typography variant="h5" className="font-[600]">
                   {getCurrencySymbol(selectedCountry?.currency)}{" "}
-                  {Number(summary?.grand_total ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                  {convertPrice(summary?.grand_total ?? 0, selectedCountry).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </Typography>
               </div>
             </div>
@@ -532,7 +506,7 @@ const Cart = () => {
               </div>
 
               <div className="flex gap-[10px] items-center justify-center break-all">
-                <ExchangeIcon /> 30 days Free Returns & Exchange
+                <ExchangeIcon /> 14-day returns on eligible items
               </div>
             </div>
 

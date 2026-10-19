@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useScrollControls } from "@/hooks/useScrollControls";
+import { responsiveImg } from "@/lib/imageSizes";
 
 const INSTAGRAM_URL = "https://www.instagram.com/ranganijewelryhouse";
 const HANDLE = "@ranganijewelryhouse";
@@ -11,7 +12,7 @@ const InstaAvatar = () => (
   <div className="w-7 h-7 rounded-full p-[1.5px] flex-shrink-0"
     style={{ background: "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)" }}>
     <div className="w-full h-full rounded-full bg-black overflow-hidden flex items-center justify-center">
-      <img src="/logo.png" alt="Rangani" className="w-full h-full object-cover"
+      <img loading="lazy" decoding="async" src="/logo.png" alt="Rangani" className="w-full h-full object-cover"
         onError={(e) => { e.currentTarget.style.display = "none"; }} />
     </div>
   </div>
@@ -57,21 +58,10 @@ const ShareIcon = () => (
   </svg>
 );
 
-/* Decorative stats per card */
-const REEL_STATS = [
-  { likes: "3.2k", comments: "48" },
-  { likes: "1.8k", comments: "31" },
-  { likes: "4.5k", comments: "72" },
-  { likes: "2.1k", comments: "19" },
-  { likes: "6.0k", comments: "94" },
-  { likes: "1.4k", comments: "22" },
-];
-
 /* ── Single Reel card ────────────────────────────────────────────── */
 const ReelCard = ({ item, index }) => {
   const videoRef = useRef(null);
   const isVideo = item.mediaType === "VIDEO" || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(item.mediaUrl || "");
-  const stats = REEL_STATS[index % REEL_STATS.length];
   const caption = item.caption || "Crafted with love ✨ #RanganiJewels";
   const href = item.permalink || INSTAGRAM_URL;
 
@@ -105,10 +95,12 @@ const ReelCard = ({ item, index }) => {
         <>
           {/* Poster thumbnail visible before hover */}
           {item.thumbnailUrl && (
-            <img
+            <img loading="lazy" decoding="async"
+              {...responsiveImg(item.thumbnailUrl, "(min-width: 1536px) 260px, (min-width: 1280px) 220px, 175px")}
               src={item.thumbnailUrl}
               alt={item.caption?.slice(0, 100) || 'Instagram reel'}
               className="absolute inset-0 w-full h-full object-cover group-hover:opacity-0 transition-opacity duration-300"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           )}
           <video
@@ -126,7 +118,8 @@ const ReelCard = ({ item, index }) => {
         </>
       ) : (
         <>
-          <img
+          <img loading="lazy" decoding="async"
+            {...responsiveImg(item.mediaUrl || item.thumbnailUrl, "(min-width: 1536px) 260px, (min-width: 1280px) 220px, 175px")}
             src={item.mediaUrl || item.thumbnailUrl}
             alt={item.caption?.slice(0, 100) || `Reel by ${HANDLE}`}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -145,19 +138,6 @@ const ReelCard = ({ item, index }) => {
           <span className="text-white text-[10px] font-semibold tracking-wide">Reels</span>
         </div>
         <InstaIcon className="w-5 h-5 text-white drop-shadow" />
-      </div>
-
-      {/* Right side action icons */}
-      <div className="absolute right-3 bottom-[72px] flex flex-col items-center gap-4">
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-white drop-shadow"><HeartIcon /></span>
-          <span className="text-white text-[10px] font-medium leading-none">{stats.likes}</span>
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-white drop-shadow"><CommentIcon /></span>
-          <span className="text-white text-[10px] font-medium leading-none">{stats.comments}</span>
-        </div>
-        <span className="text-white drop-shadow"><ShareIcon /></span>
       </div>
 
       {/* Bottom: avatar + handle + caption */}
@@ -200,14 +180,19 @@ const LovedByRJHouse = ({ items }) => {
 
   // Priority: live Instagram > CMS items (normalised) > empty
   const cmsItems = Array.isArray(items?.loved_by_items)
-    ? items.loved_by_items.map((i) => ({
-        id: i.id || Math.random().toString(),
-        caption: i.review || i.name || "",
-        mediaType: /\.(mp4|webm|ogg|mov)(\?|$)/i.test(i.file || "") ? "VIDEO" : "IMAGE",
-        mediaUrl: i.file || "",
-        thumbnailUrl: i.file || "",
-        permalink: INSTAGRAM_URL,
-      }))
+    ? items.loved_by_items.map((i, n) => {
+        const file = i.file || "";
+        const isVid = /\.(mp4|webm|ogg|mov)(\?|$)/i.test(file);
+        return {
+          id: i.id || `reel-${n}`,
+          caption: i.review || i.name || "",
+          mediaType: isVid ? "VIDEO" : "IMAGE",
+          mediaUrl: file,
+          // Uploaded videos get an auto-generated "<name>-poster.jpg" beside them.
+          thumbnailUrl: i.thumbnail || (isVid ? file.replace(/\.(mp4|webm|ogg|mov)(\?.*)?$/i, "-poster.jpg") : file),
+          permalink: i.link || INSTAGRAM_URL,
+        };
+      })
     : [];
 
   const reelItems = liveItems.length > 0 ? liveItems : cmsItems;
@@ -308,7 +293,7 @@ const LovedByRJHouse = ({ items }) => {
       ) : reelItems.length > 0 ? (
         <div
           ref={containerRef}
-          className="flex gap-3 overflow-x-auto no-scrollbar scroll-smooth pb-2"
+          className="flex gap-3 overflow-x-auto hide-scrollbar scroll-smooth pb-2"
         >
           {reelItems.map((item, i) => (
             <ReelCard key={item.id || i} item={item} index={i} />
@@ -316,7 +301,7 @@ const LovedByRJHouse = ({ items }) => {
         </div>
       ) : (
         /* Placeholder — shown when no token set and no CMS data */
-        <div ref={containerRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        <div ref={containerRef} className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <Link
               key={i}

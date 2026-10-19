@@ -82,7 +82,7 @@ const SignUpPopUp = ({ onClose }) => {
 
       {/* Image Section */}
       <div className="justify-center items-center flex-1 hidden md:flex">
-        <img
+        <img loading="lazy" decoding="async"
           src="/popup-img-3.jpg"
           alt="popup"
           className="w-full h-full object-cover md:max-w-none max-w-[300px]"

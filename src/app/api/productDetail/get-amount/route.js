@@ -26,6 +26,8 @@ export async function POST(req) {
       if (ct) overrides.centerCaratCt = ct;
     }
     if (body.diamond_quality) overrides.diamondQuality = body.diamond_quality;
+    if (body.diamond_clarity) overrides.diamondClarity = body.diamond_clarity;
+    if (body.diamond_color) overrides.diamondColor = body.diamond_color;
 
     // Ask the engine for the live price (loads product attributes + overrides).
     const result = await rjApi("POST", "/price-preview", { body: { productId, ...overrides } });

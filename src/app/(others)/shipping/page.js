@@ -1,11 +1,7 @@
-import React from 'react'
-import Shipping from '@/commomPages/PrivacyPolicy/Shipping'
-const page = () => {
-  return (
-    <>
-        <Shipping/>
-    </>
-  )
-}
+import PolicyPage, { policyMetadata } from "@/components/common/PolicyPage";
 
-export default page
+export const generateMetadata = () => policyMetadata("shipping");
+
+export default function Page() {
+  return <PolicyPage slug="shipping" />;
+}

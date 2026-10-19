@@ -2,40 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { DIFFERENCE_DEFAULT } from "@/content/brand";
 
 // "The RJ House Difference" — Ecksand-style two-column band: brand story +
 // ABOUT link on the left, an accordion stack (materials / certification /
 // packaging / reviews) on the right. Copy is CMS-driven via pdp-content
 // `difference`; the defaults below render until it's edited.
-const DEFAULTS = {
-  heading: "The RJ House Difference",
-  body:
-    "When you choose Rangani Jewelry House, you become part of a tradition rooted in three generations of craftsmanship. Since 1990, each piece has been designed and handmade in our atelier. Certified by IGI and GIA, your jewel carries a legacy of sustainability, artistry, and intention.",
-  linkText: "About RJ House",
-  linkUrl: "/about-us",
-  items: [
-    {
-      title: "Sustainable Materials",
-      body:
-        "Exclusively lab-grown, IGI & GIA certified diamonds set in responsibly sourced 18K and 22K gold, sterling silver, and platinum — brilliance without the footprint.",
-    },
-    {
-      title: "Certifications & Hallmarks",
-      body:
-        "Every diamond ships with its lab certificate, and every precious metal is hallmarked for purity — BIS hallmarked gold, always.",
-    },
-    {
-      title: "Signature Packaging",
-      body:
-        "Each piece arrives in our signature navy presentation box with care card and polishing cloth — ready for the moment it was made for.",
-    },
-    {
-      title: "Customer Reviews",
-      body:
-        "Rated by the people who wear Rangani every day — read verified reviews from proposals, anniversaries, and everything in between, right on this page.",
-    },
-  ],
-};
+const DEFAULTS = DIFFERENCE_DEFAULT;
 
 export default function BrandDifference({ config }) {
   const c = config && Object.keys(config).length ? config : {};
