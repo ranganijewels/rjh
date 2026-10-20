@@ -1,14 +1,5 @@
 import { rjApi } from "@/lib/apiHandler";
 
-const enc = (s) => s.replace(/&/g, "%26").replace(/#/g, "%23");
-const svgIcon = (path) =>
-  `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232F6F7A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>${enc(path)}</svg>`;
-
-const TRUCK_PATH = "<rect x='1' y='3' width='15' height='13'></rect><polygon points='16 8 20 8 23 11 23 16 16 16 16 8'></polygon><circle cx='5.5' cy='18.5' r='2.5'></circle><circle cx='18.5' cy='18.5' r='2.5'></circle>";
-const GEM_PATH = "<polyline points='6 3 18 3 22 9 12 22 2 9 6 3'></polyline><line x1='12' y1='22' x2='12' y2='9'></line><line x1='2' y1='9' x2='22' y2='9'></line>";
-const SHIELD_PATH = "<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'></path>";
-const RETURNS_PATH = "<polyline points='1 4 1 10 7 10'></polyline><path d='M3.51 15a9 9 0 1 0 .49-3.59'></path>";
-
 const TENANT = process.env.NEXT_PUBLIC_TENANT_ID || "00000000-0000-0000-0000-000000000001";
 
 function sectionsByKey(sections) {
@@ -123,10 +114,10 @@ export async function buildHomeData() {
 
       service_section: [{
         service_items: [
-          { image: svgIcon(TRUCK_PATH), title: "Free Shipping", service_description: "Free insured shipping on every order" },
-          { image: svgIcon(GEM_PATH), title: "Certified Diamonds", service_description: "IGI/GIA reports for solitaires, SGL certificates for jewellery" },
-          { image: svgIcon(SHIELD_PATH), title: "Lifetime Warranty", service_description: "Against manufacturing defects" },
-          { image: svgIcon(RETURNS_PATH), title: "Easy Returns", service_description: "14-day returns on eligible items" },
+          { image: "/icons/shipping.svg", title: "Free Shipping", service_description: "Free insured shipping on every order" },
+          { image: "/icons/certified.svg", title: "Certified Diamonds", service_description: "IGI/GIA reports for solitaires, SGL certificates for jewellery" },
+          { image: "/icons/lifetime-warranty.svg", title: "Lifetime Warranty", service_description: "Against manufacturing defects" },
+          { image: "/icons/easy-returns.svg", title: "Easy Returns", service_description: "14-day returns on eligible items" },
         ],
       }],
 
