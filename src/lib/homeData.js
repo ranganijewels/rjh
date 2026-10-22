@@ -90,6 +90,8 @@ export async function buildHomeData() {
         heading: whyChoose.heading || "Why Choose RJ House",
         sub_heading: whyChoose.subHeading || "",
         video_url: whyChoose.videoUrl || "",
+        cta_text: whyChoose.cta1Text || whyChoose.cta1_text || "Learn More",
+        cta_link: whyChoose.cta1Link || whyChoose.cta1_link || "/about-us",
         items: (whyChoose.features || []).map(f => ({
           icon: f.icon || "✨",
           title: f.title || "",
