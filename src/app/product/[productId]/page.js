@@ -1,4 +1,5 @@
 import { preload } from "react-dom";
+import { notFound } from "next/navigation";
 import { uploadSrcSet } from "@/lib/imageSizes";
 import ProductDetails from "@/commomPages/ProductDetails";
 import { buildProductDetail } from "@/app/api/productDetail/[id]/route";
@@ -8,6 +9,10 @@ import { displayProductName } from "@/lib/productName";
 const NEST = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TENANT = process.env.NEXT_PUBLIC_TENANT_ID || "00000000-0000-0000-0000-000000000001";
 
+// Returned when the API says the product doesn't exist (deleted or never
+// existed), as distinct from a fetch failure, so the page can 404.
+const NOT_FOUND = Symbol("product-not-found");
+
 // Fetch the product (server-side) for both <title>/meta and JSON-LD.
 async function fetchProduct(id) {
   if (!id) return null;
@@ -16,6 +21,7 @@ async function fetchProduct(id) {
       cache: "no-store",
       headers: { "x-tenant-id": TENANT },
     });
+    if (res.status === 404) return NOT_FOUND;
     if (!res.ok) return null;
     const j = await res.json();
     return j?.data ?? j ?? null;
@@ -45,6 +51,7 @@ async function fetchProductSchema(id) {
 export async function generateMetadata({ params }) {
   const { productId } = await params;
   const p = await fetchProduct(productId);
+  if (p === NOT_FOUND) notFound();
   if (!p) {
     return { title: "Product", robots: { index: false } };
   }
@@ -124,6 +131,7 @@ export default async function ProductPage({ params }) {
     fetchProduct(productId),
     buildProductDetail(productId).catch(() => null),
   ]);
+  if (product === NOT_FOUND) notFound();
   const hero = heroImageUrl(product);
   // Same candidates + sizes as the gallery <img> (mobile main image and desktop
   // grid), so the browser downloads exactly one copy of the LCP image.
