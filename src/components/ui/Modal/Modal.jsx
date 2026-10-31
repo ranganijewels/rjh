@@ -6,6 +6,11 @@ import clsx from "clsx";
 const Modal = ({ isOpen, onClose, title, children }) => {
   const panelRef = useRef(null);
   const closeBtnRef = useRef(null);
+  // Callers pass an inline onClose, which changes every render. Reading it
+  // from a ref keeps the effect below from re-running on each keystroke —
+  // that re-run moved focus to the close button and made inputs untypeable.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -15,7 +20,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
-        onClose?.();
+        onCloseRef.current?.();
         return;
       }
 
@@ -40,7 +45,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return (
     <>
@@ -60,7 +65,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         aria-modal="true"
         aria-labelledby="modal-title"
         className={clsx(
-          "fixed top-0 right-0 z-[9999] h-screen xl:w-[25%] lg:w-[40%] md:w-[50%] w-full bg-[var(--grey-00)] drop-shadow-md transform transition-transform duration-300 ease-out",
+          "fixed top-0 right-0 z-[9999] h-screen xl:w-[25%] lg:w-[40%] md:w-[50%] w-full md:min-w-[460px] max-w-full bg-[var(--grey-00)] drop-shadow-md transform transition-transform duration-300 ease-out",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
