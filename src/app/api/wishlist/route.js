@@ -1,14 +1,22 @@
 import { NextResponse } from "next/server";
-import { rjApi } from "@/lib/apiHandler";
+import { bearer, toggleEntry } from "@/lib/wishlist";
 
 export async function POST(req) {
   try {
-    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
     const body = await req.json().catch(() => ({}));
-    const result = await rjApi("POST", "/storefront/wishlist", {
-      headers: { Authorization: `Bearer ${token}` },
-      body: { productId: body.product_id || body.productId, productData: body },
+    const productId = body.product_id || body.productId;
+    if (!productId) return NextResponse.json({ status: false, message: "product_id is required" }, { status: 400 });
+
+    const result = await toggleEntry(bearer(req), productId, body);
+    if (!result.ok) {
+      return NextResponse.json({ status: false, message: "Wishlist update failed" }, { status: result.status || 500 });
+    }
+    return NextResponse.json({
+      status: true,
+      message: result.added ? "Added to wishlist" : "Removed from wishlist",
+      data: { wishlist: result.added, wishlist_count: result.count },
     });
-    return NextResponse.json({ status: result.ok, message: result.ok ? "Wishlist updated" : "Failed", data: result.raw?.data });
-  } catch (e) { return NextResponse.json({ status: false, message: e.message }); }
+  } catch (e) {
+    return NextResponse.json({ status: false, message: e.message }, { status: 500 });
+  }
 }

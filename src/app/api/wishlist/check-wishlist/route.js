@@ -1,14 +1,21 @@
 import { NextResponse } from "next/server";
-import { rjApi } from "@/lib/apiHandler";
+import { bearer, readWishlist } from "@/lib/wishlist";
+
+async function check(req, productId) {
+  try {
+    const { entries } = await readWishlist(bearer(req));
+    const wishlisted = Boolean(productId) && entries.some((e) => e.productId === productId);
+    return NextResponse.json({ data: { wishlist: wishlisted, is_wishlisted: wishlisted } });
+  } catch {
+    return NextResponse.json({ data: { wishlist: false, is_wishlisted: false } });
+  }
+}
+
+export async function POST(req) {
+  const body = await req.json().catch(() => ({}));
+  return check(req, body.product_id || body.productId);
+}
 
 export async function GET(req) {
-  try {
-    const token = req.headers.get("authorization")?.replace("Bearer ", "") || "";
-    const url = new URL(req.url);
-    const productId = url.searchParams.get("product_id");
-    const result = await rjApi("GET", "/storefront/wishlist", { headers: { Authorization: `Bearer ${token}` } });
-    const items = result.raw?.data?.items || [];
-    const isWishlisted = items.some(i => i.productId === productId);
-    return NextResponse.json({ data: { is_wishlisted: isWishlisted } });
-  } catch { return NextResponse.json({ data: { is_wishlisted: false } }); }
+  return check(req, new URL(req.url).searchParams.get("product_id"));
 }

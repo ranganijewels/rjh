@@ -19,13 +19,15 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
   const router = useRouter();
   const { addToCart, removeFromWishlist } = useWishlistLogic();
   const wishlist = useSelector((s) => s.wishlist.items);
+  const customerId = useSelector((s) => s.auth?.customer?.id);
+  // Refetch on sign-in/out too, so the header badge reflects this account.
   useEffect(() => {
     dispatch(
       fetchWishlist({
         currency: selectedCountry.currency,
       })
     );
-  }, [dispatch]);
+  }, [dispatch, customerId]);
 
   if (!isOpen) return null;
   return (

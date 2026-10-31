@@ -282,7 +282,7 @@ const Details = ({ initialDetail = null }) => {
     const isWishlisted = await checkIfWishlisted({
       product_id: productInfo.id,
       metal_color: activeColor,
-      metal_type: selectedMetal.karat.value,
+      metal_type: selectedMetal?.karat?.value,
       diamond_shape: selectedShape,
       center_diamond_weight: selectedWeight,
       ring_size: selectedRingSize,
@@ -293,13 +293,7 @@ const Details = ({ initialDetail = null }) => {
   };
 
   useEffect(() => {
-    if (
-      !customerId ||
-      !productInfo?.id ||
-      !selectedMetal?.karat?.value ||
-      !activeColor ||
-      !selectedShape
-    ) {
+    if (!customerId || !productInfo?.id) {
       setIsWishlisted(false);
       return;
     }
@@ -322,8 +316,8 @@ const Details = ({ initialDetail = null }) => {
       product_id: productInfo.id,
       product_price: productInfo.product_price,
       category_id: productInfo.category_id,
-      metal_type: selectedMetal.karat.value,
-      metal_color: activeColor.toUpperCase(),
+      metal_type: selectedMetal?.karat?.value,
+      metal_color: (activeColor || "").toUpperCase(),
       diamond_shape: selectedShape,
       center_diamond_weight: selectedWeight ? cleanCarat(selectedWeight) : "",
       ring_size: selectedRingSize ? String(selectedRingSize) : "",

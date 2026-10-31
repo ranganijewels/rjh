@@ -6,7 +6,9 @@ export const fetchWishlist = createAsyncThunk(
   async ({ currency }, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
-      const token = state.auth?.token;
+      const token =
+        state.auth?.token ||
+        (typeof window !== "undefined" ? localStorage.getItem("authTokenRJHouse") : null);
 
       const res = await apiGet("/api/wishlist/get-wishlist", token, {
         currency,
@@ -53,6 +55,9 @@ const wishlistSlice = createSlice({
     loading: false,
   },
   reducers: {
+    setWishlistCount(state, action) {
+      state.count = action.payload;
+    },
     removeWishlistItem(state, action) {
       const removedId = action.payload;
       state.items = state.items.filter((item) => item.id !== removedId);
@@ -64,6 +69,9 @@ const wishlistSlice = createSlice({
       .addCase(fetchWishlist.fulfilled, (state, action) => {
         state.items = action.payload.wishlist_items || [];
         state.count = action.payload.wishlist_count || 0;
+        state.loading = false;
+      })
+      .addCase(fetchWishlist.rejected, (state) => {
         state.loading = false;
       })
       .addCase(toggleWishlist.fulfilled, (state, action) => {
@@ -117,5 +125,5 @@ const wishlistSlice = createSlice({
   },
 });
 
-export const { removeWishlistItem } = wishlistSlice.actions;
+export const { removeWishlistItem, setWishlistCount } = wishlistSlice.actions;
 export default wishlistSlice.reducer;

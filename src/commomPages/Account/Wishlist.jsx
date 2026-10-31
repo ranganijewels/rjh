@@ -14,7 +14,7 @@ const CATEGORY_ORDER = ["RING", "EARRING", "NECKLACE", "BRACELET", "PENDANT"];
 
 const Wishlist = ({ hideTitle, gridCol }) => {
   const dispatch = useDispatch();
-  const { wishlistItems, addToCart } = useWishlistLogic();
+  const { wishlistItems, addToCart, removeFromWishlist } = useWishlistLogic();
   const { items, count, loading } = useSelector((state) => state.wishlist);
 
   const { selectedCountry } = usePreferences();
@@ -121,7 +121,7 @@ const Wishlist = ({ hideTitle, gridCol }) => {
                             title="Remove"
                             variant="outlineBlack"
                             className="w-full"
-                            onClick={() => addToCart(item.id)}
+                            onClick={() => removeFromWishlist(item.id)}
                           />
                         </div>
                       </div>
