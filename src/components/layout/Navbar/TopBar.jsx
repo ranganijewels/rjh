@@ -38,26 +38,26 @@ const TopBar = () => {
 
   return (
     <>
-      <div className="bg-[var(--teal-1)] text-[var(--grey-00)] py-2 px-8 flex text-[12px] font-[500] justify-center w-full">
+      <div className="bg-[var(--teal-1)] text-[var(--grey-00)] h-[40px] px-8 flex items-center text-[12px] font-[500] justify-center w-full">
         {!isMobile && (
-          <SocialMediaIcons className="w-[300px]" icons={SOCIAL_MEDIA_ICONS} />
+          <SocialMediaIcons className="w-[300px] items-center [&_a]:flex" icons={SOCIAL_MEDIA_ICONS} />
         )}
-        {/* min-h reserves the message line before /api/swiper-messages answers,
-            so the page below doesn't jump down when the text arrives (CLS). */}
-        <div className="text-center lg:flex-1 w-full min-h-[36px]">
+        {/* The bar's fixed height reserves the line before /api/swiper-messages
+            answers, so the page below doesn't jump when the text arrives (CLS). */}
+        <div className="text-center lg:flex-1 w-full min-w-0">
           <Swiper
             loop={swiperMessages.length > 1}
             slidesPerView={1}
             autoplay={{ delay: 3500, disableOnInteraction: false }}
             modules={[Autoplay]}
-            className="w-full max-w-[450px] mx-auto py-4"
+            className="w-full max-w-[450px] mx-auto"
           >
             {swiperMessages.map((msg, i) => (
               <SwiperSlide key={i}>{msg}</SwiperSlide>
             ))}
           </Swiper>
         </div>
-        <div className="text-end lg:inline-flex hidden justify-end items-baseline gap-[16px] w-[300px]">
+        <div className="text-end lg:inline-flex hidden justify-end items-center gap-[16px] w-[300px]">
           <Link href={"/book-an-appointment"} className="uppercase shrink-0">
             Book now
           </Link>
