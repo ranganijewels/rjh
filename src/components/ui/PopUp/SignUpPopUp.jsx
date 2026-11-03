@@ -24,7 +24,7 @@ const SignUpPopUp = ({ onClose }) => {
 
     setSubmitting(true);
     try {
-      const res = await create({ email });
+      const res = await create({ email, source: "popup" });
 
       if (res.status) {
         toast.success("Subscription Created");
@@ -36,8 +36,7 @@ const SignUpPopUp = ({ onClose }) => {
         toast.error(errorMsg);
       }
     } catch (err) {
-      const errorMsg =
-        "The email field must be a valid email address." || err.message;
+      const errorMsg = err?.message || "Something went wrong";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {

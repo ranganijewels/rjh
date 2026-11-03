@@ -15,7 +15,7 @@ const Newsletter = () => {
   const handleSubmit = async () => {
     setError("");
     try {
-      const res = await create({ email }, { normalizeError: true });
+      const res = await create({ email, source: "home" }, { normalizeError: true });
 
       if (res.status) {
         toast.success("Subscription Created");
@@ -28,14 +28,9 @@ const Newsletter = () => {
         toast.error(errorMsg);
       }
     } catch (err) {
-      const apiErrors = err?.errors;
-
-      if (apiErrors) {
-        setError(apiErrors);
-        toast.error(apiErrors?.email?.[0]);
-      } else {
-        toast.error(err.message || "Something went wrong");
-      }
+      const errorMsg = err?.errors?.email?.[0] || err?.message || "Something went wrong";
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 

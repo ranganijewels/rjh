@@ -77,7 +77,7 @@ const SizeProfile = () => {
       setOpenSizeProfile(false);
       resetForm();
     } catch (err) {
-      toast.error("Something went wrong while saving the profile.");
+      toast.error(err?.message || "Something went wrong while saving the profile.");
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ const SizeProfile = () => {
       const res = await fetchProfilesApi();
       setProfiles(res.data || []);
     } catch (err) {
-      toast.error("Something went wrong while deleting.");
+      toast.error(err?.message || "Something went wrong while deleting.");
     } finally {
       setLoading(false);
       setDeleteId(null);
