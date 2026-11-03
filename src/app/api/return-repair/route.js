@@ -29,7 +29,8 @@ export async function POST(req) {
         name: g("full_name"),
         email: g("email") || null,
         phone: g("phone_number") || null,
-        serviceType: "repair",
+        // Kept apart from resize/repair requests so the team email and inbox say "Return".
+        serviceType: "return",
         details,
         marketing: marketingFromRequest(req),
       },
