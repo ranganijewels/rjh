@@ -40,7 +40,7 @@ export default function DiamondEducationPage() {
       {/* Hero */}
       <section className="px-[30px] py-[56px] text-center bg-[var(--teal-1)] text-white">
         <p className="text-[12px] tracking-[0.28em] uppercase text-[var(--teal-3)] mb-3">Diamond Education</p>
-        <h1 className="text-[40px] leading-tight" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+        <h1 className="text-[40px] leading-tight" style={{ fontFamily: "var(--font-heading), serif" }}>
           Understand Your Diamond
         </h1>
         <p className="max-w-[640px] mx-auto mt-3 text-[14px] text-[var(--teal-light)]">
@@ -51,13 +51,13 @@ export default function DiamondEducationPage() {
 
       {/* 4 Cs */}
       <section className="px-[30px] py-[48px] max-w-[1100px] mx-auto">
-        <h2 className="text-[28px] text-center mb-8" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+        <h2 className="text-[28px] text-center mb-8" style={{ fontFamily: "var(--font-heading), serif" }}>
           The 4 Cs
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {FOUR_CS.map((x) => (
             <div key={x.c} className="rounded-2xl border border-[var(--teal-3)] p-5">
-              <div className="text-[var(--teal-1)] text-[20px] font-[600]" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+              <div className="text-[var(--teal-1)] text-[20px] font-[600]" style={{ fontFamily: "var(--font-heading), serif" }}>
                 {x.c}
               </div>
               <p className="text-[13px] text-[var(--grey-2)] mt-2 leading-relaxed">{x.d}</p>
@@ -70,7 +70,7 @@ export default function DiamondEducationPage() {
       {/* Lab grown */}
       <section className="px-[30px] py-[40px] bg-[var(--grey-00)]">
         <div className="max-w-[900px] mx-auto text-center">
-          <h2 className="text-[28px] mb-3" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+          <h2 className="text-[28px] mb-3" style={{ fontFamily: "var(--font-heading), serif" }}>
             Lab-Grown, Truly Brilliant
           </h2>
           <p className="text-[14px] text-[var(--grey-2)] leading-relaxed">
@@ -95,7 +95,7 @@ export default function DiamondEducationPage() {
 
       {/* FAQ */}
       <section className="px-[30px] py-[48px] max-w-[820px] mx-auto">
-        <h2 className="text-[28px] text-center mb-8" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+        <h2 className="text-[28px] text-center mb-8" style={{ fontFamily: "var(--font-heading), serif" }}>
           Frequently Asked Questions
         </h2>
         <div className="divide-y divide-[var(--teal-3)]">

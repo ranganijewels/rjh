@@ -179,7 +179,7 @@ const Addresses = () => {
       </div>
 
       {addresses.length === 0 ? (
-        <p className="text-gray-500 text-lg">No address found</p>
+        <p className="text-[var(--color-text-muted)] text-lg">No address found</p>
       ) : (
         <div className="grid md:grid-cols-3 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
           {addresses.map(
@@ -261,7 +261,7 @@ const Addresses = () => {
               hasError={!!errors.firstName}
             />
             {errors.firstName && (
-              <p id="firstName-error" role="alert" className="text-red-500 text-sm mt-1">
+              <p id="firstName-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
                 {errors.firstName}
               </p>
             )}
@@ -277,7 +277,7 @@ const Addresses = () => {
               hasError={!!errors.lastName}
             />
             {errors.lastName && (
-              <p id="lastName-error" role="alert" className="text-red-500 text-sm mt-1">
+              <p id="lastName-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
                 {errors.lastName}
               </p>
             )}
@@ -299,7 +299,7 @@ const Addresses = () => {
             fullWidth
           />
           {errors.addressType && (
-            <p id="addressType-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="addressType-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.addressType}
             </p>
           )}
@@ -316,7 +316,7 @@ const Addresses = () => {
             hasError={!!errors.streetAddress}
           />
           {errors.streetAddress && (
-            <p id="streetAddress-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="streetAddress-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.streetAddress}
             </p>
           )}
@@ -331,7 +331,7 @@ const Addresses = () => {
             hasError={!!errors.city}
           />
           {errors.city && (
-            <p id="city-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="city-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.city}
             </p>
           )}
@@ -346,7 +346,7 @@ const Addresses = () => {
             hasError={!!errors.state}
           />
           {errors.state && (
-            <p id="state-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="state-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.state}
             </p>
           )}
@@ -361,7 +361,7 @@ const Addresses = () => {
             hasError={!!errors.zipCode}
           />
           {errors.zipCode && (
-            <p id="zipCode-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="zipCode-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.zipCode}
             </p>
           )}
@@ -377,7 +377,7 @@ const Addresses = () => {
             hasError={!!errors.phone}
           />
           {errors.phone && (
-            <p id="phone-error" role="alert" className="text-red-500 text-sm mt-1">
+            <p id="phone-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
               {errors.phone}
             </p>
           )}

@@ -316,7 +316,7 @@ const ProfileInfo = () => {
               onChange={(e) => handleEditChange("firstName", e.target.value)}
             />
             {errors.firstName && (
-              <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.firstName}</p>
             )}
           </div>
 
@@ -329,7 +329,7 @@ const ProfileInfo = () => {
               onChange={(e) => handleEditChange("lastName", e.target.value)}
             />
             {errors.lastName && (
-              <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.lastName}</p>
             )}
           </div>
         </div>
@@ -349,7 +349,7 @@ const ProfileInfo = () => {
             maxLength={10}
           />
           {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.phone}</p>
           )}
         </div>
 
@@ -429,7 +429,7 @@ const ProfileInfo = () => {
           }
         />
         {passwordErrors.currentPassword && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-[var(--color-error)] text-sm mt-1">
             {passwordErrors.currentPassword}
           </p>
         )}
@@ -451,7 +451,7 @@ const ProfileInfo = () => {
           }
         />
         {passwordErrors.newPassword && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-[var(--color-error)] text-sm mt-1">
             {passwordErrors.newPassword}
           </p>
         )}
@@ -480,7 +480,7 @@ const ProfileInfo = () => {
             }
           />
           {passwordErrors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">
+            <p className="text-[var(--color-error)] text-sm mt-1">
               {passwordErrors.confirmPassword}
             </p>
           )}

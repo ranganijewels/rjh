@@ -160,7 +160,7 @@ export default function DatePicker({
                     "w-7 h-7 mx-auto rounded",
                     selected
                       ? "bg-[var(--teal-1)] text-white"
-                      : "hover:bg-gray-100"
+                      : "hover:bg-[var(--surface-band)]"
                   )}
                 >
                   {day}

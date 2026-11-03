@@ -207,7 +207,7 @@ const ResizeRepairRequest = () => {
                 {formErrors.mobile_number && (
                   <p
                     id="mobile_number-error"
-                    className="text-red-500 text-sm mt-1"
+                    className="text-[var(--color-error)] text-sm mt-1"
                   >
                     {formErrors.mobile_number[0]}
                   </p>
@@ -338,7 +338,7 @@ const ResizeRepairRequest = () => {
                 </Typography>
 
                 {/* Clickable file input */}
-                <label className="flex items-center gap-2 cursor-pointer border-b border-[#CFCFCF] pb-2 text-[#9A9A9A] hover:text-black transition">
+                <label className="flex items-center gap-2 cursor-pointer border-b border-[var(--border-subtle)] pb-2 text-[var(--color-text-muted)] hover:text-black transition">
                   <span className="text-[18px] leading-none">+</span>
                   <span className="text-[14px]">
                     {formData.files.length > 0

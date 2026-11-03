@@ -7,7 +7,7 @@ const ReviewCard = ({ name, designation, review, customerImg, className }) => {
   const hasMedia = Boolean(customerImg);
   return (
     <div
-      className={`flex xl:w-[607px] md:w-[473px] w-[314px] xl:h-[369px] md:h-[288px] h-[207px] bg-[var(--teal-3)] justify-between flex-shrink-0 ${className}`}
+      className={`flex xl:w-[607px] md:w-[473px] w-[314px] xl:h-[369px] md:h-[288px] h-[207px] bg-[var(--surface-tint)] justify-between flex-shrink-0 ${className}`}
     >
       <div className={`${hasMedia ? "xl:max-w-[335px] max-w-[50%]" : "max-w-full flex-1"} p-[30px_13px] xl:p-[60px_27px] flex flex-col items-start justify-between lg:gap-[33px]`}>
         <div className="flex flex-col">

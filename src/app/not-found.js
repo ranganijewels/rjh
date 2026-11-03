@@ -12,7 +12,7 @@ export default function NotFound() {
       <p className="text-[12px] tracking-[0.3em] uppercase text-[var(--placeholder)] mb-4">
         Error 404
       </p>
-      <h1 className="font-cormorant text-[20px] sm:text-[28px] md:text-[32px] lg:text-[44px] leading-tight text-[var(--teal-1)] mb-3">
+      <h1 className="font-heading text-[20px] sm:text-[28px] md:text-[32px] lg:text-[44px] leading-tight text-[var(--teal-1)] mb-3">
         This page has slipped away
       </h1>
       <p className="text-[15px] text-[var(--grey-2)] max-w-[440px] mb-8">

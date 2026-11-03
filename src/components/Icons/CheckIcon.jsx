@@ -1,4 +1,4 @@
-export const CheckIcon = ({ className = "w-5 h-5", fill = "#162640" }) => (
+export const CheckIcon = ({ className = "w-5 h-5", fill = "var(--color-primary)" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="22"

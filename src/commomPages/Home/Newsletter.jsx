@@ -71,7 +71,7 @@ const Newsletter = () => {
             onClick={handleSubmit}
           />
         </div>
-        {error && <p className="text-[10px] text-red-600">{error?.email[0]}</p>}
+        {error && <p className="text-[10px] text-[var(--color-error)]">{error?.email[0]}</p>}
 
         <div className="xl:text-[14px] text-[10px] font-[400] text-[var(--placeholder)] ">
           Your privacy matters. For details, see our 

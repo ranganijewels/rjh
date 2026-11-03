@@ -11,7 +11,7 @@ export default function Error({ error, reset }) {
       </p>
       <h1
         className="text-[40px] leading-tight text-[var(--teal-1)] mb-3"
-        style={{ fontFamily: "var(--font-cormorant), serif" }}
+        style={{ fontFamily: "var(--font-heading), serif" }}
       >
         A momentary flaw in the setting
       </h1>

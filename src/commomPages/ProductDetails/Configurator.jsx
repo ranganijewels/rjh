@@ -7,18 +7,18 @@ import { useEffect, useMemo, useState } from "react";
 // only when the product offers configurable metalOptions (product.metal_options).
 
 const COLOR_HEX = {
-  White: "#E8E8E8",
-  Yellow: "#E6C200",
-  Rose: "#E0A899",
-  Silver: "#C0C0C0",
-  Platinum: "#D6D6D6",
+  White: "var(--metal-white-gold)",
+  Yellow: "var(--metal-yellow-gold)",
+  Rose: "var(--metal-rose-gold)",
+  Silver: "var(--metal-silver)",
+  Platinum: "var(--metal-platinum)",
 };
 
 const chip = (active) =>
   `px-3 py-1.5 rounded-full text-[12px] font-[500] border transition-all duration-150 ${
     active
       ? "bg-[var(--teal-1)] text-white border-[var(--teal-1)]"
-      : "bg-white text-[#222223] border-[var(--teal-3)] hover:border-[var(--teal-1)]"
+      : "bg-white text-[var(--color-text)] border-[var(--teal-3)] hover:border-[var(--teal-1)]"
   }`;
 
 const RING_SIZES = [];
@@ -26,7 +26,7 @@ for (let s = 3; s <= 10; s += 0.5) RING_SIZES.push(s);
 
 const Row = ({ label, children }) => (
   <div className="mb-3.5">
-    <div className="text-[13px] font-[500] text-[#222223] mb-1.5">{label}</div>
+    <div className="text-[13px] font-[500] text-[var(--color-text)] mb-1.5">{label}</div>
     <div className="flex flex-wrap gap-2">{children}</div>
   </div>
 );
@@ -138,7 +138,7 @@ export default function Configurator({ product, onResolved }) {
                 className={`w-8 h-8 rounded-md border transition ${
                   c === color ? "ring-2 ring-[var(--teal-1)] border-[var(--teal-1)]" : "border-[var(--teal-3)]"
                 }`}
-                style={{ background: COLOR_HEX[c] || "#ddd" }}
+                style={{ background: COLOR_HEX[c] || "var(--border-subtle)" }}
               />
             ))}
           </Row>
@@ -181,7 +181,7 @@ export default function Configurator({ product, onResolved }) {
             {net != null && (
               <div>
                 Net metal weight:{" "}
-                <span className="font-[600] text-[#222223]">{net} g</span>
+                <span className="font-[600] text-[var(--color-text)]">{net} g</span>
                 {result?.weights?.source && (
                   <span className="text-[11px] text-[var(--placeholder)]">
                     {" "}

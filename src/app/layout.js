@@ -1,10 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
-import {
-  Montserrat,
-  Source_Serif_4,
-  Cormorant_Garamond,
-} from "next/font/google";
+import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "rc-slider/assets/index.css";
 import Navbar from "@/components/layout/Navbar/Navbar";
@@ -21,25 +18,22 @@ import { BUSINESS, SITE_URL } from "@/config/business";
 import { getSiteContact } from "@/lib/siteContact";
 import { SiteContactProvider } from "@/context/SiteContactContext";
 
-// Rangani brand typography: Montserrat for UI/body, Source Serif for
-// editorial copy, Cormorant Garamond for display headings.
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+// Rangani brand typography: Wapstina Love Serif for headings, Manrope for
+// body and UI text.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
+// Latin subset of the single-weight (400) TTF. Declared across the full
+// weight range so semibold heading classes reuse this face instead of the
+// browser faking a bold.
+const wapstina = localFont({
+  src: [{ path: "./fonts/WapstinaLoveSerif.woff2", weight: "100 900", style: "normal" }],
+  variable: "--font-wapstina",
   display: "swap",
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 // Every page reads request data (canonical path, search params), so render
@@ -137,7 +131,7 @@ const orgJsonLd = (contact) => ({
 export default async function RootLayout({ children }) {
   const contact = await getSiteContact();
   return (
-    <html lang="en">
+    <html lang="en" className={`${manrope.variable} ${wapstina.variable}`}>
       <head>
         {/* Fallback favicon (browsers without media-query support) */}
         <link rel="icon" href="/rj-house-fav.svg" />
@@ -159,7 +153,7 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${montserrat.variable} ${sourceSerif.variable} ${cormorant.variable} antialiased min-h-screen flex flex-col`}
+        className="antialiased min-h-screen flex flex-col"
       >
         {/* Keyboard skip link — first focusable element, hidden until focused */}
         <a

@@ -99,7 +99,7 @@ const StepOne = forwardRef(
           </label>
         </div>
         {errors.file && (
-          <p className="text-red-500 text-sm mt-1">{errors.file}</p>
+          <p className="text-[var(--color-error)] text-sm mt-1">{errors.file}</p>
         )}
 
         {/* Preview */}
@@ -134,7 +134,7 @@ const StepOne = forwardRef(
           <textarea
             placeholder="Enter text..."
             className={`bg-white p-3 resize-none focus:outline-[var(--teal-1)] focus:outline-1 
-            ${errors.description ? "border border-red-500" : ""}`}
+            ${errors.description ? "border border-[var(--color-error)]" : ""}`}
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
@@ -142,7 +142,7 @@ const StepOne = forwardRef(
             }}
           />
           {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description}</p>
+            <p className="text-[var(--color-error)] text-sm">{errors.description}</p>
           )}
         </div>
       </div>

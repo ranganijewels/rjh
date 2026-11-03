@@ -133,7 +133,7 @@ const WhyChoose = ({ collections }) => {
                 key={i}
                 className="flex flex-col items-center text-center gap-[10px] xl:gap-[12px] px-[16px] py-[24px] xl:p-[28px] border border-[var(--teal-3)] rounded bg-white"
               >
-                <span className="w-[56px] h-[56px] xl:w-[64px] xl:h-[64px] rounded-full bg-[var(--teal-3)]/25 flex items-center justify-center">
+                <span className="w-[56px] h-[56px] xl:w-[64px] xl:h-[64px] rounded-full bg-[var(--surface-tint)]/25 flex items-center justify-center">
                   <FeatureIcon icon={item.icon} />
                 </span>
                 <h3 className="font-[500] text-[15px] xl:text-[16px]">{item.title}</h3>
@@ -164,7 +164,7 @@ const WhyChoose = ({ collections }) => {
               key={i}
               className="flex flex-col items-center text-center gap-[10px] xl:gap-[12px] px-[16px] py-[24px] xl:p-[28px] border border-[var(--teal-3)] rounded bg-white"
             >
-              <span className="w-[56px] h-[56px] xl:w-[64px] xl:h-[64px] rounded-full bg-[var(--teal-3)]/25 flex items-center justify-center">
+              <span className="w-[56px] h-[56px] xl:w-[64px] xl:h-[64px] rounded-full bg-[var(--surface-tint)]/25 flex items-center justify-center">
                 <FeatureIcon icon={item.icon} />
               </span>
               <h3 className="font-[500] text-[15px] xl:text-[16px]">{item.title}</h3>

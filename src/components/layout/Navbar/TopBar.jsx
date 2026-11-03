@@ -78,7 +78,7 @@ const TopBar = () => {
 
       {isModalOpen && (
         <div
-          className={`fixed inset-0 z-[9999] bg-[var(--teal-3)]/50 flex items-center justify-center`}
+          className={`fixed inset-0 z-[9999] bg-[var(--surface-tint)]/50 flex items-center justify-center`}
         >
           <CountryCurrencyModal
             setIsModalOpen={setIsModalOpen}

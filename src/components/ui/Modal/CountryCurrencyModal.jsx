@@ -129,7 +129,7 @@ const CountryCurrencyModal = ({ setIsModalOpen, isModalOpen }) => {
         <Button title="SAVE" onClick={handleSave} />
         <Button
           onClick={() => setIsModalOpen(false)}
-          className="text-sm text-gray-600 hover:underline"
+          className="text-sm text-[var(--color-text-muted)] hover:underline"
           title="Close"
           variant="secondary"
         />

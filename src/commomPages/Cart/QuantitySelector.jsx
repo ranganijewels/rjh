@@ -22,7 +22,7 @@ const QuantitySelector = ({ item, handleQuantities }) => {
   };
 
   return (
-    <div className="w-[120px] flex justify-between items-center border rounded-[4px] border-[var(--grey-1)]">
+    <div className="w-[120px] flex justify-between items-center border rounded-[4px] border-[var(--border-subtle)]">
       {/* 40px tap targets (icon stays 16px) for comfortable touch use */}
       <button
         type="button"

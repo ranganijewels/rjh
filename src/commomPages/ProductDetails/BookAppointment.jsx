@@ -103,7 +103,7 @@ export default function BookAppointment({ open, onClose, product }) {
       >
         <div className="flex items-start justify-between px-6 pt-5 pb-3 border-b border-[var(--teal-3)]">
           <div>
-            <h3 className="font-[var(--font-cormorant)] text-[22px] text-[var(--teal-1)] leading-tight">
+            <h3 className="font-[var(--font-heading)] text-[22px] text-[var(--teal-1)] leading-tight">
               Speak to an Expert
             </h3>
             <p className="text-[12px] text-[var(--grey-2)] mt-[2px]">
@@ -116,7 +116,7 @@ export default function BookAppointment({ open, onClose, product }) {
         {done ? (
           <div className="px-6 py-10 text-center space-y-3">
             <div className="text-[40px]">✓</div>
-            <h4 className="font-[var(--font-cormorant)] text-[20px] text-[var(--teal-1)]">You're booked!</h4>
+            <h4 className="font-[var(--font-heading)] text-[20px] text-[var(--teal-1)]">You're booked!</h4>
             <p className="text-[13px] text-[var(--grey-2)]">
               {date} at {slot} ({TZ_LABEL}). A confirmation email is on its way to {form.email}.
             </p>

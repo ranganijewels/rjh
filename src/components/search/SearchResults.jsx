@@ -156,14 +156,14 @@ export default function SearchResults() {
         maxWidth: 1320,
         margin: "0 auto",
         padding: "32px 20px 64px",
-        fontFamily: "var(--font-montserrat)",
+        fontFamily: "var(--font-body)",
       }}
     >
       {/* Header: search box + heading */}
       <header style={{ marginBottom: 28 }}>
         <h1
           style={{
-            fontFamily: "var(--font-cormorant)",
+            fontFamily: "var(--font-heading)",
             fontSize: 38,
             fontWeight: 600,
             color: "var(--teal-1)",
@@ -243,7 +243,7 @@ export default function SearchResults() {
           >
             <span
               style={{
-                fontFamily: "var(--font-cormorant)",
+                fontFamily: "var(--font-heading)",
                 fontSize: 22,
                 fontWeight: 600,
                 color: "var(--teal-1)",
@@ -363,7 +363,7 @@ export default function SearchResults() {
             <div style={{ padding: "48px 0", textAlign: "center" }}>
               <p
                 style={{
-                  fontFamily: "var(--font-cormorant)",
+                  fontFamily: "var(--font-heading)",
                   fontSize: 26,
                   color: "var(--teal-1)",
                   marginBottom: 8,
@@ -465,7 +465,7 @@ export default function SearchResults() {
             <div style={{ padding: "48px 0", textAlign: "center" }}>
               <p
                 style={{
-                  fontFamily: "var(--font-cormorant)",
+                  fontFamily: "var(--font-heading)",
                   fontSize: 26,
                   color: "var(--teal-1)",
                   marginBottom: 8,
@@ -651,7 +651,7 @@ function ProductCard({ product }) {
       </div>
       <h3
         style={{
-          fontFamily: "var(--font-cormorant)",
+          fontFamily: "var(--font-heading)",
           fontSize: 17,
           fontWeight: 600,
           color: "var(--teal-1)",

@@ -133,7 +133,7 @@ const BlogListing = () => {
             aria-label="Loading blog posts"
             aria-busy="true"
           >
-            <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-[var(--border-subtle)] border-t-[var(--teal-1)] rounded-full animate-spin" />
           </div>
         ) : cardData?.length > 0 ? (
           <ImageWithContent

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 
-const cormorant = { fontFamily: "var(--font-cormorant), serif" };
+const headingFont = { fontFamily: "var(--font-heading), serif" };
 
 // Five stars; `value` (0–5) controls how many are filled.
 function Stars({ value = 0, size = 16 }) {
@@ -160,7 +160,7 @@ const ReviewsSection = ({ productId }) => {
   if (!productId) return null;
 
   const inputClass =
-    "w-full rounded-lg border border-[var(--grey-1)] bg-white px-4 py-3 text-[14px] text-[var(--grey-2)] outline-none focus:border-[var(--teal-1)] transition-colors";
+    "w-full rounded-lg border border-[var(--border-subtle)] bg-white px-4 py-3 text-[14px] text-[var(--grey-2)] outline-none focus:border-[var(--teal-1)] transition-colors";
 
   return (
     <section className="w-full px-[18px] md:px-[30px] py-[48px] border-t border-[var(--teal-3)]">
@@ -171,7 +171,7 @@ const ReviewsSection = ({ productId }) => {
         </p>
         <h2
           className="text-[28px] md:text-[36px] font-[500] text-[var(--grey-2)]"
-          style={cormorant}
+          style={headingFont}
         >
           Customer Reviews
         </h2>
@@ -217,7 +217,7 @@ const ReviewsSection = ({ productId }) => {
                 {r.title ? (
                   <div
                     className="text-[19px] font-[500] text-[var(--grey-2)] mt-1"
-                    style={cormorant}
+                    style={headingFont}
                   >
                     {r.title}
                   </div>
@@ -238,7 +238,7 @@ const ReviewsSection = ({ productId }) => {
         <div className="max-w-[680px] mx-auto mt-[28px] border border-[var(--teal-3)] bg-white p-6">
           <h3
             className="text-[22px] font-[500] text-[var(--teal-1)] mb-1"
-            style={cormorant}
+            style={headingFont}
           >
             Write a Review
           </h3>
@@ -247,7 +247,7 @@ const ReviewsSection = ({ productId }) => {
           </p>
 
           {successMsg ? (
-            <p className="mb-4 rounded-lg bg-[var(--teal-3)] px-4 py-3 text-[13px] text-[var(--teal-1)]">
+            <p className="mb-4 rounded-lg bg-[var(--surface-tint)] px-4 py-3 text-[13px] text-[var(--teal-1)]">
               {successMsg}
             </p>
           ) : null}

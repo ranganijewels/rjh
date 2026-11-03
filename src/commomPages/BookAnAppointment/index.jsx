@@ -76,7 +76,7 @@ const BookAnAppointment = () => {
               />
 
               <div className="md:px-[40px] space-y-[7px]">
-                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
+                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--border-strong)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />
                     <Typography variant="h5">10:00 AM - 11:00 AM</Typography>
@@ -86,7 +86,7 @@ const BookAnAppointment = () => {
                   </label>
                 </div>
 
-                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
+                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--border-strong)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />
                     <Typography variant="h5">10:00 AM - 11:00 AM</Typography>

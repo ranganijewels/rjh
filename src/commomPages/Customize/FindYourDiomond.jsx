@@ -91,7 +91,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                 scrollMobile("left");
               }}
               aria-label="Scroll to previous diamond shape"
-              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -ml-1 -mt-4 active:scale-90 transition-transform "
+              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-[var(--border-subtle)] -ml-1 -mt-4 active:scale-90 transition-transform "
             >
               <div className="scale-75 -ml-1">
                 <PreviousIcon />
@@ -103,7 +103,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
                 scrollMobile("right");
               }}
               aria-label="Scroll to next diamond shape"
-              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-gray-100 -mr-1 -mt-4 active:scale-90 transition-transform"
+              className="w-[var(--size-icon-sm,36px)] h-[var(--size-icon-sm,36px)] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto border border-[var(--border-subtle)] -mr-1 -mt-4 active:scale-90 transition-transform"
             >
               <div className="scale-75 -mr-1">
                 <NextIcon />
@@ -143,7 +143,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
             type="button"
             onClick={() => scrollDesktop("left")}
             aria-label="Scroll to previous diamond shapes"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-[var(--border-subtle)] grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
           >
             <PreviousIcon />
           </button>
@@ -151,7 +151,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
             type="button"
             onClick={() => scrollDesktop("right")}
             aria-label="Scroll to next diamond shapes"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-10 h-10 rounded-full bg-white shadow-md border border-[var(--border-subtle)] grid place-items-center opacity-0 group-hover/desktop-scroll:opacity-100 transition-opacity active:scale-90"
           >
             <NextIcon />
           </button>

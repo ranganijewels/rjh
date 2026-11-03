@@ -103,7 +103,7 @@ const LoginForm = () => {
         />
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-[var(--color-error)] text-sm">{error}</p>}
 
       <div className="flex flex-col items-center gap-[12px]">
         <Button

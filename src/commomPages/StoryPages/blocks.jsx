@@ -14,7 +14,7 @@ import { useHomepageData } from "../Home/useHomepageData";
 const Eyebrow = ({ children, light }) => (
   <p
     className={`text-[11px] md:text-[12px] uppercase tracking-[0.22em] mb-[14px] ${
-      light ? "text-[var(--yellow-gold)]" : "text-[var(--teal-2)]"
+      light ? "text-[var(--accent-on-dark)]" : "text-[var(--teal-2)]"
     }`}
   >
     {children}
@@ -23,7 +23,7 @@ const Eyebrow = ({ children, light }) => (
 
 const SerifTitle = ({ children, light, size = "md" }) => (
   <h2
-    className={`font-[var(--font-cormorant)] font-medium leading-[1.12] tracking-[-0.01em] ${
+    className={`font-[var(--font-heading)] font-medium leading-[1.12] tracking-[-0.01em] ${
       size === "lg"
         ? "text-[32px] md:text-[44px]"
         : "text-[28px] md:text-[36px]"
@@ -73,7 +73,7 @@ export const Split = ({
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
         <SerifTitle>{title}</SerifTitle>
         {quoteLine && (
-          <p className="font-[var(--font-cormorant)] italic text-[19px] md:text-[22px] leading-[1.5] text-[var(--teal-1)] mt-[18px] border-l-2 border-[var(--yellow-gold)] pl-[18px]">
+          <p className="font-[var(--font-heading)] italic text-[19px] md:text-[22px] leading-[1.5] text-[var(--teal-1)] mt-[18px] border-l-2 border-[var(--accent-icon)] pl-[18px]">
             {quoteLine}
           </p>
         )}
@@ -82,7 +82,7 @@ export const Split = ({
           <ul className="mt-[22px] space-y-[12px]">
             {bullets.map((b, i) => (
               <li key={i} className="flex items-start gap-[12px] text-[14px] md:text-[15px] leading-[1.6] text-[var(--grey-2)]">
-                <svg viewBox="0 0 12 12" className="w-[11px] h-[11px] mt-[5px] shrink-0 text-[var(--yellow-gold)]" fill="currentColor" aria-hidden>
+                <svg viewBox="0 0 12 12" className="w-[11px] h-[11px] mt-[5px] shrink-0 text-[var(--accent-icon)]" fill="currentColor" aria-hidden>
                   <path d="M6 0l1.6 4.4L12 6 7.6 7.6 6 12 4.4 7.6 0 6l4.4-1.6z" />
                 </svg>
                 {b}
@@ -109,7 +109,7 @@ export const Stats = ({ id, items = [], dark }) => (
     <div className="container mx-auto xl:px-[30px] px-[18px] py-[36px] md:py-[46px] grid grid-cols-2 md:grid-cols-4 gap-y-[28px]">
       {items.map((s, i) => (
         <div key={i} className="text-center px-[10px]">
-          <p className={`font-[var(--font-cormorant)] font-medium text-[30px] md:text-[40px] leading-none ${dark ? "text-[var(--yellow-gold)]" : "text-[var(--teal-1)]"}`}>
+          <p className={`font-[var(--font-heading)] font-medium text-[30px] md:text-[40px] leading-none ${dark ? "text-[var(--accent-on-dark)]" : "text-[var(--teal-1)]"}`}>
             {s.value}
           </p>
           <p className={`mt-[10px] text-[11px] md:text-[12px] uppercase tracking-[0.16em] ${dark ? "text-white/70" : "text-[var(--placeholder)]"}`}>
@@ -154,10 +154,10 @@ export const Values = ({ id, eyebrow, title, intro, cards = [] }) => (
       <div className="grid md:grid-cols-3 gap-[18px] md:gap-[26px] mt-[42px]">
         {cards.map((c, i) => (
           <div key={i} className="border border-white/15 bg-white/[0.04] px-[26px] py-[32px] text-center">
-            <svg viewBox="0 0 24 24" className="w-[30px] h-[30px] mx-auto text-[var(--yellow-gold)]" fill="currentColor" aria-hidden>
+            <svg viewBox="0 0 24 24" className="w-[30px] h-[30px] mx-auto text-[var(--accent)]" fill="currentColor" aria-hidden>
               {VALUE_ICONS[c.icon] || VALUE_ICONS.gem}
             </svg>
-            <h3 className="font-[var(--font-cormorant)] text-[21px] md:text-[24px] text-white mt-[16px]">
+            <h3 className="font-[var(--font-heading)] text-[21px] md:text-[24px] text-white mt-[16px]">
               {c.title}
             </h3>
             <p className="text-[13.5px] md:text-[14px] leading-[1.75] text-white/70 mt-[10px]">
@@ -178,12 +178,12 @@ export const Quote = ({ id, eyebrow, title, quote, body = [] }) => (
       <SerifTitle>{title}</SerifTitle>
       <div className="flex items-center justify-center gap-[18px] mt-[30px]" aria-hidden>
         <span className="h-px w-[64px] bg-[var(--teal-3)]" />
-        <svg viewBox="0 0 12 12" className="w-[10px] h-[10px] text-[var(--yellow-gold)]" fill="currentColor">
+        <svg viewBox="0 0 12 12" className="w-[10px] h-[10px] text-[var(--accent-icon)]" fill="currentColor">
           <path d="M6 0l1.6 4.4L12 6 7.6 7.6 6 12 4.4 7.6 0 6l4.4-1.6z" />
         </svg>
         <span className="h-px w-[64px] bg-[var(--teal-3)]" />
       </div>
-      <p className="font-[var(--font-cormorant)] italic text-[24px] md:text-[32px] leading-[1.4] text-[var(--teal-1)] mt-[26px]">
+      <p className="font-[var(--font-heading)] italic text-[24px] md:text-[32px] leading-[1.4] text-[var(--teal-1)] mt-[26px]">
         “{quote}”
       </p>
       <Body paragraphs={body} center />
@@ -208,7 +208,7 @@ export const Process = ({ id, eyebrow, title, intro, steps = [], image, imageAlt
         <ol className="mt-[30px]">
           {steps.map((s, i) => (
             <li key={i} className={`flex gap-[22px] py-[20px] ${i > 0 ? "border-t border-[var(--teal-3)]" : ""}`}>
-              <span className="font-[var(--font-cormorant)] text-[26px] md:text-[30px] leading-none text-[var(--yellow-gold)] w-[44px] shrink-0 pt-[2px]">
+              <span className="font-[var(--font-heading)] text-[26px] md:text-[30px] leading-none text-[var(--accent-icon)] w-[44px] shrink-0 pt-[2px]">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span>
@@ -241,7 +241,7 @@ export const Duo = ({ id, eyebrow, title, intro, cards = [] }) => (
           <img src={c.image} alt={c.title} className="w-full aspect-[4/3] object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <figcaption className="absolute inset-x-0 bottom-0 p-[24px] md:p-[30px]">
-            <h3 className="font-[var(--font-cormorant)] text-[24px] md:text-[28px] text-white">{c.title}</h3>
+            <h3 className="font-[var(--font-heading)] text-[24px] md:text-[28px] text-white">{c.title}</h3>
             <p className="text-[13.5px] md:text-[14px] leading-[1.7] text-white/85 mt-[8px] max-w-[520px]">{c.text}</p>
           </figcaption>
         </figure>
@@ -264,7 +264,7 @@ export const Stories = ({ id, eyebrow, title, intro, cards = [] }) => (
           <img src={c.image} alt={c.title} className="w-full aspect-[4/5] object-cover" loading="lazy" />
           <figcaption className="p-[22px]">
             <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--teal-2)]">{c.tag}</p>
-            <h3 className="font-[var(--font-cormorant)] text-[21px] text-[var(--grey-2)] mt-[8px]">{c.title}</h3>
+            <h3 className="font-[var(--font-heading)] text-[21px] text-[var(--grey-2)] mt-[8px]">{c.title}</h3>
             <p className="text-[13.5px] leading-[1.7] text-[var(--placeholder)] mt-[8px]">{c.text}</p>
           </figcaption>
         </figure>
@@ -300,7 +300,7 @@ export const Mosaic = ({ id, eyebrow, title, intro, images = [] }) => (
       `testimonialitems` key the API no longer sends, so it renders empty —
       these cards read the real `reviews` array instead.) ── */
 const Star = ({ dim }) => (
-  <svg viewBox="0 0 20 20" className={`w-[14px] h-[14px] ${dim ? "text-[var(--teal-3)]" : "text-[var(--yellow-gold)]"}`} fill="currentColor" aria-hidden>
+  <svg viewBox="0 0 20 20" className={`w-[14px] h-[14px] ${dim ? "text-[var(--teal-3)]" : "text-[var(--accent-icon)]"}`} fill="currentColor" aria-hidden>
     <path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 14.9l-5.3 2.7 1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
   </svg>
 );
@@ -320,7 +320,7 @@ export const Testimonials = ({ id, eyebrow, title, intro }) => {
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-[18px] md:gap-[24px] mt-[42px]">
           {reviews.map((r, i) => (
             <figure key={r.id || i} className="bg-white border border-[var(--teal-3)] px-[24px] py-[28px] flex flex-col">
-              <span className="font-[var(--font-cormorant)] text-[44px] leading-none text-[var(--yellow-gold)]" aria-hidden>
+              <span className="font-[var(--font-heading)] text-[44px] leading-none text-[var(--accent-icon)]" aria-hidden>
                 “
               </span>
               <blockquote className="text-[14px] leading-[1.75] text-[var(--grey-2)] -mt-[10px] grow">

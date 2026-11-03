@@ -171,7 +171,7 @@ const Cart = () => {
                   </button>
                   <button
                     onClick={() => handleRemoveCartItem(item.cart_item_id)}
-                    className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-red-400 transition-colors shadow-sm"
+                    className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-[var(--color-error)] transition-colors shadow-sm"
                     title="Remove from cart"
                   >
                     <CloseIcon className="w-3.5 h-3.5" />
@@ -273,7 +273,7 @@ const Cart = () => {
                     </button>
                     <button
                       onClick={() => handleRemoveCartItem(item.cart_item_id)}
-                      className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-red-400 transition-colors shadow-sm"
+                      className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 text-[var(--grey-2)] hover:text-[var(--color-error)] transition-colors shadow-sm"
                       title="Remove from cart"
                     >
                       <CloseIcon className="w-3 h-3" />
@@ -395,7 +395,7 @@ const Cart = () => {
               disabled={loading}
             />
             {error && (
-              <Typography variant="h6" className="mt-2 text-red-500">
+              <Typography variant="h6" className="mt-2 text-[var(--color-error)]">
                 {error}
               </Typography>
             )}

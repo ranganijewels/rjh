@@ -3,7 +3,7 @@ import React from "react";
 import { useProductCardLayout } from "./useProductCardLayout";
 
 const SkeletonBox = ({ className }) => (
-  <div className={`bg-[var(--teal-3)] animate-pulse ${className}`} />
+  <div className={`bg-[var(--surface-band)] animate-pulse ${className}`} />
 );
 
 const ProductCardSkeleton = ({

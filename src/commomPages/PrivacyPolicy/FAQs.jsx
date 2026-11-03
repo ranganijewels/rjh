@@ -21,7 +21,7 @@ const FAQsPage = () => {
   if (loading)
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[var(--border-subtle)] border-t-[var(--teal-1)] rounded-full animate-spin" />
         <p className="text-[14px]">Loading FAQs...</p>
       </div>
     );
@@ -44,7 +44,7 @@ const FAQsPage = () => {
             <a
               key={g.faq_category_title}
               href={`#${slug(g.faq_category_title)}`}
-              className="border border-[var(--border,#e5e7eb)] rounded-full px-4 py-1.5 text-[12px] tracking-wide capitalize hover:bg-[var(--navy,#162640)] hover:text-white transition-colors"
+              className="border border-[var(--border-subtle)] rounded-full px-4 py-1.5 text-[12px] tracking-wide capitalize hover:bg-[var(--color-primary)] hover:text-white transition-colors"
             >
               {g.faq_category_title.toLowerCase()}
             </a>

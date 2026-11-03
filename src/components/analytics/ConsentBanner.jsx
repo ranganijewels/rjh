@@ -29,7 +29,7 @@ export default function ConsentBanner() {
 
   return (
     <div role="dialog" aria-label="Cookie preferences"
-      className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-5 sm:bottom-5 sm:max-w-[420px] z-[9999] bg-white border border-[#162640]/20 shadow-xl rounded-md p-4 text-[#162640]">
+      className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-5 sm:bottom-5 sm:max-w-[420px] z-[9999] bg-white border border-[var(--color-primary)]/20 shadow-xl rounded-md p-4 text-[var(--color-primary)]">
       <p className="text-[13px] leading-[1.5]">
         We use cookies to understand how the site is used and to measure our advertising. Essential cookies always run;
         analytics and advertising cookies only run if you accept. See our{" "}
@@ -37,9 +37,9 @@ export default function ConsentBanner() {
       </p>
       <div className="mt-3 flex gap-2">
         <button type="button" onClick={() => choose("denied")}
-          className="flex-1 border border-[#162640] rounded px-3 py-2 text-[13px] font-medium hover:bg-[#162640]/5">Reject</button>
+          className="flex-1 border border-[var(--color-primary)] rounded px-3 py-2 text-[13px] font-medium hover:bg-[var(--color-primary)]/5">Reject</button>
         <button type="button" onClick={() => choose("granted")}
-          className="flex-1 bg-[#162640] text-white rounded px-3 py-2 text-[13px] font-medium hover:bg-[#091930]">Accept</button>
+          className="flex-1 bg-[var(--color-primary)] text-white rounded px-3 py-2 text-[13px] font-medium hover:bg-[var(--color-primary-deep)]">Accept</button>
       </div>
     </div>
   );

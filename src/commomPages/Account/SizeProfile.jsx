@@ -141,10 +141,10 @@ const SizeProfile = () => {
 
       {loading ? (
         <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[var(--border-subtle)] border-t-[var(--teal-1)] rounded-full animate-spin" />
         </div>
       ) : profiles.length === 0 ? (
-        <p className="text-gray-500 text-lg">No size profiles found</p>
+        <p className="text-[var(--color-text-muted)] text-lg">No size profiles found</p>
       ) : (
         <div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
           {profiles.map((p) => (

@@ -377,7 +377,7 @@ const DiamondOptions = ({
                       className={clsx(
                         "slide-card border !capitalize transition-all duration-200 min-w-[58px]",
                         isSelected
-                          ? "border-[var(--teal-1)] bg-[var(--teal-3)] font-[500]"
+                          ? "border-[var(--teal-1)] bg-[var(--surface-tint)] font-[500]"
                           : "border-[var(--teal-3)] hover:border-[var(--teal-1)]"
                       )}
                     >

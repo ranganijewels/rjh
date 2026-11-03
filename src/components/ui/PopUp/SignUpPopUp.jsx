@@ -77,7 +77,7 @@ const SignUpPopUp = ({ onClose }) => {
             disabled={submitting}
           />
         </div>
-        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+        {error && <div className="text-[var(--color-error)] text-sm mt-2">{error}</div>}
       </div>
 
       {/* Image Section */}

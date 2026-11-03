@@ -319,7 +319,7 @@ export function ReturnRepair() {
                           type="button"
                           onClick={() => removePhoto(index)}
                           aria-label={`Remove ${file.name}`}
-                          className="text-xs text-red-600 hover:text-red-800 ml-3"
+                          className="text-xs text-[var(--color-error)] hover:text-[var(--color-error)] ml-3"
                         >
                           Remove
                         </button>

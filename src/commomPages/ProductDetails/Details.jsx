@@ -682,7 +682,7 @@ const Details = ({ initialDetail = null }) => {
               </div>
             )}
             <h1
-              className="font-[var(--font-cormorant)] text-[26px] md:text-[30px] leading-[1.15] tracking-[-0.01em] text-[var(--grey-2)] font-medium"
+              className="font-[var(--font-heading)] text-[26px] md:text-[30px] leading-[1.15] tracking-[-0.01em] text-[var(--grey-2)] font-medium"
             >
               {resolvedTitle && toTitleCase(resolvedTitle)}
             </h1>
@@ -1060,7 +1060,7 @@ const Details = ({ initialDetail = null }) => {
         )}
 
         {errorMessage && (
-          <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+          <p className="text-[var(--color-error)] text-sm mt-2">{errorMessage}</p>
         )}
         <div className="space-y-[12px] ">
           <div className="flex gap-[6px]">

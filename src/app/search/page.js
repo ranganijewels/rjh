@@ -8,7 +8,7 @@ export default function SearchPage() {
     <Suspense
       fallback={
         <div style={{ minHeight: "60vh", display: "grid", placeItems: "center" }}>
-          <p style={{ color: "var(--placeholder)", fontFamily: "var(--font-montserrat)" }}>
+          <p style={{ color: "var(--placeholder)", fontFamily: "var(--font-body)" }}>
             Loading search…
           </p>
         </div>

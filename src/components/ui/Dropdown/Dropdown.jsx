@@ -88,10 +88,10 @@ const Dropdown = ({
           aria-expanded={isOpen}
           className={clsx(
             "w-full p-3 inline-flex gap-2 justify-between items-center",
-            "hover:bg-[var(--teal-3)] hover:text-[var(--teal-1)]",
+            "hover:bg-[var(--surface-tint)] hover:text-[var(--teal-1)]",
             disabled && "opacity-50 cursor-not-allowed",
             borderBottom
-              ? "border-b border-[var(--placeholder)] focus:border-b-2 focus:border-[var(--teal-2)]"
+              ? "border-b border-[var(--border-strong)] focus:border-b-2 focus:border-[var(--teal-2)]"
               : [
                   "outline outline-offset-[-1px] outline-[var(--teal-3)] focus:outline-none",
                   !iconOnly ||
@@ -118,7 +118,7 @@ const Dropdown = ({
                 : toTitleCase(selected)}
             </span>
           ) : (
-            <span className="text-left text-[12px] font-[400] text-[#5a5a5a] w-full truncate !capitalize">
+            <span className="text-left text-[12px] font-[400] text-[var(--color-text-muted)] w-full truncate !capitalize">
               {typeof selected === "object"
                 ? toTitleCase(selected.custom_title) ||
                   toTitleCase(selected.label) ||
@@ -147,7 +147,7 @@ const Dropdown = ({
               fillRule="evenodd"
               clipRule="evenodd"
               d="M0.520162 0.388326C0.408644 0.499829 0.408644 0.680632 0.520162 0.792136L6.21363 6.48561C6.49241 6.76438 6.94439 6.76438 7.22316 6.48561L12.9166 0.79215C13.0281 0.680632 13.0281 0.499843 12.9166 0.388326C12.8051 0.276822 12.6243 0.276822 12.5128 0.388326L6.81935 6.08178C6.7636 6.13755 6.6732 6.13755 6.61744 6.08178L0.923971 0.388326C0.812468 0.276808 0.631665 0.276808 0.520162 0.388326Z"
-              fill="#222223"
+              fill="var(--color-text)"
             />
           </svg>
         </button>

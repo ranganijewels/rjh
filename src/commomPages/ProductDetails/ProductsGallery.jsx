@@ -133,7 +133,7 @@ const ProductsGallery = ({
       {/* Reserve the square gallery space while media loads, so the details
           below don't jump down when the first image arrives (CLS). */}
       {!activeMedia && (
-        <div className="aspect-square w-full bg-[var(--product-bg,#f7f7f7)]" aria-hidden />
+        <div className="aspect-square w-full bg-[var(--surface-product)]" aria-hidden />
       )}
       {/* Mobile Main Preview */}
       {activeMedia && (

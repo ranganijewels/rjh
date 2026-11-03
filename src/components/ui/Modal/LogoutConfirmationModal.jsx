@@ -44,7 +44,7 @@ const LogoutConfirmationModal = ({ onClose }) => {
         />
 
         {/* Confirmation Message */}
-        <p className="text-base text-gray-700">
+        <p className="text-base text-[var(--color-text-muted)]">
           Are you sure you want to log out?
         </p>
 
