@@ -51,7 +51,10 @@ const FeaturedCollections = ({
         className={`${
           isGrid
             ? "grid md:grid-cols-4 grid-cols-2 xl:gap-[20px] lg:gap-[10px] gap-[14px]"
-            : "flex xl:gap-[20px] lg:gap-[10px] gap-[14px] overflow-x-auto hide-scrollbar no-scrollbar scroll-smooth"
+            : // overflow-y-hidden!: the row's fractional height (13.2px caption
+              // line-height) leaves 1px of vertical scroll under .hide-scrollbar's
+              // overflow-y: auto, so wheeling over it nudged the cards up and down.
+              "flex xl:gap-[20px] lg:gap-[10px] gap-[14px] overflow-x-auto overflow-y-hidden! hide-scrollbar no-scrollbar scroll-smooth"
         }`}
       >
         {collections.map((product, index) => {
