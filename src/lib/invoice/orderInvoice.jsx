@@ -12,11 +12,11 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 
-const TEAL = "#3a1f38";
-const DARK = "#211a20";
-const GOLD = "#806536";
-const MUTED = "#675c64";
-const LINE = "#e3d8d6";
+const TEAL = "#1c3d7a";
+const DARK = "#141b2b";
+const GOLD = "#4e5a6e";
+const MUTED = "#576178";
+const LINE = "#d8e0ec";
 
 const money = (n, symbol = "$") =>
   `${symbol}${(Number(n) || 0).toLocaleString("en-US", {
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     paddingHorizontal: 7,
     borderRadius: 8,
-    backgroundColor: "#f2ebea",
+    backgroundColor: "#ebf0f7",
     color: TEAL,
     fontSize: 8,
     fontFamily: "Helvetica-Bold",

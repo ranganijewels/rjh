@@ -300,7 +300,7 @@ export const Mosaic = ({ id, eyebrow, title, intro, images = [] }) => (
       `testimonialitems` key the API no longer sends, so it renders empty —
       these cards read the real `reviews` array instead.) ── */
 const Star = ({ dim }) => (
-  <svg viewBox="0 0 20 20" className={`w-[14px] h-[14px] ${dim ? "text-[var(--teal-3)]" : "text-[var(--accent-icon)]"}`} fill="currentColor" aria-hidden>
+  <svg viewBox="0 0 20 20" className={`w-[14px] h-[14px] ${dim ? "text-[var(--teal-3)]" : "text-[var(--rating-star)]"}`} fill="currentColor" aria-hidden>
     <path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 14.9l-5.3 2.7 1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
   </svg>
 );

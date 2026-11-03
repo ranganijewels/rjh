@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================= */
-/* Plum and pearl palette        */
+/* Sapphire frost palette        */
 /* ============================= */
 /* Components use the role tokens (second block) only; the base shades are
    wiring. Every text pairing meets WCAG AA (4.5:1); borders and icons that
@@ -9,64 +9,67 @@
    var() and must always be emitted. */
 :root {
   /* Base shades */
-  --plum-950: #251324;
-  --plum-900: #3a1f38;
-  --plum-800: #53304f;
-  --plum-700: #6e4669;
-  --plum-500: #8a6787;
-  --plum-200: #dccbd9;
-  --plum-100: #f1e7ef;
+  --sapphire-950: #0f2350;
+  --sapphire-900: #1c3d7a;
+  --sapphire-800: #2b5096;
+  --sapphire-700: #2f5597;
+  --sapphire-500: #4f6fae;
+  --sapphire-200: #c3d3ee;
+  --sapphire-100: #e3ecfa;
 
-  --pearl-0: #ffffff;
-  --pearl-25: #fcfaf9;
-  --pearl-50: #fbf8f7;
-  --pearl-100: #f2ebea;
-  --pearl-200: #e3d8d6;
-  --pearl-500: #8f828a;
+  --frost-0: #ffffff;
+  --frost-25: #fbfcfe;
+  --frost-50: #f7f9fc;
+  --frost-100: #ebf0f7;
+  --frost-200: #d8e0ec;
+  --frost-500: #7c869a;
 
-  --mauve-300: #a99da5;
-  --mauve-600: #675c64;
-  --ink-900: #211a20;
+  --slate-300: #a3abba;
+  --slate-600: #576178;
+  --slate-900: #141b2b;
 
-  --champagne-100: #f5eedf;
-  --champagne-300: #e6d2a6;
-  --champagne-500: #b89a62;
-  --champagne-600: #9e8048;
-  --champagne-700: #806536;
+  --silver-100: #eef1f5;
+  --silver-300: #c9d6ea;
+  --silver-500: #8c97a8;
+  --silver-600: #6f7b8e;
+  --silver-700: #4e5a6e;
 
   /* Brand */
-  --color-primary: var(--plum-900);
-  --color-primary-hover: var(--plum-800);
-  --color-primary-deep: var(--plum-950);
-  --color-link: var(--plum-700);
-  --focus-ring: var(--plum-500);
+  --color-primary: var(--sapphire-900);
+  --color-primary-hover: var(--sapphire-800);
+  --color-primary-deep: var(--sapphire-950);
+  --color-link: var(--sapphire-700);
+  --focus-ring: var(--sapphire-500);
 
   /* Surfaces */
-  --surface-card: var(--pearl-0);
-  --surface-page: var(--pearl-50);
-  --surface-band: var(--pearl-100);
-  --surface-tint: var(--plum-100);
-  --surface-product: var(--pearl-25);
+  --surface-card: var(--frost-0);
+  --surface-page: var(--frost-50);
+  --surface-band: var(--frost-100);
+  --surface-tint: var(--sapphire-100);
+  --surface-product: var(--frost-25);
 
   /* Text */
-  --color-text: var(--ink-900);
-  --color-text-muted: var(--mauve-600);
-  --color-text-disabled: var(--mauve-300);
+  --color-text: var(--slate-900);
+  --color-text-muted: var(--slate-600);
+  --color-text-disabled: var(--slate-300);
   --color-text-on-dark: #ffffff;
-  --color-text-on-dark-muted: #cdbfcb;
+  --color-text-on-dark-muted: #b8c6de;
 
   /* Borders */
-  --border-subtle: var(--pearl-200);
-  --border-strong: var(--pearl-500);
-  --border-tint: var(--plum-200);
+  --border-subtle: var(--frost-200);
+  --border-strong: var(--frost-500);
+  --border-tint: var(--sapphire-200);
 
-  /* Champagne accent: --accent is decorative on dark only; on light
+  /* Silver accent: --accent is decorative on dark only; on light
      backgrounds use --accent-icon (graphics) or --accent-text (text). */
-  --accent: var(--champagne-500);
-  --accent-icon: var(--champagne-600);
-  --accent-text: var(--champagne-700);
-  --accent-on-dark: var(--champagne-300);
-  --accent-tint: var(--champagne-100);
+  --accent: var(--silver-500);
+  --accent-icon: var(--silver-600);
+  --accent-text: var(--silver-700);
+  --accent-on-dark: var(--silver-300);
+  --accent-tint: var(--silver-100);
+
+  /* Review stars stay a muted gold: silver filled stars read as empty ones. */
+  --rating-star: #9e8048;
 
   /* Status */
   --color-error: #b4362d;
