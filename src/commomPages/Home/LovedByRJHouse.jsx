@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useScrollControls } from "@/hooks/useScrollControls";
 import { responsiveImg } from "@/lib/imageSizes";
@@ -156,8 +156,6 @@ const ReelCard = ({ item, index }) => {
 
 /* ── Section ─────────────────────────────────────────────────────── */
 const LovedByRJHouse = ({ items }) => {
-  const [liveItems, setLiveItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const {
     containerRef,
     canScrollLeft,
@@ -166,20 +164,10 @@ const LovedByRJHouse = ({ items }) => {
     updateScrollState,
   } = useScrollControls();
 
-  useEffect(() => {
-    fetch("/api/instagram/feed?limit=12")
-      .then((r) => r.json())
-      .then((json) => {
-        if (Array.isArray(json.data) && json.data.length > 0) {
-          setLiveItems(json.data);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Priority: live Instagram > CMS items (normalised) > empty
-  const cmsItems = Array.isArray(items?.loved_by_items)
+  // Reels come from CMS Studio ▸ Instagram Reels (hand-picked, no Instagram
+  // token). The automatic feed (/api/instagram/feed) isn't connected, so it is
+  // not fetched; it only added a slow empty request and a loading skeleton.
+  const reelItems = Array.isArray(items?.loved_by_items)
     ? items.loved_by_items.map((i, n) => {
         const file = i.file || "";
         const isVid = /\.(mp4|webm|ogg|mov)(\?|$)/i.test(file);
@@ -195,18 +183,12 @@ const LovedByRJHouse = ({ items }) => {
       })
     : [];
 
-  const reelItems = liveItems.length > 0 ? liveItems : cmsItems;
-  const showPlaceholder = !loading && reelItems.length === 0;
-
   useEffect(() => {
-    // Re-check after loading settles either way — real items AND the
-    // placeholder row both need this, since the container's children
-    // (and therefore its scrollWidth) don't exist yet at mount time.
-    if (!loading) {
-      const timer = setTimeout(() => updateScrollState(), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, reelItems, updateScrollState]);
+    // The container's children (and so its scrollWidth) only exist after the
+    // first paint, so re-check the arrows once they're in.
+    const timer = setTimeout(() => updateScrollState(), 100);
+    return () => clearTimeout(timer);
+  }, [reelItems.length, updateScrollState]);
 
   return (
     <section className="md:px-[30px] px-[18px]">
@@ -279,18 +261,7 @@ const LovedByRJHouse = ({ items }) => {
       </div>
 
       {/* Reels strip */}
-      {loading ? (
-        /* Skeleton while fetching */
-        <div className="flex gap-3 overflow-x-hidden pb-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 rounded-xl animate-pulse bg-[var(--product-bg)]
-                2xl:w-[260px] 2xl:h-[462px] xl:w-[220px] xl:h-[391px] w-[175px] h-[311px]"
-            />
-          ))}
-        </div>
-      ) : reelItems.length > 0 ? (
+      {reelItems.length > 0 ? (
         <div
           ref={containerRef}
           className="flex gap-3 overflow-x-auto hide-scrollbar scroll-smooth pb-2"
