@@ -92,7 +92,16 @@ const Navbar = () => {
   const { isMobile } = useIsMobile(1024);
   const { isMobile: MobileSize } = useIsMobile(425);
 
-  const customer = useSelector((state) => state.auth.customer);
+  const storedCustomer = useSelector((state) => state.auth.customer);
+
+  // Sign-in state and bag/wishlist counts are rehydrated from localStorage, so
+  // the server always renders them empty. Show them only after mount so the
+  // first client render matches the server HTML (no hydration mismatch).
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => setHasMounted(true), []);
+  const customer = hasMounted ? storedCustomer : null;
+  const shownWishlistCount = hasMounted ? wishlistCount : 0;
+  const shownCartCount = hasMounted ? cartCount : 0;
 
   useEffect(() => {
     const loadMenus = async () => {
@@ -392,7 +401,7 @@ const Navbar = () => {
             <div className="relative" onMouseEnter={open} onMouseLeave={close}>
               <button
                 type="button"
-                aria-label={`Wishlist${wishlistCount > 0 ? ` (${wishlistCount} items)` : ""}`}
+                aria-label={`Wishlist${shownWishlistCount > 0 ? ` (${shownWishlistCount} items)` : ""}`}
                 onClick={() => router.push("/wishlist")}
                 className="relative h-[20px] w-[20px] block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] hover:opacity-70 transition-opacity"
               >
@@ -405,7 +414,7 @@ const Navbar = () => {
                   )}
                   alt=""
                 />
-                {wishlistCount > 0 && <Badge count={wishlistCount} />}
+                {shownWishlistCount > 0 && <Badge count={shownWishlistCount} />}
               </button>
               {!isMobile && (
                 <WishlistPopUp onMouseEnter={open} onMouseLeave={close} />
@@ -415,7 +424,7 @@ const Navbar = () => {
             {/* Cart */}
             <Link
               href="/cart"
-              aria-label={`Shopping bag${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
+              aria-label={`Shopping bag${shownCartCount > 0 ? ` (${shownCartCount} items)` : ""}`}
               className="relative block h-[20px] w-[20px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--teal-1)] hover:opacity-70 transition-opacity"
             >
               <img
@@ -427,7 +436,7 @@ const Navbar = () => {
                   transparent && "[filter:brightness(0)_invert(1)]"
                 )}
               />
-              {cartCount > 0 && <Badge count={cartCount} />}
+              {shownCartCount > 0 && <Badge count={shownCartCount} />}
             </Link>
           </div>
         </div>

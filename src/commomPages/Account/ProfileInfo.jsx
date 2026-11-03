@@ -151,6 +151,8 @@ const ProfileInfo = () => {
 
     if (!passwordForm.newPassword) {
       newErrors.newPassword = "New password is required.";
+    } else if (passwordForm.newPassword.length < 8) {
+      newErrors.newPassword = "New password must be at least 8 characters.";
     }
 
     if (!passwordForm.confirmPassword) {
@@ -196,7 +198,9 @@ const ProfileInfo = () => {
 
       toast.success("Password changed successfully!");
     } catch (err) {
-      toast.error("Something went wrong while changing password");
+      // useCrudApi.update throws with the API's message (e.g. "Current
+      // password is incorrect") on a non-2xx response.
+      toast.error(err?.message || "Something went wrong while changing password");
     }
   };
 

@@ -113,7 +113,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
 
           <div
             ref={scrollRef}
-            className="flex hide-scrollbar overflow-x-auto scroll-smooth mb-[36px] gap-0 snap-x snap-mandatory px-0 w-full"
+            className="flex hide-scrollbar overflow-x-auto overflow-y-hidden! scroll-smooth mb-[36px] gap-0 snap-x snap-mandatory px-0 w-full"
           >
             {mobileDisplayShapes.map((shape, idx) => (
               <div
@@ -158,7 +158,7 @@ const FindYourDiomond = ({ title, description, shapes, buttons }) => {
 
           <div
             ref={desktopScrollRef}
-            className="flex mx-auto gap-[24px] sm:gap-[32px] xl:gap-[50px] hide-scrollbar overflow-x-auto px-[10px] scroll-smooth"
+            className="flex mx-auto gap-[24px] sm:gap-[32px] xl:gap-[50px] hide-scrollbar overflow-x-auto overflow-y-hidden! px-[10px] scroll-smooth"
           >
             {Array.isArray(shapes) &&
               shapes.map((shape, idx) => (
