@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { ReturnRepair } from "./ReturnRepair";
+import toast from "react-hot-toast";
+import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
 import {
   AccountPageTitle,
   Card,
@@ -70,16 +72,51 @@ const Orders = () => {
   const [selected, setSelected] = useState(null);
   const [returnOpen, setReturnOpen] = useState(false);
   const [invoiceBusy, setInvoiceBusy] = useState(null);
+  const [paying, setPaying] = useState(false);
   const { fetchAll } = useCrudApi("/api/orders");
+  const { create: startRetry } = useCrudApi("/api/payments/cashfree/retry");
+
+  const load = useCallback(
+    () =>
+      fetchAll()
+        .then((r) => {
+          const list = [...(r?.data || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          setOrders(list);
+          return list;
+        })
+        .catch(() => {
+          setOrders([]);
+          return [];
+        }),
+    [fetchAll]
+  );
 
   useEffect(() => {
-    fetchAll()
-      .then((r) => {
-        const list = [...(r?.data || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setOrders(list);
-      })
-      .catch(() => setOrders([]));
-  }, [fetchAll]);
+    load();
+  }, [load]);
+
+  // Pay again for an unpaid online order: reopen Cashfree with a fresh or
+  // still-open payment session. If it turns out to be paid already, refresh.
+  const payAgain = async (order) => {
+    setPaying(true);
+    try {
+      const res = await startRetry(null, {}, encodeURIComponent(order.order_number));
+      const d = res?.data || {};
+      if (d.alreadyPaid) {
+        const list = await load();
+        setSelected(list.find((o) => o.id === order.id) || null);
+        toast.success("Good news: this order is already paid.");
+        return;
+      }
+      if (!d.paymentSessionId) throw new Error("We couldn't start the payment. Please try again.");
+      const cashfree = await loadCashfree({ mode: d.paymentMode || "sandbox" });
+      await cashfree.checkout({ paymentSessionId: d.paymentSessionId, redirectTarget: "_self" });
+    } catch (err) {
+      toast.error(err?.message || "We couldn't start the payment. Please try again.");
+    } finally {
+      setPaying(false);
+    }
+  };
 
   // /account/orders?order=<id> (from the dashboard) opens that order.
   useEffect(() => {
@@ -160,6 +197,8 @@ const Orders = () => {
         {selected && (
           <OrderDetail
             order={selected}
+            paying={paying}
+            onPay={() => payAgain(selected)}
             busy={invoiceBusy === selected.id}
             onInvoice={() => invoice(selected, true)}
             onReturn={() => setReturnOpen(true)}
@@ -217,10 +256,11 @@ const Section = ({ title, children }) => (
   </section>
 );
 
-const OrderDetail = ({ order, onInvoice, onReturn, busy }) => {
+const OrderDetail = ({ order, onInvoice, onReturn, onPay, paying, busy }) => {
   const stage = orderStage(order);
   const pay = paymentInfo(order);
   const unpaidOnline = pay.label === "Payment pending" || pay.label === "Payment failed";
+  const canPayAgain = unpaidOnline && stage.step >= 0 && String(order.payment_method || "").toUpperCase() === "ONLINE";
   return (
     <div>
       <div className="flex flex-wrap items-center gap-[8px]">
@@ -260,11 +300,23 @@ const OrderDetail = ({ order, onInvoice, onReturn, busy }) => {
 
       {unpaidOnline && stage.step >= 0 && (
         <div className="my-[12px] p-[12px] bg-[var(--color-warning-tint)] text-[13px] text-[var(--color-warning)]">
-          {pay.label === "Payment failed"
-            ? "We didn't receive the payment for this order. "
-            : "We haven't received the payment for this order yet. "}
-          If you were charged or need help,{" "}
-          <Link href="/account/support" className="underline">contact us</Link>.
+          <p>
+            {pay.label === "Payment failed"
+              ? "We didn't receive the payment for this order. "
+              : "We haven't received the payment for this order yet. "}
+            If you were charged or need help,{" "}
+            <Link href="/account/support" className="underline">contact us</Link>.
+          </p>
+          {canPayAgain && (
+            <button
+              type="button"
+              onClick={onPay}
+              disabled={paying}
+              className="mt-[10px] px-[18px] py-[10px] text-[13px] uppercase tracking-[0.28px] bg-[var(--color-primary)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
+            >
+              {paying ? "Opening secure payment…" : `Complete payment · ${orderAmount(order)}`}
+            </button>
+          )}
         </div>
       )}
 
