@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 /* ============================= */
-/* Sapphire frost palette        */
+/* Rangani brand palette         */
 /* ============================= */
-/* Components use the role tokens (second block) only; the base shades are
-   wiring. Every text pairing meets WCAG AA (4.5:1); borders and icons that
-   carry meaning meet 3:1. Plain :root, not @theme: these are read through
-   var() and must always be emitted. */
+/* From the Rangani Jewellers brand guidelines (Color Palette):
+   #091930 deep navy, #162640 navy, #465e84 slate, #ffffff white — "navy and
+   cool neutral tones". The light surfaces and borders are the brand slate
+   mixed with white. Components use the role tokens (second block) only; the
+   base shades are wiring. Every text pairing meets WCAG AA (4.5:1); borders
+   and icons that carry meaning meet 3:1. Plain :root, not @theme: these are
+   read through var() and must always be emitted. */
 :root {
-  /* Base shades */
-  --sapphire-950: #0f2350;
-  --sapphire-900: #1c3d7a;
-  --sapphire-800: #2b5096;
-  --sapphire-700: #2f5597;
-  --sapphire-500: #4f6fae;
-  --sapphire-200: #c3d3ee;
-  --sapphire-100: #e3ecfa;
+  /* Base shades — brand */
+  --navy-950: #091930;
+  --navy-900: #162640;
+  --slate-600: #465e84;
+  --white: #ffffff;
 
-  --frost-0: #ffffff;
-  --frost-25: #fbfcfe;
-  --frost-50: #f7f9fc;
-  --frost-100: #ebf0f7;
-  --frost-200: #d8e0ec;
-  --frost-500: #7c869a;
-
-  --slate-300: #a3abba;
-  --slate-600: #576178;
-  --slate-900: #141b2b;
+  /* Base shades — brand slate mixed with white (cool neutrals) */
+  --mist-25: #f9fafb;
+  --mist-50: #f6f7f9;
+  --mist-100: #f0f2f5;
+  --mist-150: #e9ecf0;
+  --mist-200: #dadfe6;
+  --mist-300: #c8cfda;
+  --mist-400: #acb7c8;
+  --mist-500: #7a8ba6;
+  --mist-on-dark: #b9c2d0;
 
   --silver-100: #eef1f5;
   --silver-300: #c9d6ea;
@@ -35,30 +35,30 @@
   --silver-700: #4e5a6e;
 
   /* Brand */
-  --color-primary: var(--sapphire-900);
-  --color-primary-hover: var(--sapphire-800);
-  --color-primary-deep: var(--sapphire-950);
-  --color-link: var(--sapphire-700);
-  --focus-ring: var(--sapphire-500);
+  --color-primary: var(--navy-900);
+  --color-primary-hover: var(--navy-950);
+  --color-primary-deep: var(--navy-950);
+  --color-link: var(--slate-600);
+  --focus-ring: var(--slate-600);
 
   /* Surfaces */
-  --surface-card: var(--frost-0);
-  --surface-page: var(--frost-50);
-  --surface-band: var(--frost-100);
-  --surface-tint: var(--sapphire-100);
-  --surface-product: var(--frost-25);
+  --surface-card: var(--white);
+  --surface-page: var(--mist-50);
+  --surface-band: var(--mist-100);
+  --surface-tint: var(--mist-150);
+  --surface-product: var(--mist-25);
 
   /* Text */
-  --color-text: var(--slate-900);
+  --color-text: var(--navy-950);
   --color-text-muted: var(--slate-600);
-  --color-text-disabled: var(--slate-300);
-  --color-text-on-dark: #ffffff;
-  --color-text-on-dark-muted: #b8c6de;
+  --color-text-disabled: var(--mist-400);
+  --color-text-on-dark: var(--white);
+  --color-text-on-dark-muted: var(--mist-on-dark);
 
   /* Borders */
-  --border-subtle: var(--frost-200);
-  --border-strong: var(--frost-500);
-  --border-tint: var(--sapphire-200);
+  --border-subtle: var(--mist-200);
+  --border-strong: var(--mist-500);
+  --border-tint: var(--mist-300);
 
   /* Silver accent: --accent is decorative on dark only; on light
      backgrounds use --accent-icon (graphics) or --accent-text (text). */

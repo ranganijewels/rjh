@@ -64,8 +64,8 @@ const heroButton = (text, slug) => [
     button_url: slug
       ? `/customize/form/reference?category_id=${CATEGORY_IDS[slug]}&size=${slug}`
       : "/customize/form/reference",
-    button_color: "#1c3d7a",
-    button_border: "#1c3d7a",
+    button_color: "#162640",
+    button_border: "#162640",
     button_text_color: "#ffffff",
   },
 ];
