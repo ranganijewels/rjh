@@ -348,7 +348,7 @@ const ReferenceForm = () => {
             <button
               type="button"
               onClick={() => handleRemoveUrl(index)}
-              className="text-gray-500"
+              className="text-[var(--color-text-muted)]"
             >
               ✕
             </button>

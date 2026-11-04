@@ -25,10 +25,10 @@ const FailedOrderPage = () => {
     <div className="min-h-150 w-full flex items-center justify-center bg-white px-4">
       <div className="max-w-xl w-full flex flex-col items-center text-center gap-10">
         {/* Icon */}
-        <div className="w-28 h-28 rounded-full bg-red-100 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full border-[5px] border-red-500 flex items-center justify-center">
+        <div className="w-28 h-28 rounded-full bg-[var(--color-error-tint)] flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full border-[5px] border-[var(--color-error)] flex items-center justify-center">
             <svg
-              className="w-8 h-8 text-red-500"
+              className="w-8 h-8 text-[var(--color-error)]"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -56,8 +56,8 @@ const FailedOrderPage = () => {
         </div>
 
         {/* Details box */}
-        <div className="w-full border border-gray-200 rounded-md p-4 flex items-start gap-3 text-left">
-          <div className="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-sm text-gray-600">
+        <div className="w-full border border-[var(--border-subtle)] rounded-md p-4 flex items-start gap-3 text-left">
+          <div className="w-6 h-6 rounded-full border border-[var(--border-strong)] flex items-center justify-center text-sm text-[var(--color-text-muted)]">
             !
           </div>
 

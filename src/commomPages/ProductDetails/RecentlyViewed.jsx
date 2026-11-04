@@ -23,8 +23,8 @@ const RecentlyViewed = ({ currentId }) => {
       <div className="flex items-end justify-between mb-6">
         <Typography
           variant="h3"
-          className="!font-[var(--font-cormorant)]"
-          style={{ fontFamily: "var(--font-cormorant), serif" }}
+          className="!font-[var(--font-heading)]"
+          style={{ fontFamily: "var(--font-heading), serif" }}
         >
           Recently Viewed
         </Typography>

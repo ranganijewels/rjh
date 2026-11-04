@@ -46,7 +46,7 @@ const ShareModal = ({ onClose }) => {
           </button>
         </div>
 
-        <p className="text-[12px] text-[var(--placeholder)] pb-[20px] mb-[20px] border-b border-b-[var(--grey-1)]">
+        <p className="text-[12px] text-[var(--placeholder)] pb-[20px] mb-[20px] border-b border-b-[var(--border-subtle)]">
           Anyone with the link can view this page.
         </p>
 

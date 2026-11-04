@@ -25,7 +25,7 @@ export default function BrandDifference({ config }) {
         <div className="flex flex-col lg:flex-row gap-[36px] lg:gap-[72px]">
           {/* Left — brand story */}
           <div className="lg:w-[42%] w-full lg:py-[8px]">
-            <h2 className="font-[var(--font-cormorant)] text-[28px] md:text-[34px] font-medium leading-[1.15] text-[var(--grey-2)]">
+            <h2 className="font-[var(--font-heading)] text-[28px] md:text-[34px] font-medium leading-[1.15] text-[var(--grey-2)]">
               {heading}
             </h2>
             <p className="text-[14px] md:text-[15px] leading-[1.85] text-[var(--grey-2)] mt-[18px]">

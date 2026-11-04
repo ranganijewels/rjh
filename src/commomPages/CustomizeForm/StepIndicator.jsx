@@ -21,7 +21,7 @@ export const StepIndicator = ({ steps, currentStep }) => {
       <div className="hidden xl:flex flex-col sticky top-[130px]">
         {/* Full gray vertical line */}
         <div
-          className="absolute left-2 top-0 w-[4px] bg-gray-300 rounded-full"
+          className="absolute left-2 top-0 w-[4px] bg-[var(--border-subtle)] rounded-full"
           style={{ height: containerHeight }}
         />
 
@@ -38,7 +38,7 @@ export const StepIndicator = ({ steps, currentStep }) => {
               <div
                 className={`text-sm shrink-0 ${
                   index === currentStep
-                    ? "font-semibold text-gray-900"
+                    ? "font-semibold text-[var(--color-text)]"
                     : "text-[var(--placeholder)]"
                 }`}
               >
@@ -56,7 +56,7 @@ export const StepIndicator = ({ steps, currentStep }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="relative h-1 bg-gray-300 rounded-full w-full mb-[20px]">
+        <div className="relative h-1 bg-[var(--border-subtle)] rounded-full w-full mb-[20px]">
           <div
             className="absolute left-0 top-0 h-1 bg-[var(--teal-1)] transition-all duration-500 rounded-full"
             style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}

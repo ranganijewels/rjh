@@ -3,7 +3,7 @@ import React from "react";
 const Star = ({ size = 16, type }) => {
   const fill =
     type === "full"
-      ? "#FFC107"
+      ? "var(--rating-star)"
       : type === "half"
       ? "url(#halfGradient)"
       : "none";
@@ -14,14 +14,14 @@ const Star = ({ size = 16, type }) => {
       height={size}
       viewBox="0 0 24 24"
       fill={fill}
-      stroke="#FFC107"
+      stroke="var(--rating-star)"
       strokeWidth="1.5"
     >
       {type === "half" && (
         <defs>
           <linearGradient id="halfGradient">
-            <stop offset="50%" stopColor="#FFC107" />
-            <stop offset="50%" stopColor="#ECEFF1" />
+            <stop offset="50%" stopColor="var(--rating-star)" />
+            <stop offset="50%" stopColor="var(--border-subtle)" />
           </linearGradient>
         </defs>
       )}

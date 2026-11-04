@@ -24,7 +24,7 @@ const SignUpPopUp = ({ onClose }) => {
 
     setSubmitting(true);
     try {
-      const res = await create({ email });
+      const res = await create({ email, source: "popup" });
 
       if (res.status) {
         toast.success("Subscription Created");
@@ -36,8 +36,7 @@ const SignUpPopUp = ({ onClose }) => {
         toast.error(errorMsg);
       }
     } catch (err) {
-      const errorMsg =
-        "The email field must be a valid email address." || err.message;
+      const errorMsg = err?.message || "Something went wrong";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -77,7 +76,7 @@ const SignUpPopUp = ({ onClose }) => {
             disabled={submitting}
           />
         </div>
-        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+        {error && <div className="text-[var(--color-error)] text-sm mt-2">{error}</div>}
       </div>
 
       {/* Image Section */}

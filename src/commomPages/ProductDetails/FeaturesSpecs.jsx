@@ -290,7 +290,7 @@ const FeaturesSpecs = ({
           </div>
  
          
-          <div className="pb-3.5 border-b border-[var(--grey-1)] flex flex-col gap-3">
+          <div className="pb-3.5 border-b border-[var(--border-subtle)] flex flex-col gap-3">
             <Typography variant="h6" className="font-[500]">
               Diamond Price :
             </Typography>
@@ -434,7 +434,7 @@ const FeaturesSpecs = ({
         </p>
       </Accordion>
       {aeoSummary && (
-        <p className="lg:text-[13px] text-[12px] font-[300] italic text-[var(--grey-3,#6b7280)] py-3 border-b border-[var(--border,#e5e7eb)]">
+        <p className="lg:text-[13px] text-[12px] font-[300] italic text-[var(--color-text-muted)] py-3 border-b border-[var(--border-subtle)]">
           {aeoSummary}
         </p>
       )}

@@ -82,14 +82,14 @@ const BookConsultancy = () => {
                         //   checked={formData.meetingMode === option}
                         //   onChange={() => handleRadio("meetingMode", option)}
                       />
-                      <span className="text-stone-700">{option}</span>
+                      <span className="text-[var(--color-text-muted)]">{option}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <div className="px-4 md:px-10 space-y-[7px]">
-                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
+                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--border-strong)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />
                     <Typography variant="h5">10:00 AM - 11:00 AM</Typography>
@@ -99,7 +99,7 @@ const BookConsultancy = () => {
                   </label>
                 </div>
 
-                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--placeholder)] ">
+                <div className="py-[13px] flex justify-between items-center border-b border-b-[var(--border-strong)] ">
                   <div className="inline-flex gap-[24px] items-center">
                     <CalenderIcon className="w-[14px] h-[14px]" />
                     <Typography variant="h5">10:00 AM - 11:00 AM</Typography>
@@ -121,7 +121,7 @@ const BookConsultancy = () => {
                   borderBottom
                   label="Special Notes / Requirements"
                   placeholder="Mention any specific requirements"
-                  className="border-b xl:text-[16px] text-[12px] font-[400] border-[var(--placeholder)] focus:border-b-2 focus:border-[var(--teal-2)] focus:outline-0 p-[20px_11px] w-full"
+                  className="border-b xl:text-[16px] text-[12px] font-[400] border-[var(--border-strong)] focus:border-b-2 focus:border-[var(--teal-2)] focus:outline-0 p-[20px_11px] w-full"
                   //   value={formData.message}
                   //   onChange={(e) => handleChange("message", e.target.value)}
                 />

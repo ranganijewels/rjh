@@ -37,7 +37,7 @@ export default function DiscoverStyles({ heading, subHeading, styles = [] }) {
         <Typography
           variant="h2"
           className="uppercase tracking-[0.06em] xl:text-[46px] lg:text-[38px] text-[28px]"
-          style={{ fontFamily: "var(--font-cormorant), serif" }}
+          style={{ fontFamily: "var(--font-heading), serif" }}
         >
           {heading || "Discover Styles"}
         </Typography>

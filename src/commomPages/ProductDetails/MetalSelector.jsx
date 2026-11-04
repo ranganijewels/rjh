@@ -137,7 +137,7 @@ const MetalSelector = ({
       ? `linear-gradient(135deg, ${colorMap[value.split("/")[0]]} 50%, ${
           colorMap[value.split("/")[1]]
         } 50%)`
-      : colorMap[value] || "#ccc";
+      : colorMap[value] || "var(--border-subtle)";
   };
 
   const selectChip = (chip) => {

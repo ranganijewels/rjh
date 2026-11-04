@@ -208,7 +208,7 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage, initialH
         </div>
 
         {filtersError && (
-          <div className="flex items-center gap-[10px] text-[12px] text-red-600 p-[8px_0]">
+          <div className="flex items-center gap-[10px] text-[12px] text-[var(--color-error)] p-[8px_0]">
             <span>{filtersError}</span>
             <button
               type="button"
@@ -261,7 +261,7 @@ const ProductListing = ({ initialProducts, loading, isFetchingNextPage, initialH
 
       {isFetchingNextPage && (
         <div className="py-10 flex justify-center">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-[var(--teal-1)] rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[var(--border-subtle)] border-t-[var(--teal-1)] rounded-full animate-spin" />
         </div>
       )}
 

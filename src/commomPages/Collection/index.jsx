@@ -91,7 +91,7 @@ const Collection = ({ title, collectionName, apiPath, itemId = null, id }) => {
       />
 
       <div
-        className="flex overflow-x-auto hide-scrollbar no-scrollbar gap-x-[14px] 2xl:gap-x-[35px]"
+        className="flex overflow-x-auto overflow-y-hidden! hide-scrollbar no-scrollbar gap-x-[14px] 2xl:gap-x-[35px]"
         ref={containerRef}
       >
         {loading

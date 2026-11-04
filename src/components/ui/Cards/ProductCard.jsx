@@ -242,7 +242,7 @@ const ProductCard = ({
                       onFocus={() => previewColor(key)}
                       onClick={(e) => { e.stopPropagation(); previewColor(key); }}
                       style={{ background: colorMasterMap[key]?.hex ? swatchCss(colorMasterMap[key]) : swatchBackground(key) }}
-                      className={`relative w-[18px] h-[18px] rounded-full transition-[box-shadow] before:content-[''] before:absolute before:inset-[-6px] ${isSel ? "ring-2 ring-[var(--teal-1)] ring-offset-2" : "ring-1 ring-[var(--grey-1)] hover:ring-[var(--teal-2)]"}`} />
+                      className={`relative w-[18px] h-[18px] rounded-full transition-[box-shadow] before:content-[''] before:absolute before:inset-[-6px] ${isSel ? "ring-2 ring-[var(--teal-1)] ring-offset-2" : "ring-1 ring-[var(--border-subtle)] hover:ring-[var(--teal-2)]"}`} />
                     <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--grey-2)] px-2 py-1 text-[11px] text-white opacity-0 group-hover/sw:opacity-100 transition-opacity z-20">
                       {colorMasterMap[key]?.name || COLOR_LABEL[key] || toTitleCase(palette)}
                     </span>

@@ -66,7 +66,7 @@ export default function TrackOrder() {
       <Typography
         variant="h2"
         as="h1"
-        className="text-[var(--teal-1)] mb-2 font-cormorant"
+        className="text-[var(--teal-1)] mb-2 font-heading"
       >
         Track Your Order
       </Typography>
@@ -99,7 +99,7 @@ export default function TrackOrder() {
             className="w-full border border-[var(--teal-3)] rounded-md px-4 py-2.5 text-[14px] outline-none focus:border-[var(--teal-1)]"
           />
         </div>
-        {error && <p className="text-[13px] font-[600] text-red-700">{error}</p>}
+        {error && <p className="text-[13px] font-[600] text-[var(--color-error)]">{error}</p>}
         <button
           type="submit"
           disabled={loading}

@@ -46,7 +46,7 @@ export const NecklaceLengthGuide = () => {
         <>
             {/* Image Section */}
             <section>
-                <div className="relative w-full font-montserrat pt-12 px-6 md:px-8 py-10">
+                <div className="relative w-full font-body pt-12 px-6 md:px-8 py-10">
                     <img
                         src="/images/category/necklacelengthguide.jpg"
                         alt="Necklace Length Guide"
@@ -55,10 +55,10 @@ export const NecklaceLengthGuide = () => {
 
                     <div className="absolute inset-0 flex justify-end items-center px-6 md:px-14">
                         <div className="sm p-6 rounded-lg max-w-lg ml-auto">
-                            <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-3xl md:text-4xl font-semibold text-[var(--color-text)] mb-4">
                                 Necklace Length Guide
                             </h2>
-                            <p className="text-sm text-gray-700 mb-6 leading-relaxed">
+                            <p className="text-sm text-[var(--color-text-muted)] mb-6 leading-relaxed">
                                 This guide will help you understand standard necklace sizes, <br />
                                 how to measure chains properly, and how to select the ideal <br />
                                 length for your preferences.
@@ -73,7 +73,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* Guide Section */}
-            <div className="font-montserrat px-6 md:px-[33px] py-10">
+            <div className="font-body px-6 md:px-[33px] py-10">
                 <h4 className="text-[20px] font-semibold mb-4">In This Guide</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-10 underline underline-offset-4">
                     {guideLinks.map((item, index) => (
@@ -90,7 +90,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* Necklace Length Chart Section */}
-            <section className="mt-20 font-montserrat">
+            <section className="mt-20 font-body">
                 {/* Header Section */}
                 <div className="px-4 sm:px-6 md:px-[100px]">
                     <h3 className="text-2xl md:text-[36px] font-semibold mb-4 text-center">
@@ -108,9 +108,9 @@ export const NecklaceLengthGuide = () => {
                 {/* Table Section */}
                 <div className="overflow-x-auto mt-10 px-10">
                     <div className="inline-block min-w-full align-middle">
-                        <table className="min-w-full bg-white border border-gray-300 text-sm md:text-base">
+                        <table className="min-w-full bg-white border border-[var(--border-subtle)] text-sm md:text-base">
                             <thead>
-                                <tr className="bg-gray-100 text-left">
+                                <tr className="bg-[var(--surface-band)] text-left">
                                     <th className="px-4 py-2 whitespace-nowrap">Length (inches)</th>
                                     <th className="px-4 py-2 whitespace-nowrap">Length (cm)</th>
                                     <th className="px-4 py-2 whitespace-nowrap">Position on Body</th>
@@ -118,7 +118,7 @@ export const NecklaceLengthGuide = () => {
                             </thead>
                             <tbody>
                                 {NecklaceLengthChart.map((item, index) => (
-                                    <tr key={index} className="border-b hover:bg-gray-50">
+                                    <tr key={index} className="border-b hover:bg-[var(--surface-band)]">
                                         <td className="px-4 py-2 whitespace-nowrap">{item.length}</td>
                                         <td className="px-4 py-2 whitespace-nowrap">{item.cm}</td>
                                         <td className="px-4 py-2">{item.positiononbody}</td>
@@ -132,7 +132,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* Standard Necklace Lengths With Left Side Image */}
-            <section className="mt-20 font-montserrat px-6 lg:px-[100px]">
+            <section className="mt-20 font-body px-6 lg:px-[100px]">
                 <div className="text-center mb-10">
                     <h3 className="text-3xl font-semibold text-[28px] md:text-[36px]">Standard Necklace Lengths</h3>
                     <p className="text-basemt-5 mt-5">
@@ -155,8 +155,8 @@ export const NecklaceLengthGuide = () => {
                     <div className="lg:w-1/2 w-full order-1 md:order-2">
                         {StandardNecklaceLengths1.map((item, index) => (
                             <div key={index} className="p-6">
-                                <h4 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-900">{item?.title}</h4>
-                                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{item?.description}</p>
+                                <h4 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--color-text)]">{item?.title}</h4>
+                                <p className="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed">{item?.description}</p>
                             </div>
                         ))}
                     </div>
@@ -165,7 +165,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* Standard Necklace Lengths With Right Side Image */}
-            <section className="mt-20 font-montserrat px-6 lg:px-[100px]">
+            <section className="mt-20 font-body px-6 lg:px-[100px]">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
                     {/* Image Section */}
                     <div className="lg:w-1/2 w-full order-1 lg:order-2">
@@ -179,8 +179,8 @@ export const NecklaceLengthGuide = () => {
                     <div className="lg:w-1/2 w-full order-2 md:order-1 space-y-8">
                         {StandardNecklaceLengths2.map((item, index) => (
                             <div key={index} className="p-6">
-                                <h4 className="text-xl md:text-2xl font-semibold mb-2 text-gray-900">{item?.title}</h4>
-                                <p className="text-sm md:text-base text-gray-700 leading-relaxed">{item?.description}</p>
+                                <h4 className="text-xl md:text-2xl font-semibold mb-2 text-[var(--color-text)]">{item?.title}</h4>
+                                <p className="text-sm md:text-base text-[var(--color-text-muted)] leading-relaxed">{item?.description}</p>
                             </div>
                         ))}
                     </div>
@@ -189,10 +189,10 @@ export const NecklaceLengthGuide = () => {
 
 
             {/*How To Measure Necklace Length */}
-            <section className="mt-20 font-montserrat px-6 lg:px-[100px]">
+            <section className="mt-20 font-body px-6 lg:px-[100px]">
                 <div className="text-center mb-10">
                     <h3 className="text-3xl font-semibold text-[28px] md:text-[36px]">How to Measure Necklace Length</h3>
-                    <p className="text-base text-gray-700 mt-5">
+                    <p className="text-base text-[var(--color-text-muted)] mt-5">
                         Accurate measurements are important for ensuring your necklace sits exactly where you want it. Here are two reliable methods for determining the perfect length:
                     </p>
                 </div>
@@ -248,7 +248,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* How to Choose Necklace Length With Left Side Image */}
-            <section className="mt-20 px-6 lg:px-[100px] font-montserrat">
+            <section className="mt-20 px-6 lg:px-[100px] font-body">
                 <div className="text-center mb-10">
                     <h3 className="text-3xl font-semibold text-[28px] md:text-[36px]">How to Choose Necklace Length</h3>
                     <p className="text-basemt-5 mt-5">
@@ -267,16 +267,16 @@ export const NecklaceLengthGuide = () => {
                     </div>
 
                     {/* Text Section */}
-                    <div className="lg:w-1/2 w-full space-y-4 md:space-y-6 text-left 2xl:mt-45 mt-0 font-montserrat">
-                        <Typography variant="h2" className="pt-2 pb-1 mb-0 font-montserrat">
+                    <div className="lg:w-1/2 w-full space-y-4 md:space-y-6 text-left 2xl:mt-45 mt-0 font-body">
+                        <Typography variant="h2" className="pt-2 pb-1 mb-0 font-body">
                             Outfit and Neckline
                         </Typography>
 
-                        <Typography variant="h4" className="pt-0 pb-0 mt-0 font-montserrat">
+                        <Typography variant="h4" className="pt-0 pb-0 mt-0 font-body">
                             Different necklace lengths harmonize with specific clothing styles:
                         </Typography>
 
-                        <ul className="list-disc pl-10 text-[16px] leading-relaxed font-montserrat">
+                        <ul className="list-disc pl-10 text-[16px] leading-relaxed font-body">
                             {[
                                 "Turtlenecks pair beautifully with 30-36\" lengths or longer pendants.",
                                 "V-necks work best with pendants or chains that mirror the neckline.",
@@ -294,7 +294,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* How to Choose Necklace Length With Right Side Image */}
-            <section className="mt-20 font-montserrat px-6 lg:px-[100px]">
+            <section className="mt-20 font-body px-6 lg:px-[100px]">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
                     {/* Text Section */}
                     <div className="lg:w-1/2 w-full space-y-4 md:space-y-6 text-left 2xl:mt-45 order-2 lg:order-1">
@@ -335,7 +335,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* FAQs */}
-            <div className="text-3xl text-[28px] md:text-[36px] px-[18px] mt-10 font-montserrat">
+            <div className="text-3xl text-[28px] md:text-[36px] px-[18px] mt-10 font-body">
                 {/* <Heading
                     isCenter
                     title="Necklace Length FAQ"
@@ -365,7 +365,7 @@ export const NecklaceLengthGuide = () => {
 
 
             {/* Explore More */}
-            {/* <section className="py-12 px-4 md:px-20 font-montserrat text-center">
+            {/* <section className="py-12 px-4 md:px-20 font-body text-center">
                 <h2 className="text-2xl md:text-3xl font-semibold mb-10">Explore More Guides</h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
@@ -382,7 +382,7 @@ export const NecklaceLengthGuide = () => {
                         <a
                             key={idx}
                             href="#"
-                            className="border border-gray-400 px-4 py-4 max-w-[250px] w-full h-[100px] flex items-center justify-center text-sm text-center hover:shadow-md transition-all"
+                            className="border border-[var(--border-strong)] px-4 py-4 max-w-[250px] w-full h-[100px] flex items-center justify-center text-sm text-center hover:shadow-md transition-all"
                         >
                             {text}
                         </a>

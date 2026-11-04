@@ -141,7 +141,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.full_name}
             />
             {errors?.full_name && (
-              <p className="text-red-500 text-sm mt-1">{errors.full_name[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.full_name[0]}</p>
             )}
           </div>
 
@@ -159,7 +159,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.phone}
             />
             {errors?.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.phone[0]}</p>
             )}
           </div>
         </div>
@@ -175,7 +175,7 @@ const ContactInfoForm = () => {
             hasError={!!errors?.email}
           />
           {errors?.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.email[0]}</p>
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-[42px]">
@@ -192,7 +192,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.country}
             />
             {errors?.country && (
-              <p className="text-red-500 text-sm mt-1">{errors.country[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.country[0]}</p>
             )}
           </div>
           <div>
@@ -208,7 +208,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.state}
             />
             {errors?.state && (
-              <p className="text-red-500 text-sm mt-1">{errors.state[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.state[0]}</p>
             )}
           </div>
           <div>
@@ -224,7 +224,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.city}
             />
             {errors?.city && (
-              <p className="text-red-500 text-sm mt-1">{errors.city[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.city[0]}</p>
             )}
           </div>
 
@@ -241,7 +241,7 @@ const ContactInfoForm = () => {
               hasError={!!errors?.zip_code}
             />
             {errors?.zip_code && (
-              <p className="text-red-500 text-sm mt-1">{errors.zip_code[0]}</p>
+              <p className="text-[var(--color-error)] text-sm mt-1">{errors.zip_code[0]}</p>
             )}
           </div>
         </div>
@@ -258,7 +258,7 @@ const ContactInfoForm = () => {
             </label>
 
             {errors?.agree_privacy && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-[var(--color-error)] text-sm mt-1">
                 {errors.agree_privacy[0]}
               </p>
             )}

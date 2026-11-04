@@ -40,7 +40,7 @@ export default function BuildColumns({ config }) {
 
   return (
     <section className="md:px-[30px] px-[18px]">
-      <h2 className="font-[var(--font-cormorant)] text-[28px] md:text-[36px] font-medium leading-[1.15] text-[var(--grey-2)] mb-[28px] md:mb-[36px]">
+      <h2 className="font-[var(--font-heading)] text-[28px] md:text-[36px] font-medium leading-[1.15] text-[var(--grey-2)] mb-[28px] md:mb-[36px]">
         {heading}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[28px] md:gap-[40px]">

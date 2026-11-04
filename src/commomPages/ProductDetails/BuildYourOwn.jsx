@@ -49,7 +49,7 @@ export default function BuildYourOwn({ content }) {
           ) : null}
           <h2
             className="text-white text-[28px] md:text-[40px] leading-[1.12] mb-[16px]"
-            style={{ fontFamily: "var(--font-cormorant), serif", fontWeight: 500 }}
+            style={{ fontFamily: "var(--font-heading), serif", fontWeight: 500 }}
           >
             {c.heading}
           </h2>

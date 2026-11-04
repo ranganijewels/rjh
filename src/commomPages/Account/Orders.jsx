@@ -104,10 +104,10 @@ const Orders = () => {
   const ProductActions = ({ productId, order }) => (
     <>
       {isMobile ? (
-        <div className="flex flex-col gap-4 border-t border-gray-50 pt-4 mt-4">
+        <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] pt-4 mt-4">
           <div className="flex items-center gap-[8px]">
             <CheckIcon className="w-[14px] h-[14px] text-[var(--teal-1)] opacity-80" />
-            <Typography variant="h6" className="text-[12px] text-gray-500 font-normal">
+            <Typography variant="h6" className="text-[12px] text-[var(--color-text-muted)] font-normal">
               Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
             </Typography>
           </div>
@@ -117,7 +117,7 @@ const Orders = () => {
                 View Product
               </Typography>
             </Link>
-            <div className="w-[1px] h-3 bg-gray-200" />
+            <div className="w-[1px] h-3 bg-[var(--surface-band)]" />
             <Link href={`/product/${productId}`}>
               <Typography variant="p" className="font-[500] text-[12px] text-[var(--grey-2)] hover:text-[var(--teal-1)] transition-colors uppercase tracking-wider">
                 Buy Again
@@ -211,16 +211,16 @@ const Orders = () => {
                   </div>
                 )}
 
-                <hr className={isMobile ? "border-gray-50 opacity-50 mx-[20px]" : "hr-teal-3"} />
+                <hr className={isMobile ? "border-[var(--border-subtle)] opacity-50 mx-[20px]" : "hr-teal-3"} />
 
                 {/* --- ORDER ITEMS --- */}
                 {Array.isArray(order.items) &&
                   order?.items?.map((item, idx) => (
-                    <div key={idx} className={isMobile ? "border-b border-gray-50 last:border-b-0" : ""}>
+                    <div key={idx} className={isMobile ? "border-b border-[var(--border-subtle)] last:border-b-0" : ""}>
                       {isMobile ? (
                         <div className="flex flex-col p-[20px]">
                           <div className="flex gap-[16px] items-start mb-5">
-                            <div className="bg-[var(--product-bg)] w-[115px] h-[140px] shrink-0 flex items-center justify-center p-3 rounded-lg border border-gray-50/50">
+                            <div className="bg-[var(--product-bg)] w-[115px] h-[140px] shrink-0 flex items-center justify-center p-3 rounded-lg border border-[var(--border-subtle)]/50">
                               <img className="w-full h-full object-contain" src={item?.product?.image} alt={item?.product?.title || "Product image"} />
                             </div>
                             <div className="flex-1 flex flex-col pt-1">
@@ -238,8 +238,8 @@ const Orders = () => {
                                   { label: "Size", value: item?.ring_size || "-" },
                                   { label: "Qty", value: item?.quantity },
                                 ].map((attr, ai) => (
-                                  <Typography key={ai} variant="h6" className="text-[12px] font-medium text-gray-600 flex items-center gap-2">
-                                    <span className="text-gray-400 font-normal min-w-[45px]">{attr.label}:</span>
+                                  <Typography key={ai} variant="h6" className="text-[12px] font-medium text-[var(--color-text-muted)] flex items-center gap-2">
+                                    <span className="text-[var(--color-text-muted)] font-normal min-w-[45px]">{attr.label}:</span>
                                     <span className="text-[var(--teal-1)]">{attr.value}</span>
                                   </Typography>
                                 ))}
@@ -331,7 +331,7 @@ const Orders = () => {
               <Typography variant="h4">Order #{selectedOrder.id}</Typography>
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-muted)]"
               >
                 <img
                   src="/icons/close.svg"
@@ -399,7 +399,7 @@ const Orders = () => {
                     </div>
 
                     <div className="self-center md:self-start">
-                      <button className="bg-[var(--teal-3)] text-black text-sm font-medium px-4 py-2 rounded-lg shadow">
+                      <button className="bg-[var(--surface-tint)] text-black text-sm font-medium px-4 py-2 rounded-lg shadow">
                         In Progress
                       </button>
                     </div>
@@ -424,7 +424,7 @@ const Orders = () => {
                   },
                 ].map((item, idx) => (
                   <div key={idx} className="flex flex-col min-w-[150px]">
-                    <span className="text-gray-500 text-sm">{item.label}</span>
+                    <span className="text-[var(--color-text-muted)] text-sm">{item.label}</span>
                     <span className="font-semibold">{item.value}</span>
                   </div>
                 ))}
@@ -445,7 +445,7 @@ const Orders = () => {
                   <Typography variant="h5" className="font-[600]">
                     Order Placed
                   </Typography>
-                  <Typography variant="h6" className="text-gray-500">
+                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
                     {format(
                       new Date(selectedOrder.created_at),
                       "MMMM dd, yyyy hh:mm a"
@@ -461,7 +461,7 @@ const Orders = () => {
                   <Typography variant="h5" className="font-[600]">
                     Order Confirmed
                   </Typography>
-                  <Typography variant="h6" className="text-gray-500">
+                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
                     {format(
                       new Date(selectedOrder.created_at),
                       "MMMM dd, yyyy hh:mm a"
@@ -478,7 +478,7 @@ const Orders = () => {
                     <Typography variant="h5" className="font-[600]">
                       Product Shipped
                     </Typography>
-                    <Typography variant="h6" className="text-gray-500">
+                    <Typography variant="h6" className="text-[var(--color-text-muted)]">
                       {selectedOrder.shipped_at
                         ? format(new Date(selectedOrder.shipped_at), "MMMM dd, yyyy hh:mm a")
                         : "Date not yet available"}
@@ -510,7 +510,7 @@ const Orders = () => {
                   <Typography variant="h5" className="font-[600]">
                     Product Packaging
                   </Typography>
-                  <Typography variant="h6" className="text-gray-500">
+                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
                     {format(new Date(selectedOrder.created_at), "MMMM dd, yyyy hh:mm a")}
                   </Typography>
                   <div className="mt-2 space-y-1">
@@ -650,7 +650,7 @@ const Orders = () => {
 
               <button
                 onClick={() => setIsReturnSidebarOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-muted)]"
               >
                 <img
                   src="/icons/close.svg"

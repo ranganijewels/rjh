@@ -34,7 +34,7 @@ const WishlistPopUp = ({ onMouseEnter, onMouseLeave }) => {
     <div
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="absolute top-full right-0 pt-3 z-[999] w-[502px] h-[668px] bg-[var(--grey-00)] shadow-lg border border-[var(--grey-1)]"
+      className="absolute top-full right-0 pt-3 z-[999] w-[502px] h-[668px] bg-[var(--grey-00)] shadow-lg border border-[var(--border-subtle)]"
     >
       <div className="flex flex-col h-full">
         <div className="p-[25px_30px] flex justify-between items-center shrink-0">

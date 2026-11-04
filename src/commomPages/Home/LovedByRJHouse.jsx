@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useScrollControls } from "@/hooks/useScrollControls";
 import { responsiveImg } from "@/lib/imageSizes";
@@ -156,8 +156,6 @@ const ReelCard = ({ item, index }) => {
 
 /* ── Section ─────────────────────────────────────────────────────── */
 const LovedByRJHouse = ({ items }) => {
-  const [liveItems, setLiveItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const {
     containerRef,
     canScrollLeft,
@@ -166,20 +164,10 @@ const LovedByRJHouse = ({ items }) => {
     updateScrollState,
   } = useScrollControls();
 
-  useEffect(() => {
-    fetch("/api/instagram/feed?limit=12")
-      .then((r) => r.json())
-      .then((json) => {
-        if (Array.isArray(json.data) && json.data.length > 0) {
-          setLiveItems(json.data);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Priority: live Instagram > CMS items (normalised) > empty
-  const cmsItems = Array.isArray(items?.loved_by_items)
+  // Reels come from CMS Studio ▸ Instagram Reels (hand-picked, no Instagram
+  // token). The automatic feed (/api/instagram/feed) isn't connected, so it is
+  // not fetched; it only added a slow empty request and a loading skeleton.
+  const reelItems = Array.isArray(items?.loved_by_items)
     ? items.loved_by_items.map((i, n) => {
         const file = i.file || "";
         const isVid = /\.(mp4|webm|ogg|mov)(\?|$)/i.test(file);
@@ -195,18 +183,12 @@ const LovedByRJHouse = ({ items }) => {
       })
     : [];
 
-  const reelItems = liveItems.length > 0 ? liveItems : cmsItems;
-  const showPlaceholder = !loading && reelItems.length === 0;
-
   useEffect(() => {
-    // Re-check after loading settles either way — real items AND the
-    // placeholder row both need this, since the container's children
-    // (and therefore its scrollWidth) don't exist yet at mount time.
-    if (!loading) {
-      const timer = setTimeout(() => updateScrollState(), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, reelItems, updateScrollState]);
+    // The container's children (and so its scrollWidth) only exist after the
+    // first paint, so re-check the arrows once they're in.
+    const timer = setTimeout(() => updateScrollState(), 100);
+    return () => clearTimeout(timer);
+  }, [reelItems.length, updateScrollState]);
 
   return (
     <section className="md:px-[30px] px-[18px]">
@@ -249,7 +231,7 @@ const LovedByRJHouse = ({ items }) => {
               >
                 <path
                   d="M0.317245 13.7691L11.2261 24.678C11.618 25.1356 12.3066 25.1889 12.7642 24.797C13.2218 24.4051 13.2751 23.7164 12.8832 23.2588C12.8466 23.2162 12.8069 23.1763 12.7642 23.1399L3.72078 14.0855H46.9091C47.5116 14.0855 48 13.597 48 12.9945C48 12.392 47.5116 11.9037 46.9091 11.9037H3.72078L12.7642 2.86022C13.2218 2.46835 13.2751 1.77967 12.8832 1.32209C12.4912 0.864502 11.8026 0.811161 11.3451 1.20312C11.3024 1.23969 11.2626 1.27943 11.2261 1.32209L0.31715 12.231C-0.105751 12.6564 -0.105747 13.3435 0.317245 13.7691Z"
-                  fill={canScrollLeft ? "#222223" : "#A0A0A0"}
+                  fill={canScrollLeft ? "var(--color-text)" : "var(--color-text-disabled)"}
                 />
               </svg>
             </button>
@@ -270,7 +252,7 @@ const LovedByRJHouse = ({ items }) => {
               >
                 <path
                   d="M47.6828 12.2309L36.7739 1.32201C36.382 0.864423 35.6934 0.81108 35.2358 1.20304C34.7782 1.59491 34.7249 2.28359 35.1168 2.74117C35.1534 2.78383 35.1931 2.82367 35.2358 2.86014L44.2792 11.9145H1.09086C0.488429 11.9145 0 12.403 0 13.0055C0 13.608 0.488429 14.0963 1.09086 14.0963H44.2792L35.2358 23.1398C34.7782 23.5317 34.7249 24.2203 35.1168 24.6779C35.5088 25.1355 36.1974 25.1888 36.6549 24.7969C36.6976 24.7603 36.7374 24.7206 36.7739 24.6779L47.6828 13.769C48.1058 13.3436 48.1057 12.6565 47.6828 12.2309Z"
-                  fill={canScrollRight ? "#222223" : "#A0A0A0"}
+                  fill={canScrollRight ? "var(--color-text)" : "var(--color-text-disabled)"}
                 />
               </svg>
             </button>
@@ -279,18 +261,7 @@ const LovedByRJHouse = ({ items }) => {
       </div>
 
       {/* Reels strip */}
-      {loading ? (
-        /* Skeleton while fetching */
-        <div className="flex gap-3 overflow-x-hidden pb-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 rounded-xl animate-pulse bg-[var(--product-bg)]
-                2xl:w-[260px] 2xl:h-[462px] xl:w-[220px] xl:h-[391px] w-[175px] h-[311px]"
-            />
-          ))}
-        </div>
-      ) : reelItems.length > 0 ? (
+      {reelItems.length > 0 ? (
         <div
           ref={containerRef}
           className="flex gap-3 overflow-x-auto hide-scrollbar scroll-smooth pb-2"
@@ -311,7 +282,7 @@ const LovedByRJHouse = ({ items }) => {
               className="relative flex-shrink-0 rounded-xl overflow-hidden
                 2xl:w-[260px] 2xl:h-[462px] xl:w-[220px] xl:h-[391px] w-[175px] h-[311px]
                 flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)" }}
+              style={{ background: "linear-gradient(135deg,var(--color-primary-deep),var(--color-primary),var(--color-primary-hover))" }}
             >
               <div className="text-center">
                 <InstaIcon className="w-10 h-10 text-white/60 mx-auto mb-2" />
@@ -330,7 +301,7 @@ const LovedByRJHouse = ({ items }) => {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--teal-1)] text-white text-sm font-medium transition-colors hover:bg-[var(--teal-2)]"
         >
-          <InstaIcon className="w-4 h-4 text-[var(--yellow-gold)]" />
+          <InstaIcon className="w-4 h-4 text-[var(--accent-on-dark)]" />
           Follow us on Instagram
         </Link>
       </div>

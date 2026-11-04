@@ -91,7 +91,7 @@ const ContactUs = () => {
                 hasError={!!errors.full_name}
               />
               {errors.full_name && (
-                <p id="full_name-error" className="text-red-700 text-sm mt-1">
+                <p id="full_name-error" className="text-[var(--color-error)] text-sm mt-1">
                   {errors.full_name}
                 </p>
               )}
@@ -107,7 +107,7 @@ const ContactUs = () => {
                 hasError={!!errors.email}
               />
               {errors.email && (
-                <p id="email-error" className="text-red-700 text-sm mt-1">
+                <p id="email-error" className="text-[var(--color-error)] text-sm mt-1">
                   {errors.email}
                 </p>
               )}
@@ -124,7 +124,7 @@ const ContactUs = () => {
             fullWidth
           />
           {errors.query && (
-            <p className="text-red-700 text-sm mt-1">{errors.query}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.query}</p>
           )}
 
           <label
@@ -140,13 +140,13 @@ const ContactUs = () => {
             aria-invalid={!!errors.message || undefined}
             aria-describedby={errors.message ? "message-error" : undefined}
             className={`border-b xl:text-[16px] text-[12px] font-[400] ${
-              errors.message ? "border-red-700" : "border-[var(--placeholder)]"
+              errors.message ? "border-[var(--color-error)]" : "border-[var(--border-strong)]"
             } focus:border-b-2 focus:border-[var(--teal-2)] p-[20px_16px] w-full`}
             value={formData.message}
             onChange={(e) => handleChange("message", e.target.value)}
           />
           {errors.message && (
-            <p id="message-error" className="text-red-700 text-sm mt-1">
+            <p id="message-error" className="text-[var(--color-error)] text-sm mt-1">
               {errors.message}
             </p>
           )}

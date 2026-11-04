@@ -101,9 +101,17 @@ const LoginForm = () => {
             </button>
           }
         />
+        <div className="flex justify-end mt-[10px]">
+          <Link
+            href="/forgot-password"
+            className="text-[13px] font-normal underline text-[var(--teal-2)] hover:text-[var(--teal-1)]"
+          >
+            Forgot password?
+          </Link>
+        </div>
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-[var(--color-error)] text-sm">{error}</p>}
 
       <div className="flex flex-col items-center gap-[12px]">
         <Button

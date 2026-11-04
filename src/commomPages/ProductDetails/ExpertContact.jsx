@@ -67,7 +67,7 @@ const ExpertContact = ({ config, productName }) => {
         <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--teal-2)] mb-[10px]">
           {eyebrow}
         </p>
-        <h2 className="font-[var(--font-cormorant)] text-[28px] md:text-[36px] font-medium leading-[1.15] text-[var(--grey-2)]">
+        <h2 className="font-[var(--font-heading)] text-[28px] md:text-[36px] font-medium leading-[1.15] text-[var(--grey-2)]">
           {heading}
         </h2>
         <p className="text-[14px] md:text-[15px] leading-[1.8] text-[var(--placeholder)] mt-[14px]">

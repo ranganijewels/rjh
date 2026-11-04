@@ -98,7 +98,7 @@ const AppointmentCalendar = () => {
                 "w-11 h-11 sm:w-9 sm:h-9 rounded-md relative",
                 isSelected
                   ? "bg-[var(--teal-1)] text-white"
-                  : "hover:bg-gray-100",
+                  : "hover:bg-[var(--surface-band)]",
                 isToday && !isSelected && "ring-1 ring-[var(--teal-1)]",
                 isPast
                   ? "opacity-40 pointer-events-none cursor-not-allowed"
@@ -128,8 +128,8 @@ const AppointmentCalendar = () => {
                   "px-[20px] py-[10px] border rounded-[4px] text-[12px] disabled:opacity-40 disabled:cursor-not-allowed",
 
                   selectedSlot === slot.label
-                    ? "bg-[var(--grey-1)] border-[var(--grey-1)] text-[var(--grey-2)]"
-                    : "bg-transparent border-[var(--grey-1)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
+                    ? "bg-[var(--grey-1)] border-[var(--border-subtle)] text-[var(--grey-2)]"
+                    : "bg-transparent border-[var(--border-subtle)] text-[var(--grey-2)] hover:border-[var(--teal-1)]"
                 )}
               >
                 {slot.label}

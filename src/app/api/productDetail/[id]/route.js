@@ -34,32 +34,37 @@ export async function buildProductDetail(id) {
     const p = productResult.raw?.data || productResult.raw;
     if (!p || !p.id) return null;
 
+    // These three only need the product, so fetch them together rather than
+    // one after another.
+    //
     // Diamond-shape model: each shape is a SEPARATE product, linked to the same
     // design via metadata.designGroup. Fetch the sibling products so the shape
     // selector can switch between them (each option navigates to its product).
-    const designGroup = p.metadata?.designGroup || p.metadata?.design_group || null;
-    let designSiblings = [];
-    if (designGroup) {
-      const sibRes = await rjApi(
-        "GET",
-        `/products/design-group/${encodeURIComponent(designGroup)}`
-      ).catch(() => null);
-      const rows = sibRes?.raw?.data || sibRes?.raw || [];
-      designSiblings = Array.isArray(rows) ? rows : [];
-    }
-
+    //
     // Collection-variant model (e.g. an "Initials" collection where A/B/C/...
     // are all one family) — only returns siblings when the product's
     // collection has Variant Mode on; empty/variantMode:false otherwise.
+    //
+    // Initial price: see the comment where it is used below.
+    const designGroup = p.metadata?.designGroup || p.metadata?.design_group || null;
+    const [sibRes, cvRes, previewRes] = await Promise.all([
+      designGroup
+        ? rjApi("GET", `/products/design-group/${encodeURIComponent(designGroup)}`).catch(() => null)
+        : null,
+      p.collectionName
+        ? rjApi("GET", `/collections/by-name/${encodeURIComponent(p.collectionName)}/variants`).catch(() => null)
+        : null,
+      rjApi("POST", "/price-preview", {
+        body: { productId: id, metalType: "Gold", metalPurity: "14K" },
+      }).catch(() => null),
+    ]);
+
+    const siblingRows = sibRes?.raw?.data || sibRes?.raw || [];
+    const designSiblings = Array.isArray(siblingRows) ? siblingRows : [];
+
     let collectionVariants = { variantMode: false, products: [] };
-    if (p.collectionName) {
-      const cvRes = await rjApi(
-        "GET",
-        `/collections/by-name/${encodeURIComponent(p.collectionName)}/variants`
-      ).catch(() => null);
-      const cv = cvRes?.raw?.data || cvRes?.raw;
-      if (cv?.variantMode) collectionVariants = cv;
-    }
+    const cv = cvRes?.raw?.data || cvRes?.raw;
+    if (cv?.variantMode) collectionVariants = cv;
 
     // Build color-tagged gallery from media records
     // Sort: cover image first, then by sortOrder, videos last
@@ -228,13 +233,7 @@ export async function buildProductDetail(id) {
     // Previously this priced at the product's STORED purity (e.g. 18K), so the
     // number visibly jumped (18K price → 14K price) a few seconds after load.
     // Falls back to the stored-attributes price if the preview call fails.
-    let initPrice = 0;
-    try {
-      const eng = await rjApi("POST", "/price-preview", {
-        body: { productId: id, metalType: "Gold", metalPurity: "14K" },
-      });
-      initPrice = Number((eng.raw?.data || eng.raw)?.finalPrice) || 0;
-    } catch { /* engine unavailable */ }
+    let initPrice = Number((previewRes?.raw?.data || previewRes?.raw)?.finalPrice) || 0;
     if (!(initPrice > 0)) {
       try {
         const eng = await rjApi("GET", `/pricing/product/${id}`);

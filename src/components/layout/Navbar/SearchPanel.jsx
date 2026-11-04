@@ -76,7 +76,7 @@ const SearchPanel = ({ showSearchbar, closeSearchBar }) => {
           {filteredSuggestions.length > 0 && (
             <div className="md:p-[22px_44px] p-[16px_20px] flex md:flex-row flex-col xl:gap-[104px] gap-[40px] bg-[var(--grey-00)]">
               <div className="md:w-[30%] w-full">
-                <div className="text-[var(--placeholder)] pt-[10px] pb-[20px] text-[16px] font-[500] cursor-pointer border-b-2 border-[var(--placeholder)]">
+                <div className="text-[var(--placeholder)] pt-[10px] pb-[20px] text-[16px] font-[500] cursor-pointer border-b-2 border-[var(--border-strong)]">
                   Suggestions
                 </div>
 
@@ -110,7 +110,7 @@ const SearchPanel = ({ showSearchbar, closeSearchBar }) => {
 
               <div className="w-full">
                 {/* Tabs */}
-                <div className="pt-[10px] border-b border-[var(--placeholder)] inline-flex gap-[60px] w-full">
+                <div className="pt-[10px] border-b border-[var(--border-strong)] inline-flex gap-[60px] w-full">
                   <div
                     onClick={() => setActiveTab("products")}
                     className={tabClasses("products")}

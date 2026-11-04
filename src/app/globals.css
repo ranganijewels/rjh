@@ -1,51 +1,119 @@
 @import "tailwindcss";
 
+/* ============================= */
+/* Sapphire frost palette        */
+/* ============================= */
+/* Components use the role tokens (second block) only; the base shades are
+   wiring. Every text pairing meets WCAG AA (4.5:1); borders and icons that
+   carry meaning meet 3:1. Plain :root, not @theme: these are read through
+   var() and must always be emitted. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base shades */
+  --sapphire-950: #0f2350;
+  --sapphire-900: #1c3d7a;
+  --sapphire-800: #2b5096;
+  --sapphire-700: #2f5597;
+  --sapphire-500: #4f6fae;
+  --sapphire-200: #c3d3ee;
+  --sapphire-100: #e3ecfa;
+
+  --frost-0: #ffffff;
+  --frost-25: #fbfcfe;
+  --frost-50: #f7f9fc;
+  --frost-100: #ebf0f7;
+  --frost-200: #d8e0ec;
+  --frost-500: #7c869a;
+
+  --slate-300: #a3abba;
+  --slate-600: #576178;
+  --slate-900: #141b2b;
+
+  --silver-100: #eef1f5;
+  --silver-300: #c9d6ea;
+  --silver-500: #8c97a8;
+  --silver-600: #6f7b8e;
+  --silver-700: #4e5a6e;
+
+  /* Brand */
+  --color-primary: var(--sapphire-900);
+  --color-primary-hover: var(--sapphire-800);
+  --color-primary-deep: var(--sapphire-950);
+  --color-link: var(--sapphire-700);
+  --focus-ring: var(--sapphire-500);
+
+  /* Surfaces */
+  --surface-card: var(--frost-0);
+  --surface-page: var(--frost-50);
+  --surface-band: var(--frost-100);
+  --surface-tint: var(--sapphire-100);
+  --surface-product: var(--frost-25);
+
+  /* Text */
+  --color-text: var(--slate-900);
+  --color-text-muted: var(--slate-600);
+  --color-text-disabled: var(--slate-300);
+  --color-text-on-dark: #ffffff;
+  --color-text-on-dark-muted: #b8c6de;
+
+  /* Borders */
+  --border-subtle: var(--frost-200);
+  --border-strong: var(--frost-500);
+  --border-tint: var(--sapphire-200);
+
+  /* Silver accent: --accent is decorative on dark only; on light
+     backgrounds use --accent-icon (graphics) or --accent-text (text). */
+  --accent: var(--silver-500);
+  --accent-icon: var(--silver-600);
+  --accent-text: var(--silver-700);
+  --accent-on-dark: var(--silver-300);
+  --accent-tint: var(--silver-100);
+
+  /* Review stars stay a muted gold: silver filled stars read as empty ones. */
+  --rating-star: #9e8048;
+
+  /* Status */
+  --color-error: #b4362d;
+  --color-error-tint: #fbeae8;
+  --color-success: #2f7a55;
+  --color-success-tint: #e7f2ec;
+  --color-warning: #94590a;
+  --color-warning-tint: #fbf1df;
+
+  /* Metal swatches: show the metal, not the brand */
+  --metal-yellow-gold: #d4af6a;
+  --metal-rose-gold: #c98f78;
+  --metal-white-gold: #d9dcdf;
+  --metal-platinum: #c9ccd1;
+  --metal-silver: #bfc3c8;
+
+  /* Legacy names, kept as aliases until components move to the role tokens */
+  --background: var(--surface-page);
+  --foreground: var(--color-text);
+  --brand-deep: var(--color-primary-deep);
+  --teal-1: var(--color-primary);
+  --teal-2: var(--color-link);
+  --teal-3: var(--border-subtle);
+  --teal-light: var(--border-tint);
+  --grey-0: var(--surface-band);
+  --grey-00: var(--surface-page);
+  --grey-1: var(--surface-band);
+  --grey-2: var(--color-text);
+  --grey-3: var(--surface-band);
+  --placeholder: var(--color-text-muted);
+  --product-bg: var(--surface-product);
+  --yellow-gold: var(--metal-yellow-gold);
+  --rose-gold: var(--metal-rose-gold);
+  --white-gold: var(--metal-white-gold);
+  --platinum: var(--metal-platinum);
+  --metal-white: var(--metal-white-gold);
+  --metal-yellow: var(--metal-yellow-gold);
+  --metal-rose: var(--metal-rose-gold);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  /* Font variables */
-  --font-montserrat: var(--font-montserrat);
-  --font-source-serif: var(--font-source-serif);
-  --font-cormorant: var(--font-cormorant);
-
-  /* Rangani Brand Colors */
-  --brand-deep: #091930;
-  --brand-navy: #162640;
-  --brand-steel: #465e84;
-
-  /* UI color aliases (navy palette replaces teal) */
-  --teal-1: #162640;
-  --teal-2: #465e84;
-  --teal-3: #d4dce8;
-  --teal-light: #c4cee0;
-
-  --grey-0: #f2f1f0;
-  --grey-00: #f7f7f7;
-  --grey-1: #efebe7;
-  --grey-2: #222223;
-  --grey-3: #f0f0f2;
-
-  --yellow-gold: #dfc180;
-  --rose-gold: #d4a88b;
-  --white-gold: #ced0d0;
-  --platinum: #e2e2e2;
-
-  /* Metal swatch colors (used for gradient color-picker chips) */
-  --metal-white: #ffffff;
-  --metal-yellow: #ffd700;
-  --metal-rose: #e75480;
-
-  --product-bg: #fcfcfc;
-  --placeholder: #595959;
-
-  /* Semantic status colors */
-  --color-error: #dc2626;
+  /* Font variables (next/font sets --font-manrope / --font-wapstina on <html>) */
+  --font-body: var(--font-manrope);
+  --font-heading: var(--font-wapstina);
 }
 
 /* Scroll on the viewport (html), not the body — keeps position:sticky working
@@ -67,10 +135,20 @@ html {
 body {
   background: var(--grey-00);
   color: var(--foreground);
-  font-family: var(--font-montserrat);
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Headings use the display face. In the base layer so a font-* utility on a
+   heading still wins (unlayered rules would beat every Tailwind utility). */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+  }
 }
 
 button {
@@ -178,12 +256,12 @@ summary:focus-visible,
 /* ============================= */
 
 .cms-content {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   line-height: 26px;
-  color: #222;
+  color: var(--color-text);
 }
 
 /* Remove bad inline formatting from Google Docs */
@@ -204,10 +282,13 @@ summary:focus-visible,
   margin-bottom: 1rem;
 }
 
-/* Headings should use same family */
+/* Major headings use the display face; minor ones stay in the body face */
 .cms-content h1,
 .cms-content h2,
-.cms-content h3,
+.cms-content h3 {
+  font-family: var(--font-heading);
+}
+
 .cms-content h4,
 .cms-content h5,
 .cms-content h6 {

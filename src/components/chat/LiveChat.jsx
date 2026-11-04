@@ -190,7 +190,7 @@ export default function LiveChat() {
         >
           <IconChat />
           {unread > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-semibold text-white ring-2 ring-white">
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-error)] text-[11px] font-semibold text-white ring-2 ring-white">
               {unread > 9 ? "9+" : unread}
             </span>
           )}
@@ -205,11 +205,11 @@ export default function LiveChat() {
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-base font-semibold">RJ</div>
               <div>
-                <div className="text-sm font-semibold leading-tight" style={{ fontFamily: "var(--font-source-serif), serif" }}>
+                <div className="text-sm font-semibold leading-tight" style={{ fontFamily: "var(--font-heading), serif" }}>
                   RJ House Concierge
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-white/80">
-                  <span className="inline-block h-2 w-2 rounded-full bg-green-400" />
+                  <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-success)]" />
                   Typically replies within minutes
                 </div>
               </div>
@@ -220,13 +220,13 @@ export default function LiveChat() {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-[#f7f7f7] px-3.5 py-4">
+          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-[var(--surface-page)] px-3.5 py-4">
             {messages.map((m) => {
               const mine = m.sender === "visitor";
               const system = m.sender === "system";
               if (system) {
                 return (
-                  <div key={m.id} className="mx-auto max-w-[90%] rounded-xl bg-white px-3.5 py-2.5 text-center text-[13px] text-gray-600 shadow-sm">
+                  <div key={m.id} className="mx-auto max-w-[90%] rounded-xl bg-white px-3.5 py-2.5 text-center text-[13px] text-[var(--color-text-muted)] shadow-sm">
                     {m.content}
                   </div>
                 );
@@ -236,7 +236,7 @@ export default function LiveChat() {
                   <div
                     style={mine ? { backgroundColor: BRAND } : undefined}
                     className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-snug shadow-sm ${
-                      mine ? "rounded-br-sm text-white" : "rounded-bl-sm bg-white text-gray-800"
+                      mine ? "rounded-br-sm text-white" : "rounded-bl-sm bg-white text-[var(--color-text)]"
                     } ${m._optimistic ? "opacity-70" : ""}`}
                   >
                     {!mine && m.senderName && (
@@ -250,12 +250,12 @@ export default function LiveChat() {
               );
             })}
             {starting && messages.length === 0 && (
-              <div className="text-center text-xs text-gray-400">Connecting you to RJ House…</div>
+              <div className="text-center text-xs text-[var(--color-text-muted)]">Connecting you to RJ House…</div>
             )}
           </div>
 
           {/* Composer */}
-          <div className="flex items-end gap-2 border-t border-gray-100 bg-white px-3 py-2.5">
+          <div className="flex items-end gap-2 border-t border-[var(--border-subtle)] bg-white px-3 py-2.5">
             <textarea
               rows={1}
               value={input}
@@ -267,7 +267,7 @@ export default function LiveChat() {
                 }
               }}
               placeholder="Write a message…"
-              className="max-h-24 flex-1 resize-none rounded-xl border border-gray-200 px-3 py-2 text-[13.5px] outline-none focus:border-[var(--teal-1)]"
+              className="max-h-24 flex-1 resize-none rounded-xl border border-[var(--border-subtle)] px-3 py-2 text-[13.5px] outline-none focus:border-[var(--teal-1)]"
             />
             <button
               onClick={handleSend}

@@ -392,7 +392,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.firstName}
                 />
                 {errors.firstName && (
-                  <p id="firstName-error" className="text-red-500 text-sm mt-1">
+                  <p id="firstName-error" className="text-[var(--color-error)] text-sm mt-1">
                     {errors.firstName}
                   </p>
                 )}
@@ -409,7 +409,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.lastName}
                 />
                 {errors.lastName && (
-                  <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                  <p id="lastName-error" className="text-[var(--color-error)] text-sm mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -424,7 +424,7 @@ const CheckOutDetails = () => {
               hasError={!!errors.phone}
             />
             {errors.phone && (
-              <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>
+              <p id="phone-error" className="text-[var(--color-error)] text-sm mt-1">{errors.phone}</p>
             )}
             <Input
               label="Email address"
@@ -437,7 +437,7 @@ const CheckOutDetails = () => {
               hasError={!!errors.email}
             />
             {errors.email && (
-              <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <p id="email-error" className="text-[var(--color-error)] text-sm mt-1">{errors.email}</p>
             )}
           </div>
         </div>
@@ -466,7 +466,7 @@ const CheckOutDetails = () => {
               />
             </div>
             {errors.addressType && (
-              <p id="addressType-error" className="text-red-500 text-sm mt-1">{errors.addressType}</p>
+              <p id="addressType-error" className="text-[var(--color-error)] text-sm mt-1">{errors.addressType}</p>
             )}{" "}
             <Input
               label="Street Address *"
@@ -478,7 +478,7 @@ const CheckOutDetails = () => {
               hasError={!!errors.street}
             />
             {errors.street && (
-              <p id="street-error" className="text-red-500 text-sm mt-1">{errors.street}</p>
+              <p id="street-error" className="text-[var(--color-error)] text-sm mt-1">{errors.street}</p>
             )}
             <Input
               label="Country *"
@@ -490,7 +490,7 @@ const CheckOutDetails = () => {
               hasError={!!errors.country}
             />
             {errors.country && (
-              <p id="country-error" className="text-red-500 text-sm">{errors.country}</p>
+              <p id="country-error" className="text-[var(--color-error)] text-sm">{errors.country}</p>
             )}
             <Input
               label="Town / City *"
@@ -502,7 +502,7 @@ const CheckOutDetails = () => {
               hasError={!!errors.city}
             />
             {errors.city && (
-              <p id="city-error" className="text-red-500 text-sm">{errors.city}</p>
+              <p id="city-error" className="text-[var(--color-error)] text-sm">{errors.city}</p>
             )}
             <div className="flex flex-col sm:flex-row gap-[24px]">
               <div className="w-full">
@@ -517,7 +517,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.state}
                 />
                 {errors.state && (
-                  <p id="state-error" className="text-red-500 text-sm mt-1">{errors.state}</p>
+                  <p id="state-error" className="text-[var(--color-error)] text-sm mt-1">{errors.state}</p>
                 )}
               </div>
 
@@ -533,7 +533,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.zipCode}
                 />
                 {errors.zipCode && (
-                  <p id="zipCode-error" className="text-red-500 text-sm mt-1">{errors.zipCode}</p>
+                  <p id="zipCode-error" className="text-[var(--color-error)] text-sm mt-1">{errors.zipCode}</p>
                 )}
               </div>
             </div>
@@ -557,7 +557,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.billingStreetAddress}
                 />
                 {errors.billingStreetAddress && (
-                  <p id="billingStreetAddress-error" className="text-red-500 text-sm mt-1">
+                  <p id="billingStreetAddress-error" className="text-[var(--color-error)] text-sm mt-1">
                     {errors.billingStreetAddress}
                   </p>
                 )}
@@ -571,7 +571,7 @@ const CheckOutDetails = () => {
                   hasError={!!errors.billingCity}
                 />
                 {errors.billingCity && (
-                  <p id="billingCity-error" className="text-red-500 text-sm mt-1">
+                  <p id="billingCity-error" className="text-[var(--color-error)] text-sm mt-1">
                     {errors.billingCity}
                   </p>
                 )}
@@ -587,7 +587,7 @@ const CheckOutDetails = () => {
                     hasError={!!errors.billingState}
                   />
                   {errors.billingState && (
-                    <p id="billingState-error" className="text-red-500 text-sm mt-1">
+                    <p id="billingState-error" className="text-[var(--color-error)] text-sm mt-1">
                       {errors.billingState}
                     </p>
                   )}
@@ -602,7 +602,7 @@ const CheckOutDetails = () => {
                     hasError={!!errors.billingZipcode}
                   />
                   {errors.billingZipcode && (
-                    <p id="billingZipcode-error" className="text-red-500 text-sm mt-1">
+                    <p id="billingZipcode-error" className="text-[var(--color-error)] text-sm mt-1">
                       {errors.billingZipcode}
                     </p>
                   )}
@@ -634,10 +634,10 @@ const CheckOutDetails = () => {
                     viewBox="0 0 24 24"
                     fill="none"
                   >
-                    <rect x="2" y="4" width="20" height="16" rx="4" stroke="#141718" strokeWidth="1.5" />
-                    <circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 10 14)" stroke="#141718" strokeWidth="1.5" />
-                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 17 13)" fill="#141718" />
-                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 5 13)" fill="#141718" />
+                    <rect x="2" y="4" width="20" height="16" rx="4" stroke="var(--color-text)" strokeWidth="1.5" />
+                    <circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 10 14)" stroke="var(--color-text)" strokeWidth="1.5" />
+                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 17 13)" fill="var(--color-text)" />
+                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 5 13)" fill="var(--color-text)" />
                   </svg>
                 </div>
               </RadioButton>
