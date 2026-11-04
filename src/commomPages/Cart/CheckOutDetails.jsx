@@ -34,6 +34,19 @@ const CheckOutDetails = () => {
   const [fetchAddressesData, setFetchAddressesData] = useState([]);
   const { fetchAll } = useCrudApi("/api/address");
   const { selectedCountry } = usePreferences();
+  // Online payments may be charged in a fixed currency (e.g. INR) set on the
+  // API; fetched so the exact charge can be shown before paying.
+  const [paymentOptions, setPaymentOptions] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/payments/options", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => !cancelled && setPaymentOptions(j?.data || null))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const { apply, remove, setError, couponCode, setCouponCode } = useCoupon();
 
   useEffect(() => {
@@ -103,6 +116,12 @@ const CheckOutDetails = () => {
   const { cartItems, summary, loading, error, shipping, coupon } = useSelector(
     (state) => state.cart
   );
+  const chargeCurrency = paymentOptions?.chargeCurrency || null;
+  // Same rounding as the API: total (USD) × rate, to the cent.
+  const chargeAmount =
+    chargeCurrency && paymentOptions?.rate
+      ? Math.round(Number(summary?.grand_total ?? 0) * paymentOptions.rate * 100) / 100
+      : null;
   const shippingCharge = useSelector((state) => state.cart.shipping);
   const { create } = useCrudApi(`/api/cart/place-order`);
 
@@ -626,7 +645,16 @@ const CheckOutDetails = () => {
                 onChange={() => handlePaymentChange("online")}
               >
                 <div className="flex justify-between w-full items-center">
-                  <span>Pay Online (Card / UPI / NetBanking)</span>
+                  <span>
+                    Pay Online (Card / UPI / NetBanking)
+                    {chargeCurrency && chargeCurrency !== (selectedCountry?.currency || "USD") && (
+                      <span className="block text-[12.5px] text-[var(--grey-2)]">
+                        Charged in {chargeCurrency}
+                        {chargeAmount != null &&
+                          `: ${getCurrencySymbol(chargeCurrency)} ${chargeAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                      </span>
+                    )}
+                  </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -660,8 +688,11 @@ const CheckOutDetails = () => {
                 {selectedCountry?.currency && selectedCountry.currency !== "USD"
                   ? " (converted from USD at today's rate)"
                   : ""}
-                . Online payments are charged in {selectedCountry?.currency || "USD"}; cash on
-                delivery is collected in USD.
+                . Online payments are charged in {chargeCurrency || selectedCountry?.currency || "USD"}
+                {chargeCurrency && chargeCurrency !== (selectedCountry?.currency || "USD") && chargeAmount != null
+                  ? ` (${getCurrencySymbol(chargeCurrency)} ${chargeAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} for this order, at today's rate)`
+                  : ""}
+                ; cash on delivery is collected in USD.
               </p>
               <p>
                 Import duties and taxes charged by the destination country are not included in this
