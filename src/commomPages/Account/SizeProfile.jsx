@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { AccountPageTitle, EmptyState, Skeleton } from "./ui";
 import Button from "@/components/ui/Button/Button";
 import Typography from "@/components/ui/Typography/Typography";
 import Modal from "@/components/ui/Modal/Modal";
@@ -125,35 +126,42 @@ const SizeProfile = () => {
 
   return (
     <>
-      <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center">
-        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Size Profile
-        </p>
-        <Button
-          title="Add New Size Profile"
-          className="h-[37px] items-center flex"
-          onClick={() => {
-            resetForm();
-            setOpenSizeProfile(true);
-          }}
-        />
-      </div>
+      <AccountPageTitle
+        title="Size profile"
+        description="Save ring, bracelet and necklace sizes for yourself or someone you shop for."
+        action={
+          <Button
+            title="Add size profile"
+            className="h-[37px] items-center flex"
+            onClick={() => {
+              resetForm();
+              setOpenSizeProfile(true);
+            }}
+          />
+        }
+      />
 
       {loading ? (
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-[var(--border-subtle)] border-t-[var(--teal-1)] rounded-full animate-spin" />
+        <div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-[16px]">
+          <Skeleton className="h-[180px]" />
+          <Skeleton className="h-[180px]" />
         </div>
       ) : profiles.length === 0 ? (
-        <p className="text-[var(--color-text-muted)] text-lg">No size profiles found</p>
+        <EmptyState
+          title="No size profiles yet"
+          text="Not sure of your size? Our guide shows how to measure at home."
+          actionLabel="Ring size guide"
+          actionHref="/ring-size-guide"
+        />
       ) : (
-        <div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
+        <div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 xl:gap-[30px] gap-[20px]">
           {profiles.map((p) => (
             <div
               key={p.id}
-              className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-between gap-[27px] w-full min-h-[344px] bg-[var(--product-bg)]"
+              className="flex flex-col justify-between gap-[24px] w-full bg-[var(--product-bg)] p-[20px] xl:p-[28px]"
             >
               <div className="space-y-[10px]">
-                <h2 className="lg:text-[24px] text-[16px] font-[500] pb-[5px] capitalize truncate">
+                <h2 className="lg:text-[22px] text-[16px] font-[500] text-[var(--color-primary)] capitalize truncate">
                   {p.name}
                 </h2>
                 {p.ring_size && (

@@ -7,6 +7,7 @@ import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
 import AddressForm from "@/commomPages/Cart/checkout/AddressForm";
 import { addressLines } from "@/commomPages/Cart/checkout/DeliveryAddress";
+import { AccountPageTitle, EmptyState, Skeleton } from "./ui";
 
 // Profile ▸ Addresses. Adding and editing use the same side panel and form as
 // checkout's "Add new delivery address", so both save the same fields.
@@ -78,13 +79,19 @@ const Addresses = () => {
 
   return (
     <>
-      <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center gap-4">
-        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">Addresses</p>
-        <Button title="add new address" className="h-[37px] items-center flex" onClick={() => setPanel({ mode: "add" })} />
-      </div>
+      <AccountPageTitle
+        title="Addresses"
+        description="Saved delivery addresses. Your default is picked first at checkout."
+        action={<Button title="add new address" className="h-[37px] items-center flex" onClick={() => setPanel({ mode: "add" })} />}
+      />
 
-      {loaded && addresses.length === 0 ? (
-        <p className="text-[var(--color-text-muted)] text-lg">No saved addresses yet.</p>
+      {!loaded ? (
+        <div className="grid md:grid-cols-3 grid-cols-1 gap-[16px]">
+          <Skeleton className="h-[200px]" />
+          <Skeleton className="h-[200px]" />
+        </div>
+      ) : addresses.length === 0 ? (
+        <EmptyState title="No saved addresses yet" text="Add one now, or save it the first time you check out." />
       ) : (
         <div className="grid md:grid-cols-3 grid-cols-1 xl:gap-[30px] gap-[20px]">
           {addresses.map((a) => (
