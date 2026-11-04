@@ -143,7 +143,14 @@ const CheckOutDetails = () => {
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length > 0) {
+    const failed = Object.keys(validationErrors);
+    if (failed.length > 0) {
+      // Say what's wrong and bring the first problem into view, instead of
+      // the button silently doing nothing.
+      toast.error(failed.length === 1 ? validationErrors[failed[0]] : "Please fill in the highlighted fields.");
+      setTimeout(() => {
+        document.getElementById(`${failed[0]}-error`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 0);
       return;
     }
 
@@ -226,70 +233,68 @@ const CheckOutDetails = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    // Fields can be missing after an address is picked; never call .trim() on undefined.
+    const t = (v) => String(v ?? "").trim();
 
     // Contact Info
-    if (!contactInfo.firstName.trim()) {
+    if (!t(contactInfo.firstName)) {
       newErrors.firstName = "First name is required.";
     }
 
-    if (!contactInfo.lastName.trim()) {
+    if (!t(contactInfo.lastName)) {
       newErrors.lastName = "Last name is required.";
     }
 
-    const phoneDigits = contactInfo.phone.replace(/\D/g, "");
-    if (!contactInfo.phone.trim()) {
+    const phoneDigits = t(contactInfo.phone).replace(/\D/g, "");
+    if (!t(contactInfo.phone)) {
       newErrors.phone = "Phone number is required.";
     } else if (phoneDigits.length < 7 || phoneDigits.length > 15) {
       newErrors.phone = "Enter a valid phone number, including area code.";
     }
 
-    if (!contactInfo.email.trim()) {
+    if (!t(contactInfo.email)) {
       newErrors.email = "Email is required.";
-    } else if (!/^\S+@\S+\.\S+$/.test(contactInfo.email)) {
+    } else if (!/^\S+@\S+\.\S+$/.test(t(contactInfo.email))) {
       newErrors.email = "Invalid email format.";
     }
 
     // Shipping Address
-    if (!address.street.trim()) {
+    if (!t(address.street)) {
       newErrors.street = "Street address is required.";
     }
 
-    if (!address.city.trim()) {
+    if (!t(address.city)) {
       newErrors.city = "City is required.";
     }
 
-    if (!address.country.trim()) {
+    if (!t(address.country)) {
       newErrors.country = "Country is required.";
     }
 
-    if (!address.state.trim()) {
+    if (!t(address.state)) {
       newErrors.state = "State is required.";
     }
 
-    if (!address.zipCode.trim()) {
+    if (!t(address.zipCode)) {
       newErrors.zipCode = "Zip Code is required.";
     }
 
     // Billing Address
     if (isDifferentBilling) {
-      if (!address.billingStreetAddress.trim()) {
+      if (!t(address.billingStreetAddress)) {
         newErrors.billingStreetAddress = "Billing street is required.";
       }
 
-      if (!address.billingCity.trim()) {
+      if (!t(address.billingCity)) {
         newErrors.billingCity = "Billing city is required.";
       }
 
-      if (!address.billingState.trim()) {
+      if (!t(address.billingState)) {
         newErrors.billingState = "Billing state is required.";
       }
 
-      if (!address.billingZipcode.trim()) {
+      if (!t(address.billingZipcode)) {
         newErrors.billingZipcode = "Billing zip code is required.";
-      }
-
-      if (!address.addressType.trim()) {
-        newErrors.addressType = "Address type is required.";
       }
     }
 
@@ -328,41 +333,46 @@ const CheckOutDetails = () => {
     });
   };
 
+  // /api/address returns label, address_line1/2, city, state, pincode, country.
   const addressOptions = [
     ...fetchAddressesData.map((addr) => ({
-      label: addr.address_type,
-      value: addr.id, // better to use id instead of type
+      label: [addr.label || "Saved address", [addr.address_line1, addr.city].filter(Boolean).join(", ")]
+        .filter(Boolean)
+        .join(" — "),
+      value: addr.id,
     })),
     { label: "+ Add New Address", value: "add_new" },
   ];
 
-  const handleAddressSelect = (value) => {
-    if (value === "add_new") {
-      resetForm();
-      setIsModalOpen(true);
-    } else {
-      const selectedAddr = fetchAddressesData.find(
-        (addr) => addr.id === value?.value
-      );
+  // The Dropdown passes the whole option ({ label, value }). Only the
+  // shipping fields change; contact, country (unless the saved address has
+  // one) and billing details are kept.
+  const handleAddressSelect = (option) => {
+    const value = option && typeof option === "object" ? option.value : option;
+    const filled = ["street", "city", "state", "zipCode", "country"];
 
-      if (selectedAddr) {
-        setAddress({
-          street: selectedAddr.street_address || "",
-          city: selectedAddr.city || "",
-          state: selectedAddr.state || "",
-          zipCode: selectedAddr.zip_code || "",
-          addressType: selectedAddr.address_type || "",
-        });
-      } else {
-        setAddress({
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          addressType: "",
-        });
-      }
+    if (value === "add_new") {
+      setAddress((prev) => ({ ...prev, street: "", city: "", state: "", zipCode: "", addressType: "" }));
+      setTimeout(() => document.querySelector('input[name="street"]')?.focus(), 0);
+      return;
     }
+
+    const selectedAddr = fetchAddressesData.find((addr) => addr.id === value);
+    if (!selectedAddr) return;
+    setAddress((prev) => ({
+      ...prev,
+      street: [selectedAddr.address_line1, selectedAddr.address_line2].filter(Boolean).join(", "),
+      city: selectedAddr.city || "",
+      state: selectedAddr.state || "",
+      zipCode: selectedAddr.pincode || "",
+      country: selectedAddr.country || prev.country,
+      addressType: selectedAddr.label || "",
+    }));
+    setErrors((prev) => {
+      const updated = { ...prev };
+      filled.forEach((f) => delete updated[f]);
+      return updated;
+    });
   };
 
   const handleAddressChange = (e) => {
