@@ -57,6 +57,9 @@ export async function POST(req) {
       // Only present when payment_method is ONLINE — the storefront uses
       // this to launch the Cashfree checkout widget next.
       payment_session_id: raw.cfPaymentSessionId || null,
+      // "sandbox" or "production", decided by the API's Cashfree keys, so the
+      // checkout widget always opens in the same mode as the payment session.
+      payment_mode: raw.paymentMode || null,
       items: [],
     };
 
