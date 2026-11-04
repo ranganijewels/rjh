@@ -1,10 +1,9 @@
 "use client";
-import PageHeading from "@/components/ui/Heading/PageHeading";
 import Stepper, { CART_STEPS } from "@/components/ui/Stepper/Stepper";
 import { usePreferences } from "@/context/PreferencesContext";
 import { fetchCart } from "@/store/slices/cartSlice";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import Typography from "@/components/ui/Typography/Typography";
@@ -42,7 +41,12 @@ const CartLayout = ({ children }) => {
 
   const currentIndex = steps.findIndex((s) => s.path === pathname);
 
-  if (loading && (!cartItems || cartItems.length === 0)) {
+  // The cart comes from the browser (saved state + fetch), so the server can't
+  // render it; wait for the first client render to avoid a hydration mismatch.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted || (loading && (!cartItems || cartItems.length === 0))) {
     return (
       <div className="flex justify-center items-center h-[500px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--teal-1)]"></div>
@@ -51,17 +55,11 @@ const CartLayout = ({ children }) => {
   }
 
   return (
-    <section>
-      <div className="mb-[40px]">
-        <PageHeading title="My Bag" />
-      </div>
-
-      <div
-        className={`xl:mt-[60px] md:mt-[40px] mt-[30px] 2xl:mx-[210px] xl:mx-[100px] md:mx-[40px] mx-[0px] ${
-          cartItems && cartItems.length > 0 ? "bg-white" : ""
-        }`}
-      >
-        <div className="lg:py-[80px] py-[40px] xl:px-[80px] lg:px-[37px] px-[18px]">
+    // Full width on white: no "My Bag" banner and no card on a grey page, so
+    // the bag and checkout fit on screen with less scrolling.
+    <section className="w-full bg-white">
+      <div>
+        <div className="2xl:px-[120px] xl:px-[80px] lg:px-[40px] px-[16px] lg:py-[40px] py-[24px]">
           {pathname === "/cart/order-complete" || pathname === "/cart/payment-status" ? (
             children
           ) : cartItems && cartItems.length > 0 ? (
