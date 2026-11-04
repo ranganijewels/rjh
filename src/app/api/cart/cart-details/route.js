@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
+import { resolveCartItemName } from "@/lib/resolveTokens";
+
+// Shown for products that have no photo yet (a blank src breaks the image).
+const NO_IMAGE = "/logo/rj-house.svg";
 
 const isVideoUrl = (url) => /\.(mp4|webm|mov|avi)$/i.test(url || "");
 
@@ -85,6 +89,11 @@ export async function GET(req) {
           }
 
         } catch { /* use defaults */ }
+
+        // The product's name is a {{token}} template; show the chosen variant's
+        // real name, and the store logo when the product has no photo yet.
+        productName = resolveCartItemName(productName, i.metadata || {});
+        if (!mediaImage) mediaImage = NO_IMAGE;
 
         const priceOnRequest = !(price > 0);
         const clean = (v) => (v && v !== "undefined") ? v : "";

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { rjApi } from "@/lib/apiHandler";
+import { resolveCartItemName } from "@/lib/resolveTokens";
 
 export async function POST(req) {
   try {
@@ -21,6 +22,17 @@ export async function POST(req) {
         }
       } catch { /* use defaults */ }
     }
+
+    // Product names are {{token}} templates; store the variant's real name.
+    productName = resolveCartItemName(productName, {
+      metalType: body.metal_type,
+      metalColor: body.metal_color,
+      metalTypeName: body.metal_family,
+      shape: body.diamond_shape,
+      centerDiamondWeight: body.center_diamond_weight,
+      clarity: body.diamond_clarity,
+      color: body.diamond_color,
+    });
 
     const result = await rjApi("POST", "/storefront/cart", {
       headers: { Authorization: `Bearer ${token}`, ...(guestId && { "x-guest-id": guestId }) },
