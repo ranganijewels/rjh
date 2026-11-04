@@ -762,7 +762,7 @@ const CheckOutDetails = () => {
                   {" "}
                   <div className="px-[18px] py-[13px] bg-[var(--product-bg)] flex items-center mx-auto">
                     <img
-                      src={items.image}
+                      src={items.image || items.media_image || items.product_image}
                       alt={toTitleCase(items?.title) || "Product"}
                       width={78}
                       height={78}

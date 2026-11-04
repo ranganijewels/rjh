@@ -81,3 +81,40 @@ export function resolveTokens(text, ctx = {}) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/**
+ * Token context from a cart line's metadata — the variant the shopper chose
+ * (metalType "14KT", metalColor "WHITE", shape, centerDiamondWeight …).
+ * Mirrors tokenContextFromCartMetadata() in the API's resolve-tokens.util.ts.
+ */
+export function tokenContextFromCartMeta(meta = {}) {
+  const purity = isBlank(meta.metalType) ? "" : String(meta.metalType).replace(/KT\b/i, "K").toUpperCase();
+  const karat = purity.match(/\d+K/i)?.[0] || purity;
+  const metalType = !isBlank(meta.metalTypeName)
+    ? meta.metalTypeName
+    : /SILVER|925/i.test(purity)
+      ? "Silver"
+      : /PLATINUM|PT/i.test(purity)
+        ? "Platinum"
+        : /\d+K/i.test(purity)
+          ? "Gold"
+          : "";
+  return buildTokenContext({
+    metalType,
+    karat,
+    metalColor: meta.metalColor,
+    diamondShape: meta.shape,
+    diamondWeight: meta.centerDiamondWeight,
+    diamondClarity: meta.clarity,
+    diamondColor: meta.color,
+  });
+}
+
+/** A cart line's name with its tokens filled in; never leaves "{{…}}". */
+export function resolveCartItemName(name, meta = {}) {
+  if (!name || !String(name).includes("{{")) return name || "";
+  return resolveTokens(name, tokenContextFromCartMeta(meta))
+    .replace(/\{\{\s*\w+\s*\}\}/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
