@@ -185,8 +185,10 @@ const ProductCard = ({
         </div>
       </div>
 
-      {/* Meta */}
-      <div className="space-y-[8px]">
+      {/* Meta. w-0 + min-w-full: the text never sets the card's width, so in
+          carousels (cards sized by their image) long names wrap under the
+          image instead of running past it; in grids it fills the cell. */}
+      <div className="space-y-[8px] w-0 min-w-full">
         {/* Ecksand-matched card typography: title 15px/400/0.25px, price 14px, "From" 11px */}
         <p className="text-[15px] font-[400] tracking-[0.25px] leading-[1.35] capitalize line-clamp-2 min-h-[2.7em] text-[var(--grey-2)]">
           {toTitleCase(productName)}
