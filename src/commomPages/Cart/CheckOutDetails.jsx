@@ -185,7 +185,7 @@ const CheckOutDetails = () => {
         // Hand off to Cashfree's own hosted checkout — card/UPI/netbanking
         // details are entered there, never captured on this site.
         const cashfree = await loadCashfree({
-          mode: process.env.NEXT_PUBLIC_CASHFREE_MODE || "sandbox",
+          mode: order.payment_mode || process.env.NEXT_PUBLIC_CASHFREE_MODE || "sandbox",
         });
         await cashfree.checkout({
           paymentSessionId: order.payment_session_id,
