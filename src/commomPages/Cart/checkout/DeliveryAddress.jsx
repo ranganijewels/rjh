@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Typography from "@/components/ui/Typography/Typography";
 import Modal from "@/components/ui/Modal/Modal";
-import CenterDialog from "./CenterDialog";
 import AddressForm from "./AddressForm";
 
 const SHOWN = 4;
@@ -48,7 +47,7 @@ const AddressCard = ({ address, selected, onSelect }) => (
  * Checkout's delivery address. Two flows only:
  *  - Saved addresses: "Delivering to" the default (or chosen) one, with
  *    Change → saved list (4, then "Show more") and "Add new delivery address"
- *    in a pop-up.
+ *    in the side panel.
  *  - No saved address: "Add new delivery address" opens a side panel. For a
  *    signed-in customer the address is saved to My Address.
  * Guests enter the address (and email) the same way; it's used for this
@@ -57,7 +56,6 @@ const AddressCard = ({ address, selected, onSelect }) => (
 const DeliveryAddress = ({ addresses, selected, onSelect, onAdd, isGuest, guestEmail, defaultCountry, loading }) => {
   const [changing, setChanging] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [popupOpen, setPopupOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -139,7 +137,7 @@ const DeliveryAddress = ({ addresses, selected, onSelect, onAdd, isGuest, guestE
           )}
           <button
             type="button"
-            onClick={() => setPopupOpen(true)}
+            onClick={() => setPanelOpen(true)}
             className="w-full border border-dashed border-[var(--teal-1)] p-[12px] text-[14px] text-[var(--teal-1)] hover:bg-[var(--grey-00)]"
           >
             + Add new delivery address
@@ -160,16 +158,10 @@ const DeliveryAddress = ({ addresses, selected, onSelect, onAdd, isGuest, guestE
         </button>
       )}
 
-      {/* Saved-address users: pop-up */}
-      <CenterDialog isOpen={popupOpen} onClose={() => setPopupOpen(false)} title="Add new delivery address">
-        {popupOpen && form(() => setPopupOpen(false))}
-      </CenterDialog>
-
-      {/* First address: side panel */}
+      {/* Add new delivery address: the same side panel in both flows
+          (the panel pads and scrolls its own content). */}
       <Modal isOpen={panelOpen} onClose={() => setPanelOpen(false)} title={selected && isGuest ? "Edit delivery address" : "Add new delivery address"}>
-        <div className="px-[30px] pb-[30px] overflow-y-auto max-h-[calc(100vh-80px)]">
-          {panelOpen && form(() => setPanelOpen(false))}
-        </div>
+        {panelOpen && form(() => setPanelOpen(false))}
       </Modal>
     </div>
   );

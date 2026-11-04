@@ -1,410 +1,138 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "@/components/ui/Button/Button";
-import Typography from "@/components/ui/Typography/Typography";
-import Input from "@/components/ui/Input/Input";
-import Checkbox from "@/components/ui/Checkbox/Checkbox";
 import Modal from "@/components/ui/Modal/Modal";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import toast from "react-hot-toast";
-import Dropdown from "@/components/ui/Dropdown/Dropdown";
-import { toTitleCase } from "@/utils/string";
+import AddressForm from "@/commomPages/Cart/checkout/AddressForm";
+import { addressLines } from "@/commomPages/Cart/checkout/DeliveryAddress";
+
+// Profile ▸ Addresses. Adding and editing use the same side panel and form as
+// checkout's "Add new delivery address", so both save the same fields.
+const toPayload = (v) => ({
+  label: v.label,
+  name: v.name,
+  phone: v.phone,
+  address_line1: v.address_line1,
+  address_line2: v.address_line2,
+  city: v.city,
+  state: v.state,
+  pincode: v.pincode,
+  country: v.country,
+});
 
 const Addresses = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDefault, setIsDefault] = useState(false);
-  const [editingAddressId, setEditingAddressId] = useState(null);
   const [addresses, setAddresses] = useState([]);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    addressType: "",
-    streetAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    phone: "",
-  });
-  const [errors, setErrors] = useState({});
-
-  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [panel, setPanel] = useState(null); // null | { mode: "add" } | { mode: "edit", address }
+  const [saving, setSaving] = useState(false);
   const { fetchAll, create, update, remove } = useCrudApi("/api/address");
 
-  useEffect(() => {
-    fetchAll()
-      .then((res) => setAddresses(res.data || []))
-      .catch((err) => console.error("Error fetching addresses", err));
+  const reload = useCallback(async () => {
+    const res = await fetchAll().catch(() => null);
+    const list = res?.data || [];
+    setAddresses(list);
+    setLoaded(true);
+    return list;
   }, [fetchAll]);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.addressType.trim())
-      newErrors.addressType = "Address type is required";
-    if (!formData.streetAddress.trim())
-      newErrors.streetAddress = "Street address is required";
-    if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.state.trim()) newErrors.state = "State is required";
-    if (!formData.zipCode.trim()) newErrors.zipCode = "Zip code is required";
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+  useEffect(() => {
+    reload();
+  }, [reload]);
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddOrUpdateAddress = async () => {
-    if (!validateForm()) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
+  const save = async (values) => {
+    setSaving(true);
     try {
-      setLoading(true);
+      const editing = panel?.mode === "edit" ? panel.address : null;
+      const res = editing ? await update(editing.id, toPayload(values)) : await create(toPayload(values));
+      if (res && res.status === false) throw new Error(res.message);
+      const savedId = editing?.id || res?.data?.id;
 
-      const payload = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        address_type: formData.addressType,
-        street_address: formData.streetAddress,
-        city: formData.city,
-        state: formData.state,
-        zip_code: formData.zipCode,
-        phone: formData.phone,
-        is_default: isDefault ? 1 : 0,
-      };
-
-      if (editingAddressId) {
-        await update(editingAddressId, payload);
-        toast.success("Address updated successfully!");
-      } else {
-        await create(payload);
-        toast.success("Address created successfully!");
+      // The API makes only a customer's first address the default and never
+      // clears the old one, so set and clear it here.
+      if (values.is_default && savedId) {
+        await update(savedId, { is_default: 1 });
+        for (const a of addresses) if (a.id !== savedId && a.is_default) await update(a.id, { is_default: 0 });
       }
 
-      const res = await fetchAll();
-      setAddresses(res.data || []);
-
-      setIsModalOpen(false);
-      resetForm();
+      await reload();
+      setPanel(null);
+      toast.success(editing ? "Address updated" : "Address added");
     } catch (err) {
-      toast.error("Something went wrong while saving.");
+      toast.error(err?.message || "Could not save the address. Please try again.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleEditAddress = (id) => {
-    const addressToEdit = addresses.find((addr) => addr.id === id);
-    if (!addressToEdit) return;
-
-    setFormData({
-      firstName: addressToEdit.first_name,
-      lastName: addressToEdit.last_name,
-      addressType: addressToEdit.address_type,
-      streetAddress: addressToEdit.street_address,
-      city: addressToEdit.city,
-      state: addressToEdit.state,
-      zipCode: addressToEdit.zip_code,
-      phone: addressToEdit.phone,
-    });
-    setIsDefault(addressToEdit.is_default);
-    setEditingAddressId(id);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteAddress = async (id) => {
+  const handleDelete = async (address) => {
     try {
-      await remove(id);
-      toast.success("Address deleted successfully!");
-
-      const res = await fetchAll();
-      setAddresses(res.data || []);
-    } catch (err) {
-      toast.error("Something went wrong while deleting.");
+      await remove(address.id);
+      await reload();
+      toast.success("Address deleted");
+    } catch {
+      toast.error("Could not delete the address. Please try again.");
     }
-  };
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (value.trim()) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  const resetForm = () => {
-    setIsModalOpen(false);
-    setEditingAddressId(null);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      addressType: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      phone: "",
-    });
-    setIsDefault(false);
-    setErrors({});
   };
 
   return (
     <>
-      <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center">
-        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Addresses
-        </p>
-        <Button
-          title="add new address"
-          className="h-[37px] items-center flex"
-          onClick={() => {
-            setIsModalOpen(true);
-            setEditingAddressId(null);
-            setFormData({
-              firstName: "",
-              lastName: "",
-              addressType: "",
-              streetAddress: "",
-              city: "",
-              state: "",
-              zipCode: "",
-              phone: "",
-            });
-            setIsDefault(false);
-            setErrors({});
-          }}
-        />
+      <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center gap-4">
+        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">Addresses</p>
+        <Button title="add new address" className="h-[37px] items-center flex" onClick={() => setPanel({ mode: "add" })} />
       </div>
 
-      {addresses.length === 0 ? (
-        <p className="text-[var(--color-text-muted)] text-lg">No address found</p>
+      {loaded && addresses.length === 0 ? (
+        <p className="text-[var(--color-text-muted)] text-lg">No saved addresses yet.</p>
       ) : (
-        <div className="grid md:grid-cols-3 grid-cols-1 xl:gap-x-[30px] gap-x-[20px] xl:gap-y-[40px] gap-y-[20px]">
-          {addresses.map(
-            ({
-              id,
-              first_name,
-              last_name,
-              address_type,
-              street_address,
-              city,
-              state,
-              zip_code,
-              phone,
-              is_default,
-            }) => (
-              <div
-                key={id}
-                className="xl:p-[23px_35px] p-[15px_23px] flex flex-col justify-between gap-[27px] w-full min-h-[344px] bg-[var(--product-bg)]"
-              >
-                <div className="space-y-[13px]">
-                  {is_default === 1 && (
-                    <Typography
-                      variant="h6"
-                      textColor="grey1"
-                      className="font-[500] p-[2px_6px] bg-[var(--teal-2)] w-[80px]"
-                    >
-                      DEFAULT
-                    </Typography>
-                  )}
-                  <h2 className="lg:text-[24px] text-[16px] font-[500]">
-                    {first_name} {last_name}
-                  </h2>
-                  <Typography variant="p" className="font-[500]">
-                    {toTitleCase(address_type)}
-                  </Typography>
-                  <Typography
-                    variant="p"
-                    className="break-words whitespace-normal"
-                  >
-                    {street_address}
-                  </Typography>
-                  <Typography variant="p">
-                    {city}, {state}, {zip_code}
-                  </Typography>
-                  <Typography variant="p">{phone}</Typography>
+        <div className="grid md:grid-cols-3 grid-cols-1 xl:gap-[30px] gap-[20px]">
+          {addresses.map((a) => (
+            <div key={a.id} className="flex flex-col justify-between gap-[24px] w-full bg-[var(--product-bg)] p-[20px] xl:p-[28px]">
+              <div className="space-y-[12px]">
+                <div className="flex flex-wrap items-center gap-[8px]">
+                  {a.is_default ? (
+                    <span className="inline-flex items-center px-[10px] py-[4px] text-[11px] font-[500] leading-none tracking-[0.08em] uppercase bg-[var(--teal-1)] text-[var(--grey-0)]">
+                      Default
+                    </span>
+                  ) : null}
+                  <span className="inline-flex items-center px-[10px] py-[4px] text-[11px] leading-none tracking-[0.08em] uppercase border border-[var(--teal-3)] text-[var(--grey-2)]">
+                    {a.label}
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-[20px]">
-                  <Button title="edit" onClick={() => handleEditAddress(id)} />
-                  <Button
-                    title="delete"
-                    variant="outlineTeal"
-                    onClick={() => handleDeleteAddress(id)}
-                  />
+                <h2 className="lg:text-[22px] text-[16px] font-[500] text-[var(--teal-1)] break-words">{a.name || "—"}</h2>
+                <div className="text-[14px] leading-[1.6] text-[var(--grey-2)] break-words">
+                  {addressLines(a).map((l) => (
+                    <div key={l}>{l}</div>
+                  ))}
+                  {a.phone && <div>Phone: {a.phone}</div>}
                 </div>
               </div>
-            )
-          )}
+              <div className="grid grid-cols-2 gap-[16px]">
+                <Button title="edit" onClick={() => setPanel({ mode: "edit", address: a })} />
+                <Button title="delete" variant="outlineTeal" onClick={() => handleDelete(a)} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingAddressId(null);
-          setErrors({});
-        }}
-        title={editingAddressId ? "Edit Address" : "Add New Address"}
+        isOpen={!!panel}
+        onClose={() => setPanel(null)}
+        title={panel?.mode === "edit" ? "Edit address" : "Add new address"}
       >
-        <div className="grid grid-cols-2 xl:gap-[30px] gap-[15px]">
-          <div>
-            <Input
-              placeholder="First Name"
-              label="First Name"
-              borderBottom
-              name="firstName"
-              value={formData.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              hasError={!!errors.firstName}
-            />
-            {errors.firstName && (
-              <p id="firstName-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-                {errors.firstName}
-              </p>
-            )}
-          </div>
-          <div>
-            <Input
-              placeholder="Last Name"
-              label="Last Name"
-              borderBottom
-              name="lastName"
-              value={formData.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              hasError={!!errors.lastName}
-            />
-            {errors.lastName && (
-              <p id="lastName-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-                {errors.lastName}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col mt-4" role="group" aria-label="Address Type">
-          <span className="text-sm font-medium mb-1" id="addressType-label">
-            Address Type
-          </span>
-          <Dropdown
-            options={["home", "work", "other"]}
-            placeholder={formData.addressType || "Address Type"}
-            className="w-full"
-            borderBottom
-            name="addressType"
-            value={formData.addressType}
-            onChange={(val) => handleChange("addressType", val)}
-            fullWidth
+        {panel && (
+          <AddressForm
+            key={panel.mode === "edit" ? panel.address.id : "new"}
+            initial={panel.mode === "edit" ? { ...panel.address, is_default: !!panel.address.is_default } : undefined}
+            showDefault
+            submitting={saving}
+            submitLabel={panel.mode === "edit" ? "Save changes" : "Save address"}
+            onSubmit={save}
+            onCancel={() => setPanel(null)}
           />
-          {errors.addressType && (
-            <p id="addressType-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.addressType}
-            </p>
-          )}
-        </div>
-
-        <div className="mt-4 space-y-4">
-          <Input
-            placeholder="Street Address"
-            label="Street Address"
-            borderBottom
-            name="streetAddress"
-            value={formData.streetAddress}
-            onChange={(e) => handleChange("streetAddress", e.target.value)}
-            hasError={!!errors.streetAddress}
-          />
-          {errors.streetAddress && (
-            <p id="streetAddress-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.streetAddress}
-            </p>
-          )}
-
-          <Input
-            placeholder="Town/City"
-            label="Town/City"
-            borderBottom
-            name="city"
-            value={formData.city}
-            onChange={(e) => handleChange("city", e.target.value)}
-            hasError={!!errors.city}
-          />
-          {errors.city && (
-            <p id="city-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.city}
-            </p>
-          )}
-
-          <Input
-            placeholder="State"
-            label="State"
-            borderBottom
-            name="state"
-            value={formData.state}
-            onChange={(e) => handleChange("state", e.target.value)}
-            hasError={!!errors.state}
-          />
-          {errors.state && (
-            <p id="state-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.state}
-            </p>
-          )}
-
-          <Input
-            placeholder="Zip code"
-            label="Zip code"
-            borderBottom
-            name="zipCode"
-            value={formData.zipCode}
-            onChange={(e) => handleChange("zipCode", e.target.value)}
-            hasError={!!errors.zipCode}
-          />
-          {errors.zipCode && (
-            <p id="zipCode-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.zipCode}
-            </p>
-          )}
-
-          <Input
-            placeholder="Phone"
-            label="Phone"
-            borderBottom
-            name="phone"
-            value={formData.phone}
-            maxLength={10}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            hasError={!!errors.phone}
-          />
-          {errors.phone && (
-            <p id="phone-error" role="alert" className="text-[var(--color-error)] text-sm mt-1">
-              {errors.phone}
-            </p>
-          )}
-
-          <Checkbox
-            name="default"
-            label="Set As Default"
-            checked={isDefault}
-            onChange={() => setIsDefault((prev) => !prev)}
-          />
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <div className="flex gap-[20px]">
-            <Button
-              onClick={handleAddOrUpdateAddress}
-              title={editingAddressId ? "Save" : "Save"}
-              className="w-[211px]"
-            />
-            <Button
-              onClick={() => setIsModalOpen(false)}
-              title="Cancel"
-              variant="outlineTeal"
-              className="w-[211px]"
-            />
-          </div>
-        </div>
+        )}
       </Modal>
     </>
   );

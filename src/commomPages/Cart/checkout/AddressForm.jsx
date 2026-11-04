@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
+import Checkbox from "@/components/ui/Checkbox/Checkbox";
 
 const LABELS = ["Home", "Work", "Other"];
 
@@ -22,12 +23,12 @@ const EMPTY = {
 const t = (v) => String(v ?? "").trim();
 
 /**
- * The delivery address form used by checkout's pop-up (saved-address users)
- * and side panel (first address). The contact person (name, phone) belongs
- * to the address. `askEmail` adds an email field for guests, who have no
- * account email to fall back on.
+ * The delivery address form, shown in a side panel by checkout and by
+ * Profile ▸ Addresses. The contact person (name, phone) belongs to the
+ * address. `askEmail` adds an email field for guests, who have no account
+ * email to fall back on; `showDefault` adds "Set as my default address".
  */
-const AddressForm = ({ initial, askEmail = false, defaultCountry = "India", submitting, submitLabel, onSubmit, onCancel }) => {
+const AddressForm = ({ initial, askEmail = false, showDefault = false, defaultCountry = "India", submitting, submitLabel, onSubmit, onCancel }) => {
   const [values, setValues] = useState({ ...EMPTY, country: defaultCountry, ...(initial || {}) });
   const [errors, setErrors] = useState({});
   const firstRef = useRef(null);
@@ -76,7 +77,9 @@ const AddressForm = ({ initial, askEmail = false, defaultCountry = "India", subm
       document.getElementById(`addr-${first}`)?.focus();
       return;
     }
-    const clean = Object.fromEntries(Object.entries(values).map(([k, v]) => [k, t(v)]));
+    const clean = Object.fromEntries(
+      Object.entries(values).map(([k, v]) => [k, typeof v === "boolean" ? v : t(v)])
+    );
     await onSubmit?.(clean);
   };
 
@@ -136,6 +139,15 @@ const AddressForm = ({ initial, askEmail = false, defaultCountry = "India", subm
         {field("pincode", "PIN / ZIP code *", { autoComplete: "postal-code" })}
         {field("country", "Country *", { autoComplete: "country-name" })}
       </div>
+
+      {showDefault && (
+        <Checkbox
+          name="addr-default"
+          label="Set as my default address"
+          checked={!!values.is_default}
+          onChange={() => set("is_default", !values.is_default)}
+        />
+      )}
 
       <div className="flex gap-3 pt-2">
         <Button
