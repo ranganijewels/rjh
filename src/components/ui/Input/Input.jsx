@@ -42,9 +42,12 @@ const Input = ({
           aria-describedby={hasError && name ? `${name}-error` : undefined}
           className={`w-full ${
             borderBottom
-              ? "border-b py-[16px] pl-[10px] pr-[36px] md:py-[12px] focus:border-b-2 focus:border-[var(--teal-2)]"
-              : "border focus:ring-2 focus:ring-[var(--teal-2)] focus:border-transparent p-[10px_20px]"
-          } ${hasError ? "border-[var(--color-error)]" : "border-[var(--border-strong)]"} focus:outline-none focus:ring-2 focus:ring-[var(--teal-2)] focus:ring-offset-1 caret-[var(--teal-2)]
+              ? // Underline fields show focus as a thicker teal underline only —
+                // no box ring, and no global focus outline (the "!" beats the
+                // unlayered input:focus-visible rule in globals.css).
+                "border-b py-[16px] pl-[10px] pr-[36px] md:py-[12px] focus:border-b-2 focus:border-[var(--teal-2)] focus-visible:outline-none!"
+              : "border focus:ring-2 focus:ring-[var(--teal-2)] focus:ring-offset-1 focus:border-transparent p-[10px_20px]"
+          } ${hasError ? "border-[var(--color-error)]" : "border-[var(--border-strong)]"} focus:outline-none caret-[var(--teal-2)]
           disabled:bg-[var(--grey-0)] disabled:opacity-60 disabled:cursor-not-allowed
           md:text-[14px] text-[12px] font-[400]
           placeholder:md:text-[16px] placeholder:text-[12px] placeholder:capitalize

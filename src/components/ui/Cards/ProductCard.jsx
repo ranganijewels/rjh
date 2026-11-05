@@ -185,10 +185,12 @@ const ProductCard = ({
         </div>
       </div>
 
-      {/* Meta */}
-      <div className="space-y-[8px]">
+      {/* Meta. w-0 + min-w-full: the text never sets the card's width, so in
+          carousels (cards sized by their image) long names wrap under the
+          image instead of running past it; in grids it fills the cell. */}
+      <div className="space-y-[8px] w-0 min-w-full">
         {/* Ecksand-matched card typography: title 15px/400/0.25px, price 14px, "From" 11px */}
-        <p className="text-[15px] font-[400] tracking-[0.25px] leading-[1.35] capitalize line-clamp-2 text-[var(--grey-2)]">
+        <p className="text-[15px] font-[400] tracking-[0.25px] leading-[1.35] capitalize line-clamp-2 min-h-[2.7em] text-[var(--grey-2)]">
           {toTitleCase(productName)}
         </p>
 
@@ -231,18 +233,25 @@ const ProductCard = ({
         {!isWishlistCard && (
           <>
             {/* Metal swatches (hover to preview) */}
-            <div className="flex items-center gap-[10px] pt-[2px]">
+            <div className="flex items-center gap-[4px]">
               {visibleMetals.map((palette) => {
                 const key = String(palette).toUpperCase();
                 const isSel = activeColor === key || toSwatchKey(activeColor) === key;
                 return (
                   <span key={palette} className="group/sw relative inline-flex">
+                    {/* The 26px circle holds the selection ring, so it never spills
+                        outside the card (carousels and grids clip overflow). */}
                     <button type="button" aria-label={colorMasterMap[key]?.name || COLOR_LABEL[key] || toTitleCase(palette)} aria-pressed={isSel}
                       onMouseEnter={() => previewColor(key)}
                       onFocus={() => previewColor(key)}
                       onClick={(e) => { e.stopPropagation(); previewColor(key); }}
-                      style={{ background: colorMasterMap[key]?.hex ? swatchCss(colorMasterMap[key]) : swatchBackground(key) }}
-                      className={`relative w-[18px] h-[18px] rounded-full transition-[box-shadow] before:content-[''] before:absolute before:inset-[-6px] ${isSel ? "ring-2 ring-[var(--teal-1)] ring-offset-2" : "ring-1 ring-[var(--border-subtle)] hover:ring-[var(--teal-2)]"}`} />
+                      className={`grid place-items-center w-[26px] h-[26px] rounded-full border-[1.5px] transition-colors ${isSel ? "border-[var(--color-primary)]" : "border-transparent hover:border-[var(--border-strong)]"}`}>
+                      <span
+                        aria-hidden
+                        style={{ background: colorMasterMap[key]?.hex ? swatchCss(colorMasterMap[key]) : swatchBackground(key) }}
+                        className="block w-[18px] h-[18px] rounded-full ring-1 ring-inset ring-black/10"
+                      />
+                    </button>
                     <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--grey-2)] px-2 py-1 text-[11px] text-white opacity-0 group-hover/sw:opacity-100 transition-opacity z-20">
                       {colorMasterMap[key]?.name || COLOR_LABEL[key] || toTitleCase(palette)}
                     </span>

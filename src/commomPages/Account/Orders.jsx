@@ -1,72 +1,146 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { CheckIcon } from "@/components/Icons/CheckIcon";
-import Button from "@/components/ui/Button/Button";
-import Typography from "@/components/ui/Typography/Typography";
-import useIsMobile from "@/utils/useIsMobile";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCrudApi } from "@/hooks/useCrudApi";
-import { format } from "date-fns";
-import { CouponIcon } from "@/components/Icons/common";
 import { ReturnRepair } from "./ReturnRepair";
+import toast from "react-hot-toast";
+import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
+import {
+  AccountPageTitle,
+  Card,
+  Chip,
+  EmptyState,
+  Skeleton,
+  ORDER_STEPS,
+  formatDate,
+  orderAmount,
+  orderStage,
+  paymentInfo,
+} from "./ui";
+
+const FILTERS = [
+  { key: "all", label: "All", test: () => true },
+  { key: "progress", label: "In progress", test: (o) => { const s = orderStage(o).step; return s >= 0 && s < 4; } },
+  { key: "delivered", label: "Delivered", test: (o) => orderStage(o).step === 4 },
+  { key: "cancelled", label: "Cancelled", test: (o) => orderStage(o).step === -1 },
+];
+
+const readAccount = () => {
+  try {
+    const raw = localStorage.getItem("userRJHouse") || localStorage.getItem("user");
+    const u = raw ? JSON.parse(raw) : {};
+    return { name: u?.name || u?.fullName || "", email: u?.email || "" };
+  } catch {
+    return {};
+  }
+};
+
+/** A wide right-hand panel (order details, returns). */
+const Drawer = ({ open, onClose, title, children }) => {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && onCloseRef.current?.();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[9999]">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div role="dialog" aria-modal="true" aria-label={title} className="absolute top-0 right-0 h-full w-full max-w-[640px] bg-[var(--surface-card)] overflow-y-auto">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] px-[20px] lg:px-[28px] py-[16px]">
+          <p className="text-[16px] font-[600] text-[var(--color-text)]">{title}</p>
+          <button type="button" aria-label="Close" onClick={onClose} className="p-2">
+            <img src="/icons/close.svg" className="w-[12px] h-[12px]" alt="" />
+          </button>
+        </div>
+        <div className="px-[20px] lg:px-[28px] py-[20px]">{children}</div>
+      </div>
+    </div>
+  );
+};
 
 const Orders = () => {
-  const { isMobile } = useIsMobile();
-  const [orders, setOrders] = useState([]);
-  const { fetchAll } = useCrudApi(`/api/orders`);
-  const { fetchById } = useCrudApi(`/api/orders`);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [summary, setSummary] = useState({});
-  const [shipping, setShipping] = useState(0);
-  const [coupon, setCoupon] = useState(null);
-  const [isReturnSidebarOpen, setIsReturnSidebarOpen] = useState(false);
-  const [returnOrder, setReturnOrder] = useState([]);
+  const router = useRouter();
+  const params = useSearchParams();
+  const [orders, setOrders] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState(null);
+  const [returnOpen, setReturnOpen] = useState(false);
+  const [invoiceBusy, setInvoiceBusy] = useState(null);
+  const [paying, setPaying] = useState(false);
+  const { fetchAll } = useCrudApi("/api/orders");
+  const { create: startRetry } = useCrudApi("/api/payments/cashfree/retry");
+
+  const load = useCallback(
+    () =>
+      fetchAll()
+        .then((r) => {
+          const list = [...(r?.data || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          setOrders(list);
+          return list;
+        })
+        .catch(() => {
+          setOrders([]);
+          return [];
+        }),
+    [fetchAll]
+  );
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchAll();
-        setOrders(data?.data || []);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
+    load();
+  }, [load]);
+
+  // Pay again for an unpaid online order: reopen Cashfree with a fresh or
+  // still-open payment session. If it turns out to be paid already, refresh.
+  const payAgain = async (order) => {
+    setPaying(true);
+    try {
+      const res = await startRetry(null, {}, encodeURIComponent(order.order_number));
+      const d = res?.data || {};
+      if (d.alreadyPaid) {
+        const list = await load();
+        setSelected(list.find((o) => o.id === order.id) || null);
+        toast.success("Good news: this order is already paid.");
+        return;
       }
-    };
-
-    fetchData();
-  }, []);
-
-  const getPriceTotal = (price, quantity) => {
-    const numericPrice =
-      parseFloat(
-        typeof price === "string" ? price.replace(/[^0-9.-]+/g, "") : price
-      ) || 0;
-    return (numericPrice * quantity).toFixed(2);
+      if (!d.paymentSessionId) throw new Error("We couldn't start the payment. Please try again.");
+      const cashfree = await loadCashfree({ mode: d.paymentMode || "sandbox" });
+      await cashfree.checkout({ paymentSessionId: d.paymentSessionId, redirectTarget: "_self" });
+    } catch (err) {
+      toast.error(err?.message || "We couldn't start the payment. Please try again.");
+    } finally {
+      setPaying(false);
+    }
   };
 
-  const [invoiceBusy, setInvoiceBusy] = useState(null);
+  // /account/orders?order=<id> (from the dashboard) opens that order.
+  useEffect(() => {
+    const id = params.get("order");
+    if (id && orders) setSelected(orders.find((o) => String(o.id) === id) || null);
+  }, [params, orders]);
 
-  // Generate the invoice PDF entirely on the client from the order we already
-  // have in state — no backend round-trip, so it always works.
-  const handleViewInvoice = async (order, download = false) => {
-    const ord = typeof order === "object" ? order : orders.find((o) => o.id === order);
-    if (!ord) return;
-    setInvoiceBusy(ord.id);
+  const counts = useMemo(
+    () => Object.fromEntries(FILTERS.map((f) => [f.key, (orders || []).filter(f.test).length])),
+    [orders]
+  );
+  const visible = (orders || []).filter(FILTERS.find((f) => f.key === filter).test);
+
+  const closeDetail = () => {
+    setSelected(null);
+    if (params.get("order")) router.replace("/account/orders", { scroll: false });
+  };
+
+  const invoice = async (order, download) => {
+    setInvoiceBusy(order.id);
     try {
-      const account = (() => {
-        try {
-          const raw = localStorage.getItem("userRJHouse") || localStorage.getItem("user");
-          const u = raw ? JSON.parse(raw) : {};
-          return { name: u?.name || u?.fullName || "", email: u?.email || "" };
-        } catch {
-          return {};
-        }
-      })();
       const mod = await import("@/lib/invoice/orderInvoice");
-      if (download) await mod.downloadOrderInvoice(ord, { account });
-      else await mod.openOrderInvoice(ord, { account });
+      if (download) await mod.downloadOrderInvoice(order, { account: readAccount() });
+      else await mod.openOrderInvoice(order, { account: readAccount() });
     } catch (err) {
       console.error("Error generating invoice:", err);
     } finally {
@@ -74,596 +148,238 @@ const Orders = () => {
     }
   };
 
-  const OrderActions = ({ order }) => {
-    const handleViewOrder = () => {
-      setSelectedOrder(order);
-
-      setSummary({
-        cart_total: parseFloat(order.total) || 0,
-        coupon_code: order?.coupon?.code || null,
-        discount: order?.coupon?.discount || 0,
-      });
-
-      setShipping(parseFloat(order?.shipping_cost) || 0);
-
-      setIsSidebarOpen(true);
-    };
-
-    return (
-      <div className="space-x-[20px]">
-        <Button title="View order" onClick={handleViewOrder} />
-        <Button
-          title="View invoice"
-          variant="outlineTeal"
-          onClick={() => handleViewInvoice(order)}
-        />
-      </div>
-    );
-  };
-
-  const ProductActions = ({ productId, order }) => (
+  return (
     <>
-      {isMobile ? (
-        <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] pt-4 mt-4">
-          <div className="flex items-center gap-[8px]">
-            <CheckIcon className="w-[14px] h-[14px] text-[var(--teal-1)] opacity-80" />
-            <Typography variant="h6" className="text-[12px] text-[var(--color-text-muted)] font-normal">
-              Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
-            </Typography>
-          </div>
-          <div className="flex items-center gap-[12px] justify-start">
-            <Link href={`/product/${productId}`}>
-              <Typography variant="p" className="font-[500] text-[12px] text-[var(--grey-2)] hover:text-[var(--teal-1)] transition-colors uppercase tracking-wider">
-                View Product
-              </Typography>
-            </Link>
-            <div className="w-[1px] h-3 bg-[var(--surface-band)]" />
-            <Link href={`/product/${productId}`}>
-              <Typography variant="p" className="font-[500] text-[12px] text-[var(--grey-2)] hover:text-[var(--teal-1)] transition-colors uppercase tracking-wider">
-                Buy Again
-              </Typography>
-            </Link>
-          </div>
+      <AccountPageTitle title="Orders" description="Track your orders, download invoices and request returns." />
+
+      {orders === null ? (
+        <div className="space-y-[12px]">
+          <Skeleton className="h-[112px]" />
+          <Skeleton className="h-[112px]" />
         </div>
+      ) : orders.length === 0 ? (
+        <EmptyState title="No orders yet" text="Your orders will appear here once you place one." actionLabel="Start shopping" actionHref="/product" />
       ) : (
-        <div className="flex justify-between">
-          <div className="flex flex-row gap-[14px]">
-            <CheckIcon />
-            <Typography variant="h6">
-              Order Placed {format(new Date(order.created_at), "MMMM dd, yyyy")}
-            </Typography>
+        <>
+          <div role="tablist" aria-label="Filter orders" className="flex gap-[8px] overflow-x-auto hide-scrollbar overflow-y-hidden! mb-[16px]">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                role="tab"
+                aria-selected={filter === f.key}
+                onClick={() => setFilter(f.key)}
+                className={`whitespace-nowrap px-[14px] py-[8px] text-[13px] border transition-colors ${
+                  filter === f.key
+                    ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-text-on-dark)]"
+                    : "border-[var(--border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)]"
+                }`}
+              >
+                {f.label} ({counts[f.key]})
+              </button>
+            ))}
           </div>
-          <div className="flex gap-[32px] justify-end">
-            <Link href={`/product/${productId}`}>
-              <Typography variant="p" className="font-[500]">
-                View Product
-              </Typography>
-            </Link>
-            <div className="w-0 h-5 origin-top-left outline outline-offset-[-0.50px] outline-[var(--teal-2)]" />
-            <Link href={`/product/${productId}`}>
-              <Typography variant="p" className="font-[500]">
-                Buy Again
-              </Typography>
-            </Link>
-          </div>
-        </div>
+
+          {visible.length === 0 ? (
+            <p className="text-[14px] text-[var(--color-text-muted)] py-[24px]">No orders here.</p>
+          ) : (
+            <ul className="space-y-[12px]">
+              {visible.map((o) => (
+                <li key={o.id}>
+                  <OrderRow order={o} onOpen={() => setSelected(o)} onInvoice={() => invoice(o, false)} busy={invoiceBusy === o.id} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
+
+      <Drawer open={!!selected && !returnOpen} onClose={closeDetail} title={selected ? `Order ${selected.order_number}` : ""}>
+        {selected && (
+          <OrderDetail
+            order={selected}
+            paying={paying}
+            onPay={() => payAgain(selected)}
+            busy={invoiceBusy === selected.id}
+            onInvoice={() => invoice(selected, true)}
+            onReturn={() => setReturnOpen(true)}
+          />
+        )}
+      </Drawer>
+
+      <Drawer open={returnOpen} onClose={() => setReturnOpen(false)} title={selected ? `Return or repair · ${selected.order_number}` : "Return or repair"}>
+        <ReturnRepair order={selected} />
+      </Drawer>
     </>
   );
+};
 
+const OrderRow = ({ order, onOpen, onInvoice, busy }) => {
+  const first = order.items?.[0] || {};
+  const more = (order.items?.length || 1) - 1;
+  const stage = orderStage(order);
+  const pay = paymentInfo(order);
+  return (
+    <Card className="flex flex-col sm:flex-row gap-[16px] sm:items-center">
+      <img src={first.product?.image || "/logo/rj-house.svg"} alt="" className="w-[80px] h-[80px] object-contain bg-[var(--surface-product)] shrink-0" />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap gap-[8px] mb-[6px]">
+          <Chip tone={stage.tone}>{stage.label}</Chip>
+          <Chip tone={pay.tone}>{pay.label}</Chip>
+        </div>
+        <p className="text-[15px] font-[600] text-[var(--color-text)] truncate">
+          {first.product?.title || "Jewelry"}
+          {more > 0 ? ` and ${more} more` : ""}
+        </p>
+        <p className="text-[13px] text-[var(--color-text-muted)]">
+          {order.order_number} · {formatDate(order.created_at)}
+        </p>
+      </div>
+      <div className="flex sm:flex-col items-center sm:items-end justify-between gap-[8px]">
+        <p className="text-[16px] font-[600] text-[var(--color-text)]">{orderAmount(order)}</p>
+        <div className="flex gap-[8px]">
+          <button type="button" onClick={onInvoice} disabled={busy} className="px-[14px] py-[8px] text-[12px] uppercase tracking-[0.28px] border border-[var(--border-strong)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50">
+            {busy ? "Preparing…" : "Invoice"}
+          </button>
+          <button type="button" onClick={onOpen} className="px-[14px] py-[8px] text-[12px] uppercase tracking-[0.28px] bg-[var(--color-primary)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-primary-hover)]">
+            View details
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const Section = ({ title, children }) => (
+  <section className="py-[16px] border-b border-[var(--border-subtle)] last:border-b-0">
+    <h3 className="text-[12px] uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-[10px]">{title}</h3>
+    {children}
+  </section>
+);
+
+const OrderDetail = ({ order, onInvoice, onReturn, onPay, paying, busy }) => {
+  const stage = orderStage(order);
+  const pay = paymentInfo(order);
+  const unpaidOnline = pay.label === "Payment pending" || pay.label === "Payment failed";
+  const canPayAgain = unpaidOnline && stage.step >= 0 && String(order.payment_method || "").toUpperCase() === "ONLINE";
   return (
     <div>
-      <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)] xl:mb-[50px] mb-[30px]">
-        Orders
-      </p>
-      {orders?.length > 0 ? (
-        <div className="space-y-[30px]">
-          {orders?.map((order, orderIdx) => {
-            return (
-              <div key={orderIdx} className="bg-[var(--grey-0)]">
-                {/* --- ORDER HEADER --- */}
-                {isMobile ? (
-                  <div className="grid grid-cols-3 gap-4 py-[20px] px-[20px] items-start">
-                    {[
-                      { label: "Order Number", value: order.id },
-                      {
-                        label: "Date Placed",
-                        value: format(new Date(order.created_at), "MMM dd, yyyy"),
-                      },
-                      {
-                        label: "Total Amount",
-                        value: `$${parseFloat(order.total).toFixed(2)}`,
-                      },
-                    ].map((item, i) => (
-                      <div key={i} className="flex flex-col">
-                        <Typography variant="h6" className="font-[500] text-[var(--placeholder)] uppercase text-[9px] tracking-[0.1em] mb-1.5 leading-none">
-                          {item.label}
-                        </Typography>
-                        <Typography variant="h5" className="font-semibold text-[13px] text-[var(--grey-2)]">
-                          {item.value}
-                        </Typography>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex justify-between py-[30px] xl:px-[40px] px-[20px]">
-                    <div className="flex md:flex-nowrap flex-wrap gap-[22px]">
-                      {[
-                        { label: "Order Number", value: order.id },
-                        {
-                          label: "Date Placed",
-                          value: format(new Date(order.created_at), "MMMM dd, yyyy"),
-                        },
-                        {
-                          label: "Total Amount",
-                          value: `$${parseFloat(order.total).toFixed(2)}`,
-                        },
-                      ].map((item, i) => (
-                        <div key={i}>
-                          <Typography variant="h5" className="font-[500]">
-                            {item.label}
-                          </Typography>
-                          <Typography variant="h6">{item.value}</Typography>
-                        </div>
-                      ))}
-                    </div>
-                    {!isMobile && <OrderActions order={order} />}
-                  </div>
-                )}
+      <div className="flex flex-wrap items-center gap-[8px]">
+        <Chip tone={stage.tone}>{stage.label}</Chip>
+        <Chip tone={pay.tone}>{pay.label}</Chip>
+        <span className="text-[13px] text-[var(--color-text-muted)]">Placed {formatDate(order.created_at)}</span>
+      </div>
 
-                <hr className={isMobile ? "border-[var(--border-subtle)] opacity-50 mx-[20px]" : "hr-teal-3"} />
+      <Section title="Status">
+        {stage.step < 0 ? (
+          <p className="text-[14px] text-[var(--color-text-muted)]">This order was cancelled.</p>
+        ) : (
+          <ol className="flex items-start">
+            {ORDER_STEPS.map((label, i) => {
+              const done = i <= stage.step;
+              return (
+                <li key={label} className="flex-1 flex flex-col items-center text-center relative">
+                  {i > 0 && (
+                    <span aria-hidden className={`absolute top-[9px] right-1/2 w-full h-[2px] ${i <= stage.step ? "bg-[var(--color-primary)]" : "bg-[var(--border-subtle)]"}`} />
+                  )}
+                  <span
+                    aria-hidden
+                    className={`relative z-[1] w-[20px] h-[20px] rounded-full border-2 ${
+                      done ? "bg-[var(--color-primary)] border-[var(--color-primary)]" : "bg-[var(--surface-card)] border-[var(--border-strong)]"
+                    }`}
+                  />
+                  <span className={`mt-[6px] text-[11.5px] leading-tight ${i === stage.step ? "font-[600] text-[var(--color-primary)]" : "text-[var(--color-text-muted)]"}`}>
+                    {label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        <p className="sr-only">Current status: {stage.label}</p>
+      </Section>
 
-                {/* --- ORDER ITEMS --- */}
-                {Array.isArray(order.items) &&
-                  order?.items?.map((item, idx) => (
-                    <div key={idx} className={isMobile ? "border-b border-[var(--border-subtle)] last:border-b-0" : ""}>
-                      {isMobile ? (
-                        <div className="flex flex-col p-[20px]">
-                          <div className="flex gap-[16px] items-start mb-5">
-                            <div className="bg-[var(--product-bg)] w-[115px] h-[140px] shrink-0 flex items-center justify-center p-3 rounded-lg border border-[var(--border-subtle)]/50">
-                              <img className="w-full h-full object-contain" src={item?.product?.image} alt={item?.product?.title || "Product image"} />
-                            </div>
-                            <div className="flex-1 flex flex-col pt-1">
-                              <Typography variant="h5" className="font-semibold text-[15px] leading-tight text-[var(--grey-2)] mb-1">
-                                {item?.product?.title}
-                              </Typography>
-                              <Typography className="text-[18px] font-bold text-[var(--teal-1)] mb-3">
-                                ${getPriceTotal(item.price, item.quantity)}
-                              </Typography>
-                              <div className="grid grid-cols-1 gap-y-1.5">
-                                {[
-                                  { label: "Shape", value: item?.product?.occasion?.custom_title || "Round" },
-                                  { label: "Carat", value: `${parseFloat(item?.center_diamond_weight) || "0"} ctw` },
-                                  { label: "Metal", value: item?.product?.quality?.value || "14K" },
-                                  { label: "Size", value: item?.ring_size || "-" },
-                                  { label: "Qty", value: item?.quantity },
-                                ].map((attr, ai) => (
-                                  <Typography key={ai} variant="h6" className="text-[12px] font-medium text-[var(--color-text-muted)] flex items-center gap-2">
-                                    <span className="text-[var(--color-text-muted)] font-normal min-w-[45px]">{attr.label}:</span>
-                                    <span className="text-[var(--teal-1)]">{attr.value}</span>
-                                  </Typography>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <ProductActions productId={item?.product_id} order={order} />
-                        </div>
-                      ) : (
-                        <div className="flex flex-col xl:py-[30px] py-[20px] xl:px-[40px] px-[20px]">
-                          <div className="flex md:flex-row flex-col justify-between">
-                            <div className="flex md:gap-[30px] gap-[13px]">
-                              <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px]">
-                                <Image
-                                  className="w-[122px] h-[122px] object-cover"
-                                  src={item?.product?.image}
-                                  width={122}
-                                  height={122}
-                                  alt={item?.product?.title || "Product image"}
-                                />
-                              </div>
-                              <div className="space-y-[10px] md:max-w-[357px] max-w-[180px]">
-                                <Typography variant="h5" className="font-[500]">{item?.product?.title}</Typography>
-                                <Typography variant="h6">{item?.product?.description}</Typography>
-                                <Typography variant="h6" className="font-[500]">Shape: <span className="font-[400] text-[var(--teal-1)]">{item?.product?.occasion?.custom_title}</span></Typography>
-                                <Typography variant="h6" className="font-[500]">Carat : <span className="font-[400] text-[var(--teal-1)]">{parseFloat(item?.center_diamond_weight) + " ctw"}</span></Typography>
-                                <Typography variant="h6" className="font-[500]">Metal : <span className="font-[400] text-[var(--teal-1)]">{item?.product?.quality?.value}</span></Typography>
-                                <Typography variant="h6" className="font-[500]">Size : <span className="font-[400] text-[var(--teal-1)]">{item?.ring_size}</span></Typography>
-                                <Typography variant="h6" className="font-[500]">Qty: <span className="font-[400] text-[var(--teal-1)]">{item?.quantity}</span></Typography>
-                              </div>
-                            </div>
-                            <Typography variant="h5" className="text-[14px] font-[600] text-[var(--teal-1)]">
-                              ${getPriceTotal(item?.price, item?.quantity)}
-                            </Typography>
-                          </div>
-                          <div className="mt-[20px]">
-                            <ProductActions productId={item?.product_id} order={order} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                {isMobile && (
-                  <div className="px-[20px] pb-[30px] flex gap-[12px] mt-2">
-                    <Button
-                      title="View Order"
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setSummary({
-                          cart_total: parseFloat(order.total) || 0,
-                          coupon_code: order?.coupon?.code || null,
-                          discount: order?.coupon?.discount || 0,
-                        });
-                        setShipping(parseFloat(order?.shipping_cost) || 0);
-                        setIsSidebarOpen(true);
-                      }}
-                      className="flex-1 !h-[48px] !text-[13px] font-semibold"
-                    />
-                    <Button
-                      title="View Invoice"
-                      variant="outlineTeal"
-                      onClick={() => handleViewInvoice(order)}
-                      className="flex-1 !h-[48px] !text-[13px] font-semibold"
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center gap-4 py-[60px] text-center">
-          <p className="text-[var(--placeholder)]">
-            You haven't placed any orders yet.
+      {unpaidOnline && stage.step >= 0 && (
+        <div className="my-[12px] p-[12px] bg-[var(--color-warning-tint)] text-[13px] text-[var(--color-warning)]">
+          <p>
+            {pay.label === "Payment failed"
+              ? "We didn't receive the payment for this order. "
+              : "We haven't received the payment for this order yet. "}
+            If you were charged or need help,{" "}
+            <Link href="/account/support" className="underline">contact us</Link>.
           </p>
-          <Button title="Continue Shopping" url="/product" />
+          {canPayAgain && (
+            <button
+              type="button"
+              onClick={onPay}
+              disabled={paying}
+              className="mt-[10px] px-[18px] py-[10px] text-[13px] uppercase tracking-[0.28px] bg-[var(--color-primary)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
+            >
+              {paying ? "Opening secure payment…" : `Complete payment · ${orderAmount(order)}`}
+            </button>
+          )}
         </div>
       )}
-      {/* Sidebar Order Details */}
-      {isSidebarOpen && selectedOrder && (
-        <div className="fixed inset-0 z-[9999] flex">
-          <div
-            className="fixed inset-0 bg-black/40"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <div className="fixed top-0 right-0 h-full w-full max-w-[700px] bg-white shadow-lg p-6 overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 sticky -top-6 bg-white border-b border-b-[var(--teal-3)] py-4 z-10">
-              <Typography variant="h4">Order #{selectedOrder.id}</Typography>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-muted)]"
-              >
-                <img
-                  src="/icons/close.svg"
-                  className="w-[12px] h-[12px] cursor-pointer"
-                  alt="close icon"
-                />
-              </button>
-            </div>
-            <div className="space-y-[20px]">
-              {Array.isArray(selectedOrder.items) &&
-                selectedOrder.items.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex md:flex-row flex-col justify-between gap-[30px] items-start"
-                  >
-                    {/* Image container */}
-                    <div className="lg:p-[43px_21px] p-[35px_10px] bg-[var(--product-bg)] w-[164px] h-[209px] max-[340px]:h-[154px] flex items-center justify-center">
-                      <Image
-                        className="w-[122px] h-[122px] object-cover"
-                        src={item?.product?.image}
-                        width={122}
-                        height={122}
-                        alt={item?.product?.title || "Product image"}
-                      />
-                    </div>
 
-                    <div className="space-y-[10px] md:max-w-[357px] max-w-[180px] flex-1">
-                      <Typography variant="h5" className="font-[500]">
-                        {item?.product?.title}
-                      </Typography>
-                      <Typography variant="h6">
-                        {item?.product?.description}
-                      </Typography>
-
-                      <Typography variant="h6" className="font-[500]">
-                        Shape:{" "}
-                        <span className="font-[400] text-[var(--teal-1)]">
-                          {item?.product?.occasion?.custom_title}
-                        </span>
-                      </Typography>
-                      <Typography variant="h6" className="font-[500]">
-                        Carat:{" "}
-                        <span className="font-[400] text-[var(--teal-1)]">
-                          {parseFloat(item?.center_diamond_weight)} ctw
-                        </span>
-                      </Typography>
-                      <Typography variant="h6" className="font-[500]">
-                        Metal:{" "}
-                        <span className="font-[400] text-[var(--teal-1)]">
-                          {item?.product?.quality?.value}
-                        </span>
-                      </Typography>
-                      <Typography variant="h6" className="font-[500]">
-                        Size:{" "}
-                        <span className="font-[400] text-[var(--teal-1)]">
-                          {item?.ring_size}
-                        </span>
-                      </Typography>
-                      <Typography variant="h6" className="font-[500]">
-                        Qty:{" "}
-                        <span className="font-[400] text-[var(--teal-1)]">
-                          {item?.quantity}
-                        </span>
-                      </Typography>
-                    </div>
-
-                    <div className="self-center md:self-start">
-                      <button className="bg-[var(--surface-tint)] text-black text-sm font-medium px-4 py-2 rounded-lg shadow">
-                        In Progress
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            <div className="w-[620px]">
-              <div className="flex md:flex-nowrap flex-wrap justify-between gap-[22px] mt-6">
-                {[
-                  { label: "Order Number", value: selectedOrder.id },
-                  {
-                    label: "Date Placed",
-                    value: format(
-                      new Date(selectedOrder?.created_at),
-                      "MMMM dd, yyyy"
-                    ),
-                  },
-                  {
-                    label: "Total Amount",
-                    value: `$${parseFloat(selectedOrder?.total).toFixed(2)}`,
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex flex-col min-w-[150px]">
-                    <span className="text-[var(--color-text-muted)] text-sm">{item.label}</span>
-                    <span className="font-semibold">{item.value}</span>
-                  </div>
-                ))}
+      <Section title={`Items (${order.items?.length || 0})`}>
+        <ul className="space-y-[14px]">
+          {(order.items || []).map((it, i) => (
+            <li key={i} className="flex gap-[12px]">
+              <img src={it.product?.image || "/logo/rj-house.svg"} alt="" className="w-[64px] h-[64px] object-contain bg-[var(--surface-product)] shrink-0" />
+              <div className="min-w-0 flex-1 text-[13px] leading-[1.5]">
+                <p className="text-[14px] font-[600] text-[var(--color-text)]">{it.product?.title}</p>
+                <p className="text-[var(--color-text-muted)]">
+                  {[
+                    [it.metal_type, it.metal_color].filter(Boolean).join(" "),
+                    it.diamond_shape,
+                    Number(it.center_diamond_weight) ? `${it.center_diamond_weight} ct` : "",
+                    it.ring_size && it.ring_size !== "-" ? `Size ${it.ring_size}` : "",
+                    it.engraving ? `Engraving “${it.engraving}”` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                <p className="text-[var(--color-text-muted)]">Qty {it.quantity}</p>
               </div>
-            </div>
-
-            <div className="mt-8">
-              <Typography variant="p" className="font-semibold mb-4">
-                Shipping Order
-              </Typography>
-
-              <div className="relative pl-6 border-l-2 border-[var(--teal-2)] space-y-8">
-                <div className="relative">
-                  <img
-                    src="/icons/Ellipse.svg"
-                    className="absolute -left-[32px] top-0 w-3.5 h-3.5"
-                  />
-                  <Typography variant="h5" className="font-[600]">
-                    Order Placed
-                  </Typography>
-                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
-                    {format(
-                      new Date(selectedOrder.created_at),
-                      "MMMM dd, yyyy hh:mm a"
-                    )}
-                  </Typography>
-                </div>
-
-                <div className="relative">
-                  <img
-                    src="/icons/Ellipse.svg"
-                    className="absolute -left-[32px] top-1 w-3.5 h-3.5"
-                  />
-                  <Typography variant="h5" className="font-[600]">
-                    Order Confirmed
-                  </Typography>
-                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
-                    {format(
-                      new Date(selectedOrder.created_at),
-                      "MMMM dd, yyyy hh:mm a"
-                    )}
-                  </Typography>
-                </div>
-
-                {(selectedOrder.trackingNumber || selectedOrder.tracking_number || selectedOrder.courierName || selectedOrder.courier) && (
-                  <div className="relative">
-                    <img
-                      src="/icons/Ellipse.svg"
-                      className="absolute -left-[32px] top-1 w-3.5 h-3.5"
-                    />
-                    <Typography variant="h5" className="font-[600]">
-                      Product Shipped
-                    </Typography>
-                    <Typography variant="h6" className="text-[var(--color-text-muted)]">
-                      {selectedOrder.shipped_at
-                        ? format(new Date(selectedOrder.shipped_at), "MMMM dd, yyyy hh:mm a")
-                        : "Date not yet available"}
-                    </Typography>
-                    <div className="mt-2 space-y-1">
-                      <Typography variant="h6" className="font-[500]">
-                        Courier Service:{" "}
-                        <span className="text-[var(--teal-1)]">
-                          {selectedOrder.courierName || selectedOrder.courier || "Not yet assigned"}
-                        </span>
-                      </Typography>
-                      <Typography variant="h6" className="font-[500]">
-                        Estimated Delivery Date:{" "}
-                        <span className="text-[var(--teal-1)]">
-                          {selectedOrder.estimatedDelivery
-                            ? format(new Date(selectedOrder.estimatedDelivery), "MMMM dd, yyyy")
-                            : "Not yet available"}
-                        </span>
-                      </Typography>
-                    </div>
-                  </div>
-                )}
-
-                <div className="relative">
-                  <img
-                    src="/icons/Ellipse.svg"
-                    className="absolute -left-[32px] top-1 w-3.5 h-3.5"
-                  />
-                  <Typography variant="h5" className="font-[600]">
-                    Product Packaging
-                  </Typography>
-                  <Typography variant="h6" className="text-[var(--color-text-muted)]">
-                    {format(new Date(selectedOrder.created_at), "MMMM dd, yyyy hh:mm a")}
-                  </Typography>
-                  <div className="mt-2 space-y-1">
-                    <Typography variant="h6" className="font-[500]">
-                      Tracking Number:{" "}
-                      <span className="text-[var(--teal-1)]">
-                        {selectedOrder.trackingNumber || selectedOrder.tracking_number || "Tracking not yet available"}
-                      </span>
-                    </Typography>
-                    <Typography variant="h6" className="font-[500]">
-                      Warehouse:{" "}
-                      <span className="text-[var(--teal-1)]">
-                        {selectedOrder.warehouse || "Not specified"}
-                      </span>
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex md:flex-nowrap flex-wrap gap-[23px] mt-6 font-[18px]">
-              <Typography variant="p" className="font-semibold">
-                Payment Summary
-              </Typography>
-            </div>
-            {summary?.coupon_code && (
-              <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
-                <Typography variant="h5" className="flex gap-2">
-                  <CouponIcon className="w-5 h-5" />{" "}
-                  <span>{summary.coupon_code}</span>
-                </Typography>
-                <Typography
-                  variant="h5"
-                  className="font-[600] text-[var(--teal-1)]"
-                >
-                  -${summary?.discount?.toFixed(2)}
-                </Typography>
-              </div>
-            )}
-
-            <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
-              <Typography variant="h5" className="flex gap-2">
-                Shipping
-              </Typography>
-              <Typography variant="h5" className="font-[600]">
-                ${shipping?.toFixed(2) ?? "0.00"}
-              </Typography>
-            </div>
-
-            <div className="flex justify-between w-full border-b border-b-[var(--teal-3)] py-[13px]">
-              <Typography variant="h5" className="flex gap-2">
-                Subtotal
-              </Typography>
-              <Typography variant="h5" className="font-[600]">
-                ${summary?.cart_total?.toFixed(2) ?? "0.00"}
-              </Typography>
-            </div>
-
-            <div className="flex justify-between w-full  border-b-[var(--teal-3)] py-[13px]">
-              <Typography variant="h4" className="flex gap-2 font-[500]">
-                Total
-              </Typography>
-              <Typography variant="h4" className="font-[600]">
-                $
-                {(
-                  summary?.cart_total -
-                  (summary?.discount || 0) +
-                  shipping
-                ).toFixed(2)}
-              </Typography>
-            </div>
-
-            <div>
-              <div className="flex flex-col gap-[7px]">
-                <Typography variant="h5" className="font-semibold">
-                  Payment Method
-                </Typography>
-                <Typography variant="h6">
-                  {selectedOrder.payment_method || selectedOrder.paymentMethod || "Not available"}
-                </Typography>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-[92px] my-6">
-              <div>
-                <Typography variant="h6" className="font-semibold">
-                  Shipping Address
-                </Typography>
-                <Typography variant="h6">
-                  {selectedOrder.shipping_address ||
-                    selectedOrder.customer_address ||
-                    "Address not available"}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="h6" className="font-semibold">
-                  Billing Address
-                </Typography>
-                <Typography variant="h6">
-                  {selectedOrder.billing_address || "Same as Shipping Address"}
-                </Typography>
-              </div>
-            </div>
-
-            <div className="flex gap-[20px] mt-6">
-              <Button
-                title={invoiceBusy === selectedOrder.id ? "Preparing…" : "Download Invoice"}
-                onClick={() => handleViewInvoice(selectedOrder, true)}
-              />
-              <Button
-                title="Return / Exchange Product"
-                variant="outlineTeal"
-                onClick={() => {
-                  setReturnOrder(selectedOrder);
-                  setIsReturnSidebarOpen(true);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-      {isReturnSidebarOpen && returnOrder && (
-        <div className="fixed inset-0 z-[9999] flex">
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 bg-black/40"
-            onClick={() => setIsReturnSidebarOpen(false)}
-          />
-
-          {/* Right Drawer */}
-          <div className="fixed top-0 right-0 h-full w-full max-w-[700px] bg-white shadow-lg p-6 overflow-y-auto hide-scrollbar">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6 sticky -top-6 bg-white border-b border-b-[var(--teal-3)] py-4 z-10">
-              <p className="text-[22px] font-[600]">
-                Return / Repair – Order #{returnOrder?.id}
+              <p className="text-[14px] font-[600] text-[var(--color-text)] whitespace-nowrap">
+                ${Number(it.line_total ?? it.price * it.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </p>
-
-              <button
-                onClick={() => setIsReturnSidebarOpen(false)}
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-muted)]"
-              >
-                <img
-                  src="/icons/close.svg"
-                  className="w-[12px] h-[12px]"
-                  alt="close"
-                />
-              </button>
-            </div>
-
-            <ReturnRepair order={returnOrder} />
-          </div>
+            </li>
+          ))}
+        </ul>
+        <div className="flex justify-between mt-[14px] pt-[12px] border-t border-[var(--border-subtle)] text-[14px]">
+          <span className="text-[var(--color-text-muted)]">Total{order.currency_code && order.currency_code !== "USD" ? ` (charged in ${order.currency_code})` : ""}</span>
+          <span className="font-[600] text-[var(--color-text)]">{orderAmount(order)}</span>
         </div>
-      )}
+      </Section>
+
+      <Section title="Delivery">
+        <p className="text-[14px] leading-[1.6] text-[var(--color-text)] break-words">{order.customer_address || "—"}</p>
+        {(order.tracking_number || order.courier_name) && (
+          <div className="mt-[10px] text-[13px] text-[var(--color-text-muted)]">
+            {order.courier_name && <p>Courier: {order.courier_name}</p>}
+            {order.tracking_number && <p>Tracking number: {order.tracking_number}</p>}
+            {order.tracking_url && (
+              <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="text-[var(--color-link)] underline">
+                Track shipment
+              </a>
+            )}
+          </div>
+        )}
+      </Section>
+
+      <div className="flex flex-wrap gap-[10px] pt-[16px]">
+        <button type="button" onClick={onInvoice} disabled={busy} className="px-[18px] py-[10px] text-[13px] uppercase tracking-[0.28px] bg-[var(--color-primary)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-primary-hover)] disabled:opacity-50">
+          {busy ? "Preparing…" : "Download invoice"}
+        </button>
+        {stage.step >= 0 && (
+          <button type="button" onClick={onReturn} className="px-[18px] py-[10px] text-[13px] uppercase tracking-[0.28px] border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--surface-band)]">
+            Return or repair
+          </button>
+        )}
+        <Link href="/account/support" className="px-[18px] py-[10px] text-[13px] uppercase tracking-[0.28px] text-[var(--color-link)] underline underline-offset-4">
+          Need help?
+        </Link>
+      </div>
     </div>
   );
 };

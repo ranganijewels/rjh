@@ -2,9 +2,6 @@
 
 import { CouponIcon, MinusIcon } from "@/components/Icons/common";
 import Button from "@/components/ui/Button/Button";
-import RadioButton from "@/components/ui/Button/RadioButton";
-import Checkbox from "@/components/ui/Checkbox/Checkbox";
-import Input from "@/components/ui/Input/Input";
 import Typography from "@/components/ui/Typography/Typography";
 import { useCrudApi } from "@/hooks/useCrudApi";
 import { fetchCart } from "@/store/slices/cartSlice";
@@ -17,22 +14,24 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import QuantitySelector from "./QuantitySelector";
 import { toTitleCase } from "@/utils/string";
-import Dropdown from "@/components/ui/Dropdown/Dropdown";
 import { getCurrencySymbol } from "@/utils/currencySymbol";
 import { convertPrice } from "@/utils/money";
 import { usePreferences } from "@/context/PreferencesContext";
 import InputWithIconButton from "@/components/ui/Input/InputWithIconButton";
 import { useCoupon } from "@/hooks/useCoupon";
 import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
+import DeliveryAddress from "./checkout/DeliveryAddress";
 
 const CheckOutDetails = () => {
-  const [isDifferentBilling, setIsDifferentBilling] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState("cod");
-  const [errors, setErrors] = useState({});
   const [placingOrder, setPlacingOrder] = useState(false);
   const { customer } = useSelector((state) => state.auth);
-  const [fetchAddressesData, setFetchAddressesData] = useState([]);
-  const { fetchAll } = useCrudApi("/api/address");
+  // Delivery address: the customer's saved addresses (default first), or the
+  // one a guest enters for this order.
+  const [addresses, setAddresses] = useState([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [guestEmail, setGuestEmail] = useState("");
+  const { fetchAll: fetchAddresses, create: createAddress } = useCrudApi("/api/address");
   const { selectedCountry } = usePreferences();
   // Online payments may be charged in a fixed currency (e.g. INR) set on the
   // API; fetched so the exact charge can be shown before paying.
@@ -50,10 +49,25 @@ const CheckOutDetails = () => {
   const { apply, remove, setError, couponCode, setCouponCode } = useCoupon();
 
   useEffect(() => {
-    fetchAll()
-      .then((res) => setFetchAddressesData(res.data || []))
-      .catch((err) => console.error("Error fetching addresses", err));
-  }, [fetchAll]);
+    if (!customer) {
+      setAddressesLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAddressesLoading(true);
+    fetchAddresses()
+      .then((res) => {
+        if (cancelled) return;
+        const list = res?.data || [];
+        setAddresses(list);
+        setSelectedAddress((cur) => cur || list.find((a) => a.is_default) || list[0] || null);
+      })
+      .catch(() => undefined)
+      .finally(() => !cancelled && setAddressesLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [customer, fetchAddresses]);
 
   const { create: updateQuantities } = useCrudApi(
     "/api/cart/update-quantities"
@@ -63,53 +77,6 @@ const CheckOutDetails = () => {
     const success = await apply(couponCode);
     if (success) setCouponCode("");
   };
-  // Contact info
-  const [contactInfo, setContactInfo] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-  });
-  const [address, setAddress] = useState({
-    street: "",
-    country: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    billingStreetAddress: "",
-    billingCountry: "",
-    billingCity: "",
-    billingState: "",
-    billingZipcode: "",
-    addressType: "",
-  });
-
-  useEffect(() => {
-    if (customer) {
-      setContactInfo({
-        firstName: customer.first_name || "",
-        lastName: customer.last_name || "",
-        phone: customer.phone_number || "",
-        email: customer.email || "",
-      });
-
-      setAddress((prev) => ({
-        ...prev,
-        street: customer.street_address || "",
-        city: customer.city || "",
-        state: customer.state || "",
-        zipCode: customer.zip_code || "",
-      }));
-    }
-  }, [customer]);
-
-  // Start the country from the shopper's selected store country.
-  useEffect(() => {
-    if (selectedCountry?.label) {
-      setAddress((prev) => (prev.country ? prev : { ...prev, country: selectedCountry.label }));
-    }
-  }, [selectedCountry?.label]);
-
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -135,53 +102,73 @@ const CheckOutDetails = () => {
     );
   }, [cartItems, summary?.grand_total]);
 
-  const handlePaymentChange = (value) => {
-    setSelectedPayment(value);
+  // A new address: saved to My Address for signed-in customers, used for
+  // this order only for guests. Returns true when the form can close.
+  const handleAddAddress = async (values) => {
+    if (!customer) {
+      setGuestEmail(values.email);
+      setSelectedAddress({ id: "guest", ...values });
+      return true;
+    }
+    try {
+      const res = await createAddress({
+        label: values.label,
+        name: values.name,
+        phone: values.phone,
+        address_line1: values.address_line1,
+        address_line2: values.address_line2,
+        city: values.city,
+        state: values.state,
+        pincode: values.pincode,
+        country: values.country,
+      });
+      if (res && res.status === false) throw new Error(res.message);
+      const saved = res?.data;
+      const list = (await fetchAddresses())?.data || [];
+      setAddresses(list);
+      setSelectedAddress(list.find((a) => a.id === saved?.id) || saved || list[0] || null);
+      toast.success("Address saved to My Address");
+      return true;
+    } catch (err) {
+      toast.error(err?.message || "Could not save the address. Please try again.");
+      return false;
+    }
   };
 
   const handlePlaceOrder = async () => {
-    const validationErrors = validateForm();
-    setErrors(validationErrors);
-
-    const failed = Object.keys(validationErrors);
-    if (failed.length > 0) {
-      // Say what's wrong and bring the first problem into view, instead of
-      // the button silently doing nothing.
-      toast.error(failed.length === 1 ? validationErrors[failed[0]] : "Please fill in the highlighted fields.");
-      setTimeout(() => {
-        document.getElementById(`${failed[0]}-error`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 0);
+    const addr = selectedAddress;
+    if (!addr) {
+      toast.error("Add a delivery address to continue.");
+      return;
+    }
+    const email = customer?.email || guestEmail;
+    if (!email) {
+      toast.error("Add an email for the order confirmation.");
       return;
     }
 
     setPlacingOrder(true);
-
     try {
+      // The contact person comes from the delivery address.
+      const [firstName, ...rest] = String(addr.name || "").trim().split(/\s+/);
       const payload = {
-        first_name: contactInfo.firstName,
-        last_name: contactInfo.lastName,
-        phone_number: contactInfo.phone,
-        email: contactInfo.email,
-        street_address: address.street,
-        city: address.city,
-        state: address.state,
-        zip_code: address.zipCode,
-        country: address.country,
-        payment_method: selectedPayment === "online" ? "ONLINE" : "COD",
+        first_name: firstName || "",
+        last_name: rest.join(" "),
+        phone_number: addr.phone || "",
+        email,
+        street_address: [addr.address_line1, addr.address_line2].filter(Boolean).join(", "),
+        city: addr.city || "",
+        state: addr.state || "",
+        zip_code: addr.pincode || "",
+        country: addr.country || "",
+        payment_method: "ONLINE",
         currency_code: selectedCountry?.currency || "USD",
-        use_different_billing: isDifferentBilling,
         shipping_charge: shippingCharge,
-        ...(isDifferentBilling && {
-          billing_street_address: address.billingStreetAddress,
-          billing_city: address.billingCity,
-          billing_state: address.billingState,
-          billing_zip_code: address.billingZipcode,
-        }),
       };
 
       const response = await create(payload);
-      if (!response.status) {
-        toast.error(response.message || "Failed to place order.");
+      if (!response?.status) {
+        toast.error(response?.message || "Failed to place order.");
         return;
       }
 
@@ -190,13 +177,13 @@ const CheckOutDetails = () => {
       trackPaymentInfo(
         summary?.grand_total,
         (cartItems || []).map((i) => ({ id: i.sku || i.product_id, name: i.product_name || i.title, price: i.product_price, quantity: i.quantity })),
-        selectedPayment
+        "online"
       );
       localStorage.setItem(
         "recentOrder",
         JSON.stringify({
           ...response,
-          email: contactInfo.email,
+          email,
           analyticsItems: (cartItems || []).map((i) => ({
             id: i.sku || i.product_id,
             name: i.product_name || i.title,
@@ -207,23 +194,22 @@ const CheckOutDetails = () => {
         })
       );
 
-      if (selectedPayment === "online" && order?.payment_session_id) {
-        // Hand off to Cashfree's own hosted checkout — card/UPI/netbanking
-        // details are entered there, never captured on this site.
-        const cashfree = await loadCashfree({
-          mode: order.payment_mode || process.env.NEXT_PUBLIC_CASHFREE_MODE || "sandbox",
-        });
-        await cashfree.checkout({
-          paymentSessionId: order.payment_session_id,
-          redirectTarget: "_self",
-        });
-        return; // browser navigates away to Cashfree
+      if (!order?.payment_session_id) {
+        toast.error("We couldn't start the secure payment. Please try again.");
+        return;
       }
-
-      router.push("/cart/order-complete");
+      // Hand off to Cashfree's own hosted checkout — card/UPI/netbanking
+      // details are entered there, never captured on this site.
+      const cashfree = await loadCashfree({
+        mode: order.payment_mode || process.env.NEXT_PUBLIC_CASHFREE_MODE || "sandbox",
+      });
+      await cashfree.checkout({
+        paymentSessionId: order.payment_session_id,
+        redirectTarget: "_self",
+      });
     } catch (error) {
       toast.error(
-        error?.response?.data?.message ||
+        error?.response?.data?.message || error?.message ||
           "Failed to place order. Please review your information and try again."
       );
     } finally {
@@ -231,522 +217,81 @@ const CheckOutDetails = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    // Fields can be missing after an address is picked; never call .trim() on undefined.
-    const t = (v) => String(v ?? "").trim();
-
-    // Contact Info
-    if (!t(contactInfo.firstName)) {
-      newErrors.firstName = "First name is required.";
-    }
-
-    if (!t(contactInfo.lastName)) {
-      newErrors.lastName = "Last name is required.";
-    }
-
-    const phoneDigits = t(contactInfo.phone).replace(/\D/g, "");
-    if (!t(contactInfo.phone)) {
-      newErrors.phone = "Phone number is required.";
-    } else if (phoneDigits.length < 7 || phoneDigits.length > 15) {
-      newErrors.phone = "Enter a valid phone number, including area code.";
-    }
-
-    if (!t(contactInfo.email)) {
-      newErrors.email = "Email is required.";
-    } else if (!/^\S+@\S+\.\S+$/.test(t(contactInfo.email))) {
-      newErrors.email = "Invalid email format.";
-    }
-
-    // Shipping Address
-    if (!t(address.street)) {
-      newErrors.street = "Street address is required.";
-    }
-
-    if (!t(address.city)) {
-      newErrors.city = "City is required.";
-    }
-
-    if (!t(address.country)) {
-      newErrors.country = "Country is required.";
-    }
-
-    if (!t(address.state)) {
-      newErrors.state = "State is required.";
-    }
-
-    if (!t(address.zipCode)) {
-      newErrors.zipCode = "Zip Code is required.";
-    }
-
-    // Billing Address
-    if (isDifferentBilling) {
-      if (!t(address.billingStreetAddress)) {
-        newErrors.billingStreetAddress = "Billing street is required.";
-      }
-
-      if (!t(address.billingCity)) {
-        newErrors.billingCity = "Billing city is required.";
-      }
-
-      if (!t(address.billingState)) {
-        newErrors.billingState = "Billing state is required.";
-      }
-
-      if (!t(address.billingZipcode)) {
-        newErrors.billingZipcode = "Billing zip code is required.";
-      }
-    }
-
-    // Payment
-    if (!selectedPayment) {
-      newErrors.selectedPayment = "Select a payment method.";
-    }
-
-    return newErrors;
-  };
-
-  const handleContactChange = (e) => {
-    const { name, value } = e.target;
-
-    // special handling for phone
-    if (name === "phone") {
-      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
-
-      setContactInfo((prev) => ({
-        ...prev,
-        phone: digitsOnly,
-      }));
-    } else {
-      setContactInfo((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    // clear error for this field while typing
-    setErrors((prev) => {
-      if (!prev[name]) return prev;
-      const updated = { ...prev };
-      delete updated[name];
-      return updated;
-    });
-  };
-
-  // /api/address returns label, address_line1/2, city, state, pincode, country.
-  const addressOptions = [
-    ...fetchAddressesData.map((addr) => ({
-      label: [addr.label || "Saved address", [addr.address_line1, addr.city].filter(Boolean).join(", ")]
-        .filter(Boolean)
-        .join(" — "),
-      value: addr.id,
-    })),
-    { label: "+ Add New Address", value: "add_new" },
-  ];
-
-  // The Dropdown passes the whole option ({ label, value }). Only the
-  // shipping fields change; contact, country (unless the saved address has
-  // one) and billing details are kept.
-  const handleAddressSelect = (option) => {
-    const value = option && typeof option === "object" ? option.value : option;
-    const filled = ["street", "city", "state", "zipCode", "country"];
-
-    if (value === "add_new") {
-      setAddress((prev) => ({ ...prev, street: "", city: "", state: "", zipCode: "", addressType: "" }));
-      setTimeout(() => document.querySelector('input[name="street"]')?.focus(), 0);
-      return;
-    }
-
-    const selectedAddr = fetchAddressesData.find((addr) => addr.id === value);
-    if (!selectedAddr) return;
-    setAddress((prev) => ({
-      ...prev,
-      street: [selectedAddr.address_line1, selectedAddr.address_line2].filter(Boolean).join(", "),
-      city: selectedAddr.city || "",
-      state: selectedAddr.state || "",
-      zipCode: selectedAddr.pincode || "",
-      country: selectedAddr.country || prev.country,
-      addressType: selectedAddr.label || "",
-    }));
-    setErrors((prev) => {
-      const updated = { ...prev };
-      filled.forEach((f) => delete updated[f]);
-      return updated;
-    });
-  };
-
-  const handleAddressChange = (e) => {
-    const { name, value } = e.target;
-    setAddress((prev) => ({ ...prev, [name]: value }));
-
-    if (value.trim()) {
-      setErrors((prev) => {
-        if (!prev[name]) return prev;
-        const updated = { ...prev };
-        delete updated[name];
-        return updated;
-      });
-    }
-  };
+  const displayCurrency = selectedCountry?.currency || "USD";
+  const payAmountLabel =
+    chargeCurrency && chargeAmount != null
+      ? `${getCurrencySymbol(chargeCurrency)} ${chargeAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+      : `${getCurrencySymbol(displayCurrency)} ${convertPrice(summary?.grand_total ?? 0, selectedCountry).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
   return (
     <section className="flex lg:flex-row flex-col xl:gap-[64px] lg:gap-[50px]">
-      <div className="lg:w-[50%] lg:order-1 order-2 w-full space-y-[24px]">
-        {/* Contact Information */}
-        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
-          <div className="space-y-[24px]">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <Typography variant="h4" className="font-[500]">
-                Contact Information
-              </Typography>
-              {!customer && (
-                <Link
-                  href="/login?redirect=/cart/checkout"
-                  className="text-[13px] underline text-[var(--teal-1)]"
-                >
-                  Have an account? Sign in (optional)
-                </Link>
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-[24px]">
-              <div className="w-full">
-                <Input
-                  label="First Name *"
-                  placeholder="First Name"
-                  borderBottom
-                  containerClass="w-full"
-                  name="firstName"
-                  value={contactInfo.firstName}
-                  onChange={handleContactChange}
-                  hasError={!!errors.firstName}
-                />
-                {errors.firstName && (
-                  <p id="firstName-error" className="text-[var(--color-error)] text-sm mt-1">
-                    {errors.firstName}
-                  </p>
-                )}
-              </div>
-              <div className="w-full">
-                <Input
-                  label="Last Name *"
-                  placeholder="Last Name"
-                  borderBottom
-                  containerClass="w-full"
-                  name="lastName"
-                  value={contactInfo.lastName}
-                  onChange={handleContactChange}
-                  hasError={!!errors.lastName}
-                />
-                {errors.lastName && (
-                  <p id="lastName-error" className="text-[var(--color-error)] text-sm mt-1">{errors.lastName}</p>
-                )}
-              </div>
-            </div>
-            <Input
-              label="Phone Number *"
-              placeholder="Phone Number"
-              borderBottom
-              type="tel"
-              name="phone"
-              value={contactInfo.phone}
-              onChange={handleContactChange}
-              hasError={!!errors.phone}
-            />
-            {errors.phone && (
-              <p id="phone-error" className="text-[var(--color-error)] text-sm mt-1">{errors.phone}</p>
-            )}
-            <Input
-              label="Email address"
-              placeholder="Your Email"
-              borderBottom
-              type="email"
-              name="email"
-              value={contactInfo.email}
-              onChange={handleContactChange}
-              hasError={!!errors.email}
-            />
-            {errors.email && (
-              <p id="email-error" className="text-[var(--color-error)] text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-        </div>
+      <div className="lg:w-[50%] order-1 w-full space-y-[24px]">
+        {!customer && (
+          <Typography variant="p" className="text-[13px] text-[var(--grey-2)]">
+            Have an account?{" "}
+            <Link href="/login?redirect=/cart/checkout" className="underline text-[var(--teal-1)]">
+              Sign in
+            </Link>{" "}
+            to use your saved addresses.
+          </Typography>
+        )}
 
-        {/* Shipping Address */}
-        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
-          <div className="space-y-[24px]">
-            <Typography variant="h4" className="font-[500]">
-              Shipping Address
-            </Typography>
-            <div className="flex flex-col gap-1 w-full">
-              <span>Address Type</span>
-              <Dropdown
-                placeholder="Select Address Type"
-                borderBottom
-                options={addressOptions.map((addr) => ({
-                  label: addr.label,
-                  value: addr.value,
-                }))}
-                fullWidth
-                customWidth={"w-full"}
-                containerClass="flex-col"
-                name="addressType"
-                value={address.addressType}
-                onChange={handleAddressSelect}
-              />
-            </div>
-            {errors.addressType && (
-              <p id="addressType-error" className="text-[var(--color-error)] text-sm mt-1">{errors.addressType}</p>
-            )}{" "}
-            <Input
-              label="Street Address *"
-              placeholder="Street Address"
-              borderBottom
-              name="street"
-              value={address.street}
-              onChange={handleAddressChange}
-              hasError={!!errors.street}
-            />
-            {errors.street && (
-              <p id="street-error" className="text-[var(--color-error)] text-sm mt-1">{errors.street}</p>
-            )}
-            <Input
-              label="Country *"
-              placeholder="Country"
-              borderBottom
-              name="country"
-              value={address.country}
-              onChange={handleAddressChange}
-              hasError={!!errors.country}
-            />
-            {errors.country && (
-              <p id="country-error" className="text-[var(--color-error)] text-sm">{errors.country}</p>
-            )}
-            <Input
-              label="Town / City *"
-              placeholder="Town / City"
-              borderBottom
-              name="city"
-              value={address.city}
-              onChange={handleAddressChange}
-              hasError={!!errors.city}
-            />
-            {errors.city && (
-              <p id="city-error" className="text-[var(--color-error)] text-sm">{errors.city}</p>
-            )}
-            <div className="flex flex-col sm:flex-row gap-[24px]">
-              <div className="w-full">
-                <Input
-                  label="State *"
-                  placeholder="State"
-                  borderBottom
-                  containerClass="w-full"
-                  name="state"
-                  value={address.state}
-                  onChange={handleAddressChange}
-                  hasError={!!errors.state}
-                />
-                {errors.state && (
-                  <p id="state-error" className="text-[var(--color-error)] text-sm mt-1">{errors.state}</p>
-                )}
-              </div>
+        <DeliveryAddress
+          addresses={addresses}
+          selected={selectedAddress}
+          onSelect={setSelectedAddress}
+          onAdd={handleAddAddress}
+          isGuest={!customer}
+          guestEmail={guestEmail}
+          defaultCountry={selectedCountry?.label || "India"}
+          loading={!!customer && addressesLoading}
+        />
 
-              <div className="w-full">
-                <Input
-                  label="Zip Code *"
-                  placeholder="Zip Code"
-                  borderBottom
-                  containerClass="w-full"
-                  name="zipCode"
-                  value={address.zipCode}
-                  onChange={handleAddressChange}
-                  hasError={!!errors.zipCode}
-                />
-                {errors.zipCode && (
-                  <p id="zipCode-error" className="text-[var(--color-error)] text-sm mt-1">{errors.zipCode}</p>
-                )}
-              </div>
-            </div>
-            <Checkbox
-              name="default"
-              label="Use a different billing address (optional)"
-              checked={isDifferentBilling}
-              onChange={(e) => setIsDifferentBilling(e.target.checked)}
-              inputClass="w-5 h-5"
-            />
-            {isDifferentBilling && (
-              <>
-                {" "}
-                <Input
-                  label="Street Address *"
-                  placeholder="Street Address"
-                  borderBottom
-                  name="billingStreetAddress"
-                  value={address.billingStreetAddress}
-                  onChange={handleAddressChange}
-                  hasError={!!errors.billingStreetAddress}
-                />
-                {errors.billingStreetAddress && (
-                  <p id="billingStreetAddress-error" className="text-[var(--color-error)] text-sm mt-1">
-                    {errors.billingStreetAddress}
-                  </p>
-                )}
-                <Input
-                  label="Town / City *"
-                  placeholder="Town / City"
-                  borderBottom
-                  name="billingCity"
-                  value={address.billingCity}
-                  onChange={handleAddressChange}
-                  hasError={!!errors.billingCity}
-                />
-                {errors.billingCity && (
-                  <p id="billingCity-error" className="text-[var(--color-error)] text-sm mt-1">
-                    {errors.billingCity}
-                  </p>
-                )}
-                <div className="flex flex-col sm:flex-row gap-[24px]">
-                  <Input
-                    label="State"
-                    placeholder="State"
-                    borderBottom
-                    containerClass="w-full"
-                    name="billingState"
-                    value={address.billingState}
-                    onChange={handleAddressChange}
-                    hasError={!!errors.billingState}
-                  />
-                  {errors.billingState && (
-                    <p id="billingState-error" className="text-[var(--color-error)] text-sm mt-1">
-                      {errors.billingState}
-                    </p>
-                  )}
-                  <Input
-                    label="Zip Code"
-                    placeholder="Zip Code"
-                    borderBottom
-                    containerClass="w-full"
-                    name="billingZipcode"
-                    value={address.billingZipcode}
-                    onChange={handleAddressChange}
-                    hasError={!!errors.billingZipcode}
-                  />
-                  {errors.billingZipcode && (
-                    <p id="billingZipcode-error" className="text-[var(--color-error)] text-sm mt-1">
-                      {errors.billingZipcode}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Payment Methods */}
-        <div className="border border-[var(--teal-3)] py-[24px] lg:py-[40px] px-[16px] lg:px-[24px]">
-          <div className="space-y-[24px]">
-            <Typography variant="h4" className="font-[500]">
-              Payment method
-            </Typography>
-            <div className="space-y-[12px]">
-              <RadioButton
-                name="payment"
-                value="online"
-                checked={selectedPayment === "online"}
-                onChange={() => handlePaymentChange("online")}
-              >
-                <div className="flex justify-between w-full items-center">
-                  <span>
-                    Pay Online (Card / UPI / NetBanking)
-                    {chargeCurrency && chargeCurrency !== (selectedCountry?.currency || "USD") && (
-                      <span className="block text-[12.5px] text-[var(--grey-2)]">
-                        Charged in {chargeCurrency}
-                        {chargeAmount != null &&
-                          `: ${getCurrencySymbol(chargeCurrency)} ${chargeAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-                      </span>
-                    )}
-                  </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <rect x="2" y="4" width="20" height="16" rx="4" stroke="var(--color-text)" strokeWidth="1.5" />
-                    <circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 10 14)" stroke="var(--color-text)" strokeWidth="1.5" />
-                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 17 13)" fill="var(--color-text)" />
-                    <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 5 13)" fill="var(--color-text)" />
-                  </svg>
-                </div>
-              </RadioButton>
-
-              <RadioButton
-                name="payment"
-                value="cod"
-                checked={selectedPayment === "cod"}
-                onChange={() => handlePaymentChange("cod")}
-              >
-                <div className="flex justify-between w-full">
-                  <span>Cash On Delivery</span>
-                </div>
-              </RadioButton>
-            </div>
-
-            <div className="text-[12.5px] leading-relaxed text-[var(--grey-2)] space-y-1">
-              <p>
-                Prices are shown in {selectedCountry?.currency || "USD"}
-                {selectedCountry?.currency && selectedCountry.currency !== "USD"
-                  ? " (converted from USD at today's rate)"
+        {/* Payment: Cashfree only */}
+        <div className="border border-[var(--teal-3)] p-[16px] lg:p-[24px] space-y-[16px]">
+          <Typography variant="h4" className="font-[500]">
+            Payment
+          </Typography>
+          <div className="flex items-center justify-between gap-4 border border-[var(--teal-1)] bg-[var(--grey-00)] p-[14px]">
+            <div>
+              <div className="text-[14px] font-[600] text-[var(--teal-1)]">Pay online: Card / UPI / NetBanking</div>
+              <div className="text-[12.5px] text-[var(--grey-2)]">
+                Secure payment by Cashfree
+                {chargeCurrency && chargeCurrency !== displayCurrency && chargeAmount != null
+                  ? ` · charged in ${chargeCurrency} (${payAmountLabel}) at today's rate`
                   : ""}
-                . Online payments are charged in {chargeCurrency || selectedCountry?.currency || "USD"}
-                {chargeCurrency && chargeCurrency !== (selectedCountry?.currency || "USD") && chargeAmount != null
-                  ? ` (${getCurrencySymbol(chargeCurrency)} ${chargeAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} for this order, at today's rate)`
-                  : ""}
-                ; cash on delivery is collected in USD.
-              </p>
-              <p>
-                Import duties and taxes charged by the destination country are not included in this
-                total and are paid by the customer.{" "}
-                <Link href="/shipping" className="underline">Shipping &amp; duties</Link>
-              </p>
+              </div>
             </div>
-
-            <Button
-              title={placingOrder ? "Placing Order..." : "Place Order"}
-              className="!w-full"
-              onClick={handlePlaceOrder}
-              disabled={placingOrder}
-            >
-              {placingOrder && (
-                <svg
-                  className="animate-spin mr-2 h-5 w-5 text-white inline"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  ></path>
-                </svg>
-              )}
-              {placingOrder ? "Placing Order..." : "Place Order"}
-            </Button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="4" stroke="var(--color-text)" strokeWidth="1.5" />
+              <circle cx="2" cy="2" r="2" transform="matrix(1 0 0 -1 10 14)" stroke="var(--color-text)" strokeWidth="1.5" />
+              <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 17 13)" fill="var(--color-text)" />
+              <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 5 13)" fill="var(--color-text)" />
+            </svg>
           </div>
+
+          <Button
+            type="button"
+            variant="primary"
+            className="!w-full"
+            onClick={handlePlaceOrder}
+            disabled={placingOrder || !selectedAddress}
+            title={placingOrder ? "Opening secure payment…" : `Pay ${payAmountLabel}`}
+          />
+          {!selectedAddress && !addressesLoading && (
+            <p className="text-[12.5px] text-[var(--grey-2)]">Add a delivery address to continue to payment.</p>
+          )}
+
+          <p className="text-[12.5px] leading-relaxed text-[var(--grey-2)]">
+            Import duties and taxes charged by the destination country are not included in this total and are paid by
+            the customer.{" "}
+            <Link href="/shipping" className="underline">Shipping &amp; duties</Link>
+          </p>
         </div>
       </div>
 
       {/* Order Summary */}
-      <div className="lg:w-[50%] lg:order-2 order-1 w-full">
+      <div className="lg:w-[50%] order-2 w-full">
         <div className="lg:border-l lg:border-l-[var(--teal-3)] xl:pl-[64px] lg:pl-[24px] space-y-[24px] top-0 sticky">
           <Typography variant="h4" className="font-[500]">
             Order summary

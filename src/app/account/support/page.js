@@ -1,8 +1,5 @@
-import Support from "@/commomPages/Account/Support";
-import React from "react";
+import AccountSupport from "@/commomPages/Account/AccountSupport";
 
-const page = () => {
-  return <Support />;
-};
+const page = () => <AccountSupport />;
 
 export default page;

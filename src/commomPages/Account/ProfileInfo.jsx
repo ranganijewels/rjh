@@ -19,6 +19,7 @@ import { updateCustomer } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { Eye, EyeOff, Calendar } from "lucide-react";
+import { AccountPageTitle, Card } from "./ui";
 import DatePicker from "@/components/ui/DatePicker/DatePicker";
 
 const ProfileInfo = () => {
@@ -125,22 +126,6 @@ const ProfileInfo = () => {
   }, [fetchAll, dispatch]);
 
   // Action buttons for editing profile and changing password
-  const ActionButton = () => (
-    <div className="flex gap-[20px]">
-      <Button
-        title="Edit Profile"
-        className="h-[37px] items-center flex"
-        onClick={() => setIsEditProfileModal(true)}
-      />
-      <Button
-        title="Change Password"
-        className="h-[37px] items-center flex"
-        variant="outlineTeal"
-        onClick={() => setIsChangePassword(true)}
-      />
-    </div>
-  );
-
   // Validate password change
   const validatePasswordChange = () => {
     const newErrors = {};
@@ -250,59 +235,49 @@ const ProfileInfo = () => {
 
   return (
     <>
-      <div className="xl:mb-[50px] mb-[30px] flex justify-between items-center">
-        <p className="xl:text-[40px] text-[26px] font-[400] text-[var(--grey-2)]">
-          Profile
-        </p>
-        {!isMobile && <ActionButton />}
-      </div>
-      <div className="flex flex-col gap-[39px]">
-        <div>
-          <Typography variant="h5" className="mb-[11px]">
-            Name
-          </Typography>
+      <AccountPageTitle title="Profile & security" description="Your personal details and password." />
 
-          <p className="md:text-[24px] text-[18px] font-[500]">
-            {toTitleCase(customer?.first_name)}{" "}
-            {toTitleCase(customer?.last_name)}
-          </p>
-        </div>
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-[16px]">
+        <Card>
+          <div className="flex items-start justify-between gap-4 mb-[16px]">
+            <h2 className="text-[16px] font-[600] text-[var(--color-text)]">Personal details</h2>
+            <button
+              type="button"
+              onClick={() => setIsEditProfileModal(true)}
+              className="text-[13px] uppercase tracking-wide text-[var(--color-link)] underline underline-offset-4"
+            >
+              Edit
+            </button>
+          </div>
+          <dl className="grid grid-cols-1 gap-[14px] text-[14px]">
+            {[
+              ["Name", `${toTitleCase(customer?.first_name || "")} ${toTitleCase(customer?.last_name || "")}`.trim() || "—"],
+              ["Email", customer?.email || "—"],
+              ["Mobile number", customer?.phone_number || "Not provided"],
+              ["Date of birth", customer?.birth_date ? displayFormat(customer.birth_date) : "Not provided"],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-[12px] uppercase tracking-[0.08em] text-[var(--color-text-muted)]">{label}</dt>
+                <dd className="mt-[2px] text-[var(--color-text)] break-words">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
 
-        <div>
-          <Typography variant="h5" className="mb-[11px]">
-            Email
-          </Typography>
-
-          <p className="md:text-[24px] text-[18px] font-[500]">
-            {customer?.email}
-          </p>
-        </div>
-
-        <div>
-          {customer?.phone_number && (
-            <>
-              <Typography variant="h5" className="mb-[11px]">
-                Mobile Number
-              </Typography>
-              <p className="md:text-[24px] text-[18px] font-[500]">
-                {customer.phone_number}
-              </p>
-            </>
-          )}
-        </div>
-
-        <div>
-          <Typography variant="h5" className="mb-[11px]">
-            Date of Birth
-          </Typography>
-          <p className="md:text-[24px] text-[18px] font-[500]">
-            {customer?.birth_date
-              ? displayFormat(customer.birth_date)
-              : "Not provided"}
-          </p>
-        </div>
-
-        {isMobile && <ActionButton />}
+        <Card className="flex flex-col justify-between gap-[16px]">
+          <div>
+            <h2 className="text-[16px] font-[600] text-[var(--color-text)] mb-[8px]">Password</h2>
+            <p className="text-[14px] text-[var(--color-text-muted)]">
+              Use a password you don't use anywhere else. If you've forgotten it, you can reset it from the sign-in page.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-[12px] items-center">
+            <Button title="Change password" variant="outlineTeal" onClick={() => setIsChangePassword(true)} />
+            <Link href="/forgot-password" className="text-[13px] text-[var(--color-link)] underline underline-offset-4">
+              Forgot password?
+            </Link>
+          </div>
+        </Card>
       </div>
 
       <Modal
